@@ -3,6 +3,7 @@ package retry_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -346,5 +347,75 @@ func fastConfig() retry.Config {
 		InitialDelay: 1 * time.Millisecond,
 		MaxDelay:     5 * time.Millisecond,
 		Multiplier:   2.0,
+	}
+}
+
+func ExampleDo() {
+	cfg := retry.Config{
+		MaxAttempts:  5,
+		InitialDelay: 10 * time.Millisecond,
+		MaxDelay:     50 * time.Millisecond,
+		Multiplier:   2.0,
+	}
+
+	var attempt int
+	err := retry.Do(context.Background(), cfg, func(ctx context.Context, n int) error {
+		attempt = n
+		if n < 3 {
+			// A Transient error is retryable by the default predicate.
+			return errorfamily.NewTransient("example.transient", "service unavailable")
+		}
+
+		return nil
+	})
+
+	fmt.Println("attempt:", attempt)
+	fmt.Println("error:", err)
+	// Output:
+	// attempt: 3
+	// error: <nil>
+}
+
+func ExampleDo_customIsRetryable() {
+	sentinel := errors.New("service overloaded")
+
+	cfg := retry.DefaultConfig()
+	cfg.MaxAttempts = 4
+	cfg.InitialDelay = time.Millisecond
+	// Retry only our own sentinel; other errors (even Transient ones) are not retried.
+	cfg.IsRetryable = func(err error) bool {
+		return errors.Is(err, sentinel)
+	}
+
+	var attempt int
+	err := retry.Do(context.Background(), cfg, func(ctx context.Context, n int) error {
+		attempt = n
+		if n < 2 {
+			return sentinel
+		}
+
+		return nil
+	})
+
+	fmt.Println("attempt:", attempt)
+	fmt.Println("error:", err)
+	// Output:
+	// attempt: 2
+	// error: <nil>
+}
+
+func BenchmarkComputeDelay(b *testing.B) {
+	const (
+		initial    = 100 * time.Millisecond
+		maxDelay   = 5 * time.Second
+		multiplier = 2.0
+		attempt    = 5
+	)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for range b.N {
+		_ = retry.ComputeDelay(initial, maxDelay, multiplier, attempt)
 	}
 }
