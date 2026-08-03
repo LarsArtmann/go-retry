@@ -57,7 +57,7 @@ v1.0:
   Starlight + Firebase Hosting pattern (see the `website-launch` skill). A
   rendered docs site is plausible once the API is stable. Godoc examples now
   exist (`ExampleDo`, `ExampleDo_customIsRetryable` — see `CHANGELOG.md`
-  `[Unreleased]`); the remaining precondition is API stability (see v1.0 bar
+  `[0.1.0]`); the remaining precondition is API stability (see v1.0 bar
   above). Not before.
 - **Fuzzing.** `ComputeDelay` is pure numeric code taking caller-controlled
   inputs; a `go test -fuzz` target could harden the overflow / negative-delay

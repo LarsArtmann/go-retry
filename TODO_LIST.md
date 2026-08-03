@@ -8,7 +8,7 @@ questions that need a human decision live in `ROADMAP.md` → Open questions.
 Priority uses a simple Pareto ranking: **P1** = high impact, do first;
 **P2** = valuable but not blocking; **P3** = nice-to-have polish or blocked.
 
-_Recently completed (now in `CHANGELOG.md` `[Unreleased]`): README rewrite,
+_Recently completed (now in `CHANGELOG.md` `[0.1.0]`): README rewrite,
 `.golangci.yml`, godoc `Example*` functions, `BenchmarkComputeDelay`, coverage
 workflow in CONTRIBUTING, `docs/DOMAIN_LANGUAGE.md`, Keep-a-Changelog compare
 links._
@@ -22,7 +22,7 @@ links._
 Coverage is 100% by statement, and the core behavioral guarantees are now
 asserted (`OnRetry` is not called after the final attempt; a pre-canceled
 context yields `ErrCanceled`; `OnExhausted` receives the exact last error by
-identity — shipped, see `CHANGELOG.md` `[Unreleased]`). Two exploratory gaps
+identity — shipped, see `CHANGELOG.md` `[0.1.0]`). Two exploratory gaps
 remain (harvested from `docs/status/2026-08-03_21-21_*.md` §f.13-20):
 
 - **Concurrent `Do` invocations share no mutable state** — the global
