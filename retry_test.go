@@ -341,6 +341,72 @@ func TestDo_NilIsRetryableDefaultsToErrorFamily(t *testing.T) {
 	}
 }
 
+func TestDo_OnRetryNotCalledAfterFinalAttempt(t *testing.T) {
+	t.Parallel()
+
+	var retryCalls atomic.Int32
+	cfg := fastConfig()
+	cfg.OnRetry = func(attempt int, delay time.Duration, err error) {
+		retryCalls.Add(1)
+	}
+
+	transient := errorfamily.NewTransient("test.transient", "always fail")
+	_ = retry.Do(context.Background(), cfg, func(ctx context.Context, attempt int) error {
+		return transient
+	})
+
+	// 3 attempts, but OnRetry fires only *between* them (after 1 and 2), never
+	// after the final failure.
+	if got, want := retryCalls.Load(), int32(2); got != want {
+		t.Fatalf("expected %d OnRetry calls (MaxAttempts-1), got %d", want, got)
+	}
+}
+
+func TestDo_PreCanceledContextReturnsErrCanceled(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // canceled before Do starts
+
+	transient := errorfamily.NewTransient("test.transient", "fail")
+
+	var calls atomic.Int32
+	err := retry.Do(ctx, fastConfig(), func(ctx context.Context, attempt int) error {
+		calls.Add(1)
+
+		return transient
+	})
+
+	// The first attempt runs; the backoff select then sees ctx.Done() immediately.
+	if !errors.Is(err, retry.ErrCanceled) {
+		t.Fatalf("expected ErrCanceled with a pre-canceled context, got %v", err)
+	}
+	if got, want := calls.Load(), int32(1); got != want {
+		t.Fatalf("expected %d call (no real backoff after cancel), got %d", want, got)
+	}
+}
+
+func TestDo_OnExhaustedReceivesExactLastError(t *testing.T) {
+	t.Parallel()
+
+	transient := errorfamily.NewTransient("test.transient", "the last failure")
+	var received error
+	cfg := fastConfig()
+	cfg.OnExhausted = func(attempts int, err error) {
+		received = err
+	}
+
+	_ = retry.Do(context.Background(), cfg, func(ctx context.Context, attempt int) error {
+		return transient
+	})
+
+	// Identity, not just errors.Is: OnExhausted must receive the exact last error.
+	if received != transient {
+		t.Fatalf("expected OnExhausted to receive the exact last error %v, got %v",
+			transient, received)
+	}
+}
+
 func fastConfig() retry.Config {
 	return retry.Config{
 		MaxAttempts:  3,

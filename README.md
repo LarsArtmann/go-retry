@@ -68,12 +68,12 @@ succeeded on attempt 3
 | `MaxAttempts`  | `3`     | Total attempts **including the first call** (not retries on top).      |
 | `InitialDelay` | `100ms` | Delay before the second attempt.                                       |
 | `MaxDelay`     | `5s`    | Cap on the backoff delay.                                              |
-| `Multiplier`   | `2.0`   | Exponential backoff factor. Delay for attempt *n* is `Initial * Mult^(n-1)`. |
+| `Multiplier`   | `2.0`   | Exponential backoff factor. Delay for attempt _n_ is `Initial * Mult^(n-1)`. |
 | `IsRetryable`  | `errorfamily.IsRetryable` | Decides whether an error triggers a retry. Set `nil` for the default. |
 | `OnRetry`      | `nil`   | Called after each failed attempt, before sleeping.                     |
 | `OnExhausted`  | `nil`   | Called once after all attempts have failed.                            |
 
-Delay for attempt *n* is `InitialDelay * Multiplier^(n-1)`, capped at
+Delay for attempt _n_ is `InitialDelay * Multiplier^(n-1)`, capped at
 `MaxDelay`, plus random jitter of up to 50% of the capped delay. Use the
 exported `Backoff(config, attempt)` or `ComputeDelay(...)` to preview the planned
 delay without running the loop.

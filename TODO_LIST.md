@@ -1,85 +1,71 @@
 # TODO List
 
-Short-term, **actionable** work for `go-retry`. Each item is bounded and cites
-its evidence. This file lists open work only — completed items move to
-`CHANGELOG.md`, long-term/unbounded ideas live in `ROADMAP.md`.
+Short-term, **actionable** open work for `go-retry`. Each item is bounded and
+cites its evidence. This file lists open work only — completed items move to
+`CHANGELOG.md` (`[Unreleased]`); long-term/unbounded ideas live in `ROADMAP.md`;
+questions that need a human decision live in `ROADMAP.md` → Open questions.
 
 Priority uses a simple Pareto ranking: **P1** = high impact, do first;
-**P2** = valuable but not blocking; **P3** = nice-to-have polish.
+**P2** = valuable but not blocking; **P3** = nice-to-have polish or blocked.
+
+_Recently completed (now in `CHANGELOG.md` `[Unreleased]`): README rewrite,
+`.golangci.yml`, godoc `Example*` functions, `BenchmarkComputeDelay`, coverage
+workflow in CONTRIBUTING, `docs/DOMAIN_LANGUAGE.md`._
 
 ---
 
-## P1 — Correctness of public-facing docs
+## P1 — Correctness hardening
 
-### T1. Rewrite `README.md` into an accurate package description
+### T1. Close remaining behavioral-guarantee gaps in the test suite
 
-The current README is a generic project template that actively misleads:
+Coverage is 100% by statement, and the core behavioral guarantees are now
+asserted (`OnRetry` is not called after the final attempt; a pre-canceled
+context yields `ErrCanceled`; `OnExhausted` receives the exact last error by
+identity — shipped, see `CHANGELOG.md` `[Unreleased]`). Two exploratory gaps
+remain (harvested from `docs/status/2026-08-03_21-21_*.md` §f.13-20):
 
-- Title is literally `# .` and description is "A Go project."
-  (`README.md:1-5`).
-- Install command is fake: `go get github.com/username/.`
-  (`README.md:9-11`) — the real module path is `github.com/larsartmann/go-retry`
-  (`go.mod:1`), and **no git remote exists yet** (`git remote -v` is empty).
-- "Development" section references `just build` / `just test` / `just lint`
-  (`README.md:29-38`) but there is **no `justfile`, `flake.nix`, or `Makefile`**
-  in the repo. The real commands are `go test ./... -race` and
-  `golangci-lint run ./...` (also documented in `AGENTS.md` → Commands).
+- **Concurrent `Do` invocations share no mutable state** — the global
+  `math/rand/v2` is safe, but prove it with a parallel stress test.
+- **Fuzz `ComputeDelay`** for numeric edges (huge `attempt`/`multiplier`
+  overflow, negative-ish durations, `Multiplier` just above 1) — currently only
+  spot-checked (`retry.go:114`).
 
-**Fix:** describe what the package is (dependency-light retry loop with
-exponential backoff + jitter; the no-CQRS/no-OTel core), the v0.1.0 API surface
-(`Do`, `Config`, `Backoff`), a minimal usage example, and the real install/
-dev commands. If no remote will exist soon, drop the `go get` line rather than
-ship a broken one.
 
-### T2. Resolve the `CONTRIBUTING.md` lint-config gap
+### T2. Verify the `hierarchical-errors` migration applies (or close it)
 
-`CONTRIBUTING.md:16-17` instructs contributors to run
-`golangci-lint run ./...`, but **no `.golangci.yml` is committed**, so the
-behavior contributors get is whatever their local defaults are — which may flag
-or miss things inconsistently. Pick one: (a) commit a minimal `.golangci.yml`
-that pins the linters the project cares about (and reconciles with the
-intentional `//nolint:exhaustruct`, `//nolint:mnd,gosec` directives already in
-`config.go:50` and `retry.go:121`), or (b) document explicitly that the project
-runs golangci-lint with defaults and that the in-source `//nolint:` markers are
-deliberate.
+Go 1.26+ offers generic `errors.AsType[T]`. `go-retry` itself uses only
+`errors.Is` (not `errors.As`), so this is likely a **no-op here** — but its
+dependency `go-error-family` may use `errors.As`. Confirm there is nothing to
+migrate in this package and close the item, or note the finding against
+`go-error-family`. (See the `hierarchical-errors` skill.)
 
-## P2 — Usability & developer experience
+## P2 — Polish
 
-### T3. Add godoc-displayable `Example` functions
+### T3. Cross-link `Backoff` and `ComputeDelay` doc comments
 
-There is no `ExampleDo` (or similar) in `retry_test.go` — `grep -nE 'func
-(Example|Benchmark)' retry_test.go` returns nothing. For a public library,
-`Example*` functions render in `pkg.go.dev` and give users a copy-pasteable
-entry point. Add at least one `ExampleDo` (success path) and one showing a
-custom `IsRetryable`.
+Each refers to the same formula; add a one-line "See [ComputeDelay] for the
+raw-parameter variant" / "See [Backoff] for the Config-based variant" so godoc
+readers find both (`retry.go:97`, `retry.go:108`).
 
-### T4. Add a benchmark for the backoff path
+### T4. Add a `SECURITY.md`
 
-`Backoff` and `ComputeDelay` (`retry.go:104`, `retry.go:114`) are hot paths for
-callers, yet there is no `Benchmark*` in `retry_test.go`. Add
-`BenchmarkComputeDelay` so jitter allocation cost is visible. This also gives a
-concrete number to cite if/when the jitter implementation is revisited (see
-`ROADMAP.md` → "Deterministic RNG option").
+The `LICENSE` is proprietary with a reporting contact (`git@lars.software`),
+but a dedicated `SECURITY.md` is the conventional place for vulnerability
+reporting policy. Low effort.
 
-### T5. Document the coverage workflow
+## P3 — Blocked on a git remote (see ROADMAP → Open questions)
 
-`reports/coverage.out` exists (100% statement coverage today) but the
-`reports/` directory is gitignored (`.gitignore:43`). Nothing tells a
-contributor how to regenerate it. Add a one-liner to `CONTRIBUTING.md`:
-`go test ./... -race -coverprofile=reports/coverage.out && go tool cover
--func=reports/coverage.out`.
+These are not actionable until a remote is published (the module path
+`github.com/larsartmann/go-retry` and a signed `v0.1.0` tag imply "will be
+published", but `git remote -v` is empty — see `ROADMAP.md` → Open questions).
 
-## P3 — Release hygiene
+### T5. Minimal CI
 
-### T6. Decide on CI
+No `.github/workflows/` exists. Once a remote exists, add a workflow running
+`go test ./... -race` and `golangci-lint run ./...` on push/PR.
 
-There is no `.github/workflows/` directory and no remote, so nothing runs tests
-on push. Once a remote exists (see T1), add a minimal workflow running
-`go test ./... -race` and `golangci-lint run ./...` on push/PR. Not actionable
-until a remote is published, hence P3 rather than P2.
+### T6. Keep-a-Changelog compare links
 
-### T7. Add version-compare links to `CHANGELOG.md` once a remote exists
-
-`CHANGELOG.md` currently has no `[Unreleased]`/version compare links (correct:
-there is no remote URL pattern to build them from — see `CHANGELOG.md` note).
-When a remote is published, add the standard `keepachangelog` footer links.
+`CHANGELOG.md` intentionally omits `[Unreleased]`/version compare links today
+(there is no remote URL to build them from — see the note in `CHANGELOG.md`).
+Add the standard footer links when a remote is published.

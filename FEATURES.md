@@ -61,6 +61,19 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   `retry.invalid_max_attempts`, `retry.invalid_initial_delay`,
   `retry.invalid_multiplier`. `retry.go:16,22`; `config.go:63,69,76`.
 
+### Documentation & developer experience
+
+- **Runnable godoc examples** — `ExampleDo` (success path) and
+  `ExampleDo_customIsRetryable` (custom predicate) are deterministic, carry
+  `// Output:` comments, and render on `pkg.go.dev`. `retry_test.go`.
+- **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
+  (~18 ns/op, 0 allocations; the jitter path allocates nothing). `retry_test.go`.
+- **Committed lint config** — `.golangci.yml` (v2) enables the default linters
+  plus `gosec`, `mnd`, `exhaustruct`; the in-source `//nolint:` markers are
+  verified live. `.golangci.yml`.
+- **Domain glossary** — `docs/DOMAIN_LANGUAGE.md` defines the retry and
+  `error-family` vocabulary and the `retry.<event>` code table.
+
 ## PARTIALLY_FUNCTIONAL
 
 _None._

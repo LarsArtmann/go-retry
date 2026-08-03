@@ -55,8 +55,10 @@ v1.0:
   majors.
 - **Public documentation site.** Other LarsArtmann libraries use the Astro +
   Starlight + Firebase Hosting pattern (see the `website-launch` skill). A
-  rendered docs site is plausible once the API is stable and examples exist
-  (see `TODO_LIST.md` T3). Not before.
+  rendered docs site is plausible once the API is stable. Godoc examples now
+  exist (`ExampleDo`, `ExampleDo_customIsRetryable` — see `CHANGELOG.md`
+  `[Unreleased]`); the remaining precondition is API stability (see v1.0 bar
+  above). Not before.
 - **Fuzzing.** `ComputeDelay` is pure numeric code taking caller-controlled
   inputs; a `go test -fuzz` target could harden the overflow / negative-delay
   edges that the current table tests sample only spot-check. Candidate once the
@@ -69,3 +71,25 @@ v1.0:
   the integration seam).
 - **No built-in HTTP/database retry helpers.** This is a primitive, not a
   batteries-included toolkit; callers bring their own `AttemptFunc`.
+
+## Open questions
+
+Unresolved decisions that need a human (they are _not_ TODO tasks). They block
+parts of the docs/release flow, so they live here rather than rotting in a
+status report.
+
+- **Is a public git remote intended?** The module path
+  `github.com/larsartmann/go-retry`, a _signed_ `v0.1.0` tag, and a SemVer
+  CHANGELOG all imply "will be published", but `git remote -v` is empty. This
+  blocks correct install/compare-link docs and the CI + changelog-link tasks
+  (`TODO_LIST.md` → T5/T6). If internal-only, the README/CHANGELOG framing
+  changes.
+- **Is the proprietary `LICENSE` intentional, or should this be open-sourced?**
+  "Proprietary — All rights reserved" directly contradicts a public importable
+  Go module path. The license governs whether `go get` should be documented at
+  all. Do not change `LICENSE` without an explicit decision.
+- **Does this repo deliberately skip the LarsArtmann `flake.nix` convention?**
+  The global `AGENTS.md` mandates `flake.nix` for build/task automation, yet this
+  repo uses raw `go test` / `golangci-lint` (and `AGENTS.md` documents that as
+  intentional). Confirm raw-Go-commands is the deliberate choice for this small
+  library, or whether a `flake.nix` should be added.

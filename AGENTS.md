@@ -17,14 +17,13 @@ import this package to avoid pulling in those deps. See `doc.go`.
 
 ## Commands
 
-No `flake.nix`, `Makefile`, or `justfile` exists in this repo (the README's
-`just build/test/lint` references are **stale placeholder content** — do not
-trust them). Use raw Go commands:
+No `flake.nix`, `Makefile`, or `justfile` exists in this repo — `go` and
+`golangci-lint` are the only tools. Use raw Go commands:
 
 ```bash
-go test ./... -race        # tests (always with -race; backoff uses math/rand/v2)
+go test ./... -race             # tests (always with -race; backoff uses math/rand/v2)
 go test ./... -race -count=10   # flake-prone jitter/backoff tests
-golangci-lint run ./...    # lint (no .golangci.yml committed; uses defaults)
+golangci-lint run ./...         # lint (committed .golangci.yml enables gosec/mnd/exhaustruct + defaults)
 go vet ./...
 ```
 
@@ -90,9 +89,11 @@ Error codes follow a `retry.<snake_case_event>` convention
 retry.ErrCanceled)` to detect it.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
-- **`//nolint:` directives are deliberate**, not leftover: `exhaustruct` on
-  `DefaultConfig` (optional callbacks omitted), `mnd,gosec` on the jitter divisor
-  (weak rand is intentional and safe here). Preserve them when editing.
+- **`//nolint:` directives are deliberate**, not leftover, and the referenced
+  linters are now enabled in `.golangci.yml`: `exhaustruct` on `DefaultConfig`
+  (optional callbacks omitted), `mnd,gosec` on the jitter divisor (weak rand is
+  intentional and safe here). Removing either marker produces a real finding.
+  Preserve them when editing.
 - **Go files use tabs** (`.editorconfig`); YAML/JSON/Nix use 2 spaces.
 
 ## Testing Patterns
