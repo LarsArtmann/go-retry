@@ -10,7 +10,8 @@ Priority uses a simple Pareto ranking: **P1** = high impact, do first;
 
 _Recently completed (now in `CHANGELOG.md` `[Unreleased]`): README rewrite,
 `.golangci.yml`, godoc `Example*` functions, `BenchmarkComputeDelay`, coverage
-workflow in CONTRIBUTING, `docs/DOMAIN_LANGUAGE.md`._
+workflow in CONTRIBUTING, `docs/DOMAIN_LANGUAGE.md`, Keep-a-Changelog compare
+links._
 
 ---
 
@@ -51,19 +52,11 @@ readers find both (`retry.go:97`, `retry.go:108`).
 The `LICENSE` is MIT; a dedicated `SECURITY.md` is the conventional place for
 vulnerability reporting policy. Low effort.
 
-## P3 — Blocked on a git remote (see ROADMAP → Open questions)
+## P2 — Infrastructure
 
-These are not actionable until a remote is published (the module path
-`github.com/larsartmann/go-retry` and a signed `v0.1.0` tag imply "will be
-published", but `git remote -v` is empty — see `ROADMAP.md` → Open questions).
+The public remote is live at <https://github.com/LarsArtmann/go-retry>.
 
 ### T5. Minimal CI
 
-No `.github/workflows/` exists. Once a remote exists, add a workflow running
+No `.github/workflows/` exists. Add a workflow running
 `go test ./... -race` and `golangci-lint run ./...` on push/PR.
-
-### T6. Keep-a-Changelog compare links
-
-`CHANGELOG.md` intentionally omits `[Unreleased]`/version compare links today
-(there is no remote URL to build them from — see the note in `CHANGELOG.md`).
-Add the standard footer links when a remote is published.

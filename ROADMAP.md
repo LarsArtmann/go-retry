@@ -78,11 +78,6 @@ Unresolved decisions that need a human (they are _not_ TODO tasks). They block
 parts of the docs/release flow, so they live here rather than rotting in a
 status report.
 
-- **Is a public git remote intended?** The module path
-  `github.com/larsartmann/go-retry`, a _signed_ `v0.1.0` tag, and a SemVer
-  CHANGELOG all imply "will be published", but `git remote -v` is empty. This
-  blocks the CI + changelog-link tasks (`TODO_LIST.md` → T5/T6). If internal-
-  only, the README/CHANGELOG framing changes.
 - **Does this repo deliberately skip the LarsArtmann `flake.nix` convention?**
   The global `AGENTS.md` mandates `flake.nix` for build/task automation, yet this
   repo uses raw `go test` / `golangci-lint` (and `AGENTS.md` documents that as

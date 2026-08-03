@@ -5,11 +5,6 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> **Note on links:** this repo currently has no git remote, so the usual
-> `[Unreleased]`/version compare links at the bottom of a Keep-a-Changelog file
-> are intentionally omitted. They will be added when a remote is published
-> (tracked in `TODO_LIST.md` → T6). There is nothing to link to today.
-
 ## [Unreleased]
 
 ### Added
@@ -37,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `TODO_LIST.md` — short-term, actionable open work (see current contents).
 - `ROADMAP.md` — long-term direction and raw ideas (v1.0 bar, options-based
   config, non-goals).
+- **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
+  links now resolve against the public GitHub remote. `CHANGELOG.md`.
 
 ### Changed
 
@@ -58,9 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2026-08-03
 
-The initial release. Tagged at commit `eae60c5`
-("feat(retry): implement core retry package with configurable backoff
-strategies") as a signed annotated tag.
+Initial public release. Signed annotated tag `v0.1.0`.
 
 ### Added
 
@@ -88,7 +83,10 @@ strategies") as a signed annotated tag.
   table-driven validation tests, 100% statement coverage.
   `retry_test.go`.
 - **Repository scaffolding** — `doc.go` (documents the no-CQRS/no-OTel
-  boundary), `.editorconfig`, `.gitattributes`, `.gitignore`, `LICENSE`
-  (proprietary), `README.md`, `CONTRIBUTING.md`, `go.mod`
+  boundary), `.editorconfig`, `.gitattributes`, `.gitignore`, `LICENSE` (MIT),
+  `README.md`, `CONTRIBUTING.md`, `go.mod`
   (`github.com/larsartmann/go-retry`, Go 1.26.5, depends on
   `github.com/larsartmann/go-error-family v0.10.0`).
+
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/LarsArtmann/go-retry/releases/tag/v0.1.0
