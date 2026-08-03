@@ -1,0 +1,26 @@
+# golangci-lint v2 configuration.
+# Enable the linters the in-source //nolint: markers already reference so those
+# directives are meaningful (see retry.go:121 //nolint:mnd,gosec and
+# config.go:50 //nolint:exhaustruct), plus the default set. Opinionated linters
+# (mnd, exhaustruct) are excluded from _test.go where partial structs and bare
+# scalars are legitimate.
+
+version: "2"
+
+run:
+  go: "1.26"
+  timeout: "3m"
+
+linters:
+  default: standard
+  enable:
+    - gosec # security (weak-rand G404 on retry.go:121 is intentionally nolinted)
+    - mnd # magic numbers (the jitter divisor on retry.go:121 is nolinted)
+    - exhaustruct # config.go:50 DefaultConfig omits optional callbacks by design
+  exclusions:
+    rules:
+      # Tests legitimately use partial structs and literal magic numbers.
+      - path: _test\.go
+        linters:
+          - mnd
+          - exhaustruct
