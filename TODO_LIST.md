@@ -39,24 +39,24 @@ dependency `go-error-family` may use `errors.As`. Confirm there is nothing to
 migrate in this package and close the item, or note the finding against
 `go-error-family`. (See the `hierarchical-errors` skill.)
 
-## P2 — Polish
+## P2 — Infrastructure
 
-### T3. Cross-link `Backoff` and `ComputeDelay` doc comments
+The public remote is live at <https://github.com/LarsArtmann/go-retry>.
+
+### T3. Minimal CI
+
+No `.github/workflows/` exists. Add a workflow running
+`go test ./... -race` and `golangci-lint run ./...` on push/PR.
+
+## P3 — Polish
+
+### T4. Cross-link `Backoff` and `ComputeDelay` doc comments
 
 Each refers to the same formula; add a one-line "See [ComputeDelay] for the
 raw-parameter variant" / "See [Backoff] for the Config-based variant" so godoc
 readers find both (`retry.go:97`, `retry.go:108`).
 
-### T4. Add a `SECURITY.md`
+### T5. Add a `SECURITY.md`
 
 The `LICENSE` is MIT; a dedicated `SECURITY.md` is the conventional place for
 vulnerability reporting policy. Low effort.
-
-## P2 — Infrastructure
-
-The public remote is live at <https://github.com/LarsArtmann/go-retry>.
-
-### T5. Minimal CI
-
-No `.github/workflows/` exists. Add a workflow running
-`go test ./... -race` and `golangci-lint run ./...` on push/PR.
