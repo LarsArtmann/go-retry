@@ -35,12 +35,12 @@ go vet ./...
 
 Flat single-package layout — no internal subpackages:
 
-| File          | Responsibility                                                          |
-| ------------- | ----------------------------------------------------------------------- |
-| `retry.go`    | `Do` (loop), `Backoff`, `ComputeDelay`, sentinel errors `ErrExhausted` / `ErrCanceled` |
-| `config.go`   | `Config` struct, `DefaultConfig()`, `Validate()`                        |
-| `doc.go`      | Package doc stating the no-CQRS/no-OTel boundary                        |
-| `retry_test.go` | External test package (`retry_test`)                                  |
+| File            | Responsibility                                                                         |
+| --------------- | -------------------------------------------------------------------------------------- |
+| `retry.go`      | `Do` (loop), `Backoff`, `ComputeDelay`, sentinel errors `ErrExhausted` / `ErrCanceled` |
+| `config.go`     | `Config` struct, `DefaultConfig()`, `Validate()`                                       |
+| `doc.go`        | Package doc stating the no-CQRS/no-OTel boundary                                       |
+| `retry_test.go` | External test package (`retry_test`)                                                   |
 
 **Control flow of `Do`**: validate config → loop `attempt` from 1 to
 `MaxAttempts` → call `fn(ctx, attempt)` → on `nil` return immediately → if not
@@ -76,7 +76,7 @@ Error codes follow a `retry.<snake_case_event>` convention
   `errorfamily.IsRetryable` — do not assume a bare nil check means "retry
   nothing". `DefaultConfig()` pre-populates it with the same function.
 - **Jitter is additive, not symmetric.** `ComputeDelay` adds `rand.Int64N(delay/2)`
-  *on top of* the computed delay, so the actual wait is in `[base, base * 1.5]`,
+  _on top of_ the computed delay, so the actual wait is in `[base, base * 1.5]`,
   not centered on `base`. Tests that compare two sampled delays can be flaky;
   the existing exponential-growth test verifies the **formula**, not sampled
   values, for this reason. Follow that pattern.
@@ -85,9 +85,9 @@ Error codes follow a `retry.<snake_case_event>` convention
 - **`OnRetry` fires before the sleep**, after a failed attempt but only when more
   attempts remain. `OnExhausted` fires once after the final failure. Neither is
   called on success.
-- **Cancellation during backoff returns `ErrCanceled`** wrapping the *last fn
-  error* as cause — not `context.Canceled` directly. Use `errors.Is(err,
-  retry.ErrCanceled)` to detect it.
+- **Cancellation during backoff returns `ErrCanceled`** wrapping the _last fn
+  error_ as cause — not `context.Canceled` directly. Use `errors.Is(err,
+retry.ErrCanceled)` to detect it.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
 - **`//nolint:` directives are deliberate**, not leftover: `exhaustruct` on

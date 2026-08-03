@@ -81,7 +81,7 @@ graduation into `TODO_LIST.md` once scoped.
 
 - **Configurable jitter factor** — jitter is currently hardcoded to "up to 50%
   of the delay" (`retry.go:121`). A `Config.JitterFactor` (or `Jitter: none |
-  additive | full`) would let callers disable jitter for deterministic tests or
+additive | full`) would let callers disable jitter for deterministic tests or
   tune spread. Tradeoff: another `Config` field to validate.
 - **Deterministic RNG option** — `ComputeDelay` uses `math/rand/v2` globally
   (`retry.go:6`); a pluggable `rand` source would make delay sequences
