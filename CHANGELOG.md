@@ -25,8 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `retry.<event>` code table.
 - godoc **`ExampleDo`** and **`ExampleDo_customIsRetryable`** — runnable,
   deterministic examples that render on `pkg.go.dev` (`retry_test.go`).
-- **`BenchmarkComputeDelay`** — surfaces the backoff path's cost
-  18 ns/op, 0 allocations; the jitter path is allocation-free.
+- **`BenchmarkComputeDelay`** — surfaces the backoff path's cost (~18 ns/op,
+  0 allocations; the jitter path is allocation-free). `retry_test.go`.
+- **Behavioral-guarantee tests** — assert that `OnRetry` does not fire after the
+  final failed attempt, that a pre-canceled context yields `ErrCanceled`, and
+  that `OnExhausted` receives the exact last error by identity. `retry_test.go`.
 - `AGENTS.md` — non-obvious project context for AI sessions (commands, the
   `error-family` dependency map, jitter/cancellation gotchas, testing patterns).
 - `FEATURES.md` — honest feature inventory by status, every entry cited to

@@ -30,7 +30,6 @@ remain (harvested from `docs/status/2026-08-03_21-21_*.md` §f.13-20):
   overflow, negative-ish durations, `Multiplier` just above 1) — currently only
   spot-checked (`retry.go:114`).
 
-
 ### T2. Verify the `hierarchical-errors` migration applies (or close it)
 
 Go 1.26+ offers generic `errors.AsType[T]`. `go-retry` itself uses only

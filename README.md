@@ -63,15 +63,15 @@ succeeded on attempt 3
 
 `retry.DefaultConfig()` returns sensible defaults; override only what you need.
 
-| Field          | Default | Description                                                            |
-| -------------- | ------- | ---------------------------------------------------------------------- |
-| `MaxAttempts`  | `3`     | Total attempts **including the first call** (not retries on top).      |
-| `InitialDelay` | `100ms` | Delay before the second attempt.                                       |
-| `MaxDelay`     | `5s`    | Cap on the backoff delay.                                              |
-| `Multiplier`   | `2.0`   | Exponential backoff factor. Delay for attempt _n_ is `Initial * Mult^(n-1)`. |
-| `IsRetryable`  | `errorfamily.IsRetryable` | Decides whether an error triggers a retry. Set `nil` for the default. |
-| `OnRetry`      | `nil`   | Called after each failed attempt, before sleeping.                     |
-| `OnExhausted`  | `nil`   | Called once after all attempts have failed.                            |
+| Field          | Default                   | Description                                                                  |
+| -------------- | ------------------------- | ---------------------------------------------------------------------------- |
+| `MaxAttempts`  | `3`                       | Total attempts **including the first call** (not retries on top).            |
+| `InitialDelay` | `100ms`                   | Delay before the second attempt.                                             |
+| `MaxDelay`     | `5s`                      | Cap on the backoff delay.                                                    |
+| `Multiplier`   | `2.0`                     | Exponential backoff factor. Delay for attempt _n_ is `Initial * Mult^(n-1)`. |
+| `IsRetryable`  | `errorfamily.IsRetryable` | Decides whether an error triggers a retry. Set `nil` for the default.        |
+| `OnRetry`      | `nil`                     | Called after each failed attempt, before sleeping.                           |
+| `OnExhausted`  | `nil`                     | Called once after all attempts have failed.                                  |
 
 Delay for attempt _n_ is `InitialDelay * Multiplier^(n-1)`, capped at
 `MaxDelay`, plus random jitter of up to 50% of the capped delay. Use the
@@ -101,10 +101,10 @@ cfg.OnExhausted = func(attempts int, err error) {
 during backoff it returns an `error-family` `Infrastructure` error wrapping a
 stable sentinel, with the last operation error chained as its cause:
 
-| Situation                     | Sentinel         | Code              |
-| ----------------------------- | ---------------- | ----------------- |
-| All attempts failed           | `retry.ErrExhausted` | `retry.exhausted` |
-| Context canceled during backoff | `retry.ErrCanceled` | `retry.canceled`  |
+| Situation                       | Sentinel             | Code              |
+| ------------------------------- | -------------------- | ----------------- |
+| All attempts failed             | `retry.ErrExhausted` | `retry.exhausted` |
+| Context canceled during backoff | `retry.ErrCanceled`  | `retry.canceled`  |
 
 Detect them with `errors.Is`:
 

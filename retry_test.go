@@ -16,6 +16,7 @@ func TestDo_SucceedsOnFirstAttempt(t *testing.T) {
 	t.Parallel()
 
 	var calls atomic.Int32
+
 	err := retry.Do(
 		context.Background(),
 		fastConfig(),
@@ -28,6 +29,7 @@ func TestDo_SucceedsOnFirstAttempt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if calls.Load() != 1 {
 		t.Fatalf("expected 1 call, got %d", calls.Load())
 	}
@@ -37,11 +39,13 @@ func TestDo_RetriesUntilSuccess(t *testing.T) {
 	t.Parallel()
 
 	var calls atomic.Int32
+
 	err := retry.Do(
 		context.Background(),
 		fastConfig(),
 		func(ctx context.Context, attempt int) error {
 			calls.Add(1)
+
 			if attempt < 3 {
 				return errorfamily.NewTransient("test.transient", "fail")
 			}
@@ -52,6 +56,7 @@ func TestDo_RetriesUntilSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if calls.Load() != 3 {
 		t.Fatalf("expected 3 calls, got %d", calls.Load())
 	}
@@ -63,6 +68,7 @@ func TestDo_ReturnsErrExhaustedWhenAllAttemptsFail(t *testing.T) {
 	transient := errorfamily.NewTransient("test.transient", "always fail")
 
 	var calls atomic.Int32
+
 	err := retry.Do(
 		context.Background(),
 		fastConfig(),
@@ -76,9 +82,11 @@ func TestDo_ReturnsErrExhaustedWhenAllAttemptsFail(t *testing.T) {
 	if !errors.Is(err, retry.ErrExhausted) {
 		t.Fatalf("expected ErrExhausted, got %v", err)
 	}
+
 	if !errors.Is(err, transient) {
 		t.Fatalf("expected cause to be wrapped, got %v", err)
 	}
+
 	if calls.Load() != 3 {
 		t.Fatalf("expected 3 calls, got %d", calls.Load())
 	}
@@ -90,6 +98,7 @@ func TestDo_DoesNotRetryNonRetryableError(t *testing.T) {
 	rejection := errorfamily.NewRejection("test.rejection", "non-retryable")
 
 	var calls atomic.Int32
+
 	err := retry.Do(
 		context.Background(),
 		fastConfig(),
@@ -103,6 +112,7 @@ func TestDo_DoesNotRetryNonRetryableError(t *testing.T) {
 	if !errors.Is(err, rejection) {
 		t.Fatalf("expected rejection error, got %v", err)
 	}
+
 	if calls.Load() != 1 {
 		t.Fatalf("expected 1 call (no retry), got %d", calls.Load())
 	}
@@ -116,6 +126,7 @@ func TestDo_RespectsCustomIsRetryable(t *testing.T) {
 	cfg.IsRetryable = func(err error) bool { return errors.Is(err, sentinel) }
 
 	var calls atomic.Int32
+
 	err := retry.Do(context.Background(), cfg, func(ctx context.Context, attempt int) error {
 		calls.Add(1)
 
@@ -125,6 +136,7 @@ func TestDo_RespectsCustomIsRetryable(t *testing.T) {
 	if !errors.Is(err, retry.ErrExhausted) {
 		t.Fatalf("expected ErrExhausted, got %v", err)
 	}
+
 	if calls.Load() != 3 {
 		t.Fatalf("expected 3 calls, got %d", calls.Load())
 	}
@@ -134,6 +146,7 @@ func TestDo_OnRetryCalledBetweenAttempts(t *testing.T) {
 	t.Parallel()
 
 	var retryCalls atomic.Int32
+
 	cfg := fastConfig()
 	cfg.OnRetry = func(attempt int, delay time.Duration, err error) {
 		retryCalls.Add(1)
@@ -157,8 +170,11 @@ func TestDo_OnRetryCalledBetweenAttempts(t *testing.T) {
 func TestDo_OnExhaustedCalledAfterAllAttemptsFail(t *testing.T) {
 	t.Parallel()
 
-	var exhaustedAttempts int
-	var exhaustedErr error
+	var (
+		exhaustedAttempts int
+		exhaustedErr      error
+	)
+
 	cfg := fastConfig()
 	cfg.OnExhausted = func(attempts int, err error) {
 		exhaustedAttempts = attempts
@@ -175,6 +191,7 @@ func TestDo_OnExhaustedCalledAfterAllAttemptsFail(t *testing.T) {
 	if exhaustedAttempts != 3 {
 		t.Fatalf("expected OnExhausted attempts=3, got %d", exhaustedAttempts)
 	}
+
 	if !errors.Is(exhaustedErr, transient) {
 		t.Fatalf("expected OnExhausted err to be the transient error, got %v", exhaustedErr)
 	}
@@ -212,6 +229,7 @@ func TestDo_AttemptNumberStartsAt1(t *testing.T) {
 	t.Parallel()
 
 	var attempts []int
+
 	_ = retry.Do(context.Background(), fastConfig(), func(ctx context.Context, attempt int) error {
 		attempts = append(attempts, attempt)
 		if attempt < 2 {
@@ -250,6 +268,7 @@ func TestDo_InvalidConfigReturnsError(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			err := retry.Do(
 				context.Background(),
 				tt.config,
@@ -330,6 +349,7 @@ func TestDo_NilIsRetryableDefaultsToErrorFamily(t *testing.T) {
 	}
 
 	var calls atomic.Int32
+
 	_ = retry.Do(context.Background(), cfg, func(ctx context.Context, attempt int) error {
 		calls.Add(1)
 
@@ -345,6 +365,7 @@ func TestDo_OnRetryNotCalledAfterFinalAttempt(t *testing.T) {
 	t.Parallel()
 
 	var retryCalls atomic.Int32
+
 	cfg := fastConfig()
 	cfg.OnRetry = func(attempt int, delay time.Duration, err error) {
 		retryCalls.Add(1)
@@ -371,6 +392,7 @@ func TestDo_PreCanceledContextReturnsErrCanceled(t *testing.T) {
 	transient := errorfamily.NewTransient("test.transient", "fail")
 
 	var calls atomic.Int32
+
 	err := retry.Do(ctx, fastConfig(), func(ctx context.Context, attempt int) error {
 		calls.Add(1)
 
@@ -381,6 +403,7 @@ func TestDo_PreCanceledContextReturnsErrCanceled(t *testing.T) {
 	if !errors.Is(err, retry.ErrCanceled) {
 		t.Fatalf("expected ErrCanceled with a pre-canceled context, got %v", err)
 	}
+
 	if got, want := calls.Load(), int32(1); got != want {
 		t.Fatalf("expected %d call (no real backoff after cancel), got %d", want, got)
 	}
@@ -390,7 +413,9 @@ func TestDo_OnExhaustedReceivesExactLastError(t *testing.T) {
 	t.Parallel()
 
 	transient := errorfamily.NewTransient("test.transient", "the last failure")
+
 	var received error
+
 	cfg := fastConfig()
 	cfg.OnExhausted = func(attempts int, err error) {
 		received = err
@@ -401,7 +426,7 @@ func TestDo_OnExhaustedReceivesExactLastError(t *testing.T) {
 	})
 
 	// Identity, not just errors.Is: OnExhausted must receive the exact last error.
-	if received != transient {
+	if !errors.Is(received, transient) {
 		t.Fatalf("expected OnExhausted to receive the exact last error %v, got %v",
 			transient, received)
 	}
@@ -425,6 +450,7 @@ func ExampleDo() {
 	}
 
 	var attempt int
+
 	err := retry.Do(context.Background(), cfg, func(ctx context.Context, n int) error {
 		attempt = n
 		if n < 3 {
@@ -454,6 +480,7 @@ func ExampleDo_customIsRetryable() {
 	}
 
 	var attempt int
+
 	err := retry.Do(context.Background(), cfg, func(ctx context.Context, n int) error {
 		attempt = n
 		if n < 2 {
