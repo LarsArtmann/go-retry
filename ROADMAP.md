@@ -81,13 +81,8 @@ status report.
 - **Is a public git remote intended?** The module path
   `github.com/larsartmann/go-retry`, a _signed_ `v0.1.0` tag, and a SemVer
   CHANGELOG all imply "will be published", but `git remote -v` is empty. This
-  blocks correct install/compare-link docs and the CI + changelog-link tasks
-  (`TODO_LIST.md` → T5/T6). If internal-only, the README/CHANGELOG framing
-  changes.
-- **Is the proprietary `LICENSE` intentional, or should this be open-sourced?**
-  "Proprietary — All rights reserved" directly contradicts a public importable
-  Go module path. The license governs whether `go get` should be documented at
-  all. Do not change `LICENSE` without an explicit decision.
+  blocks the CI + changelog-link tasks (`TODO_LIST.md` → T5/T6). If internal-
+  only, the README/CHANGELOG framing changes.
 - **Does this repo deliberately skip the LarsArtmann `flake.nix` convention?**
   The global `AGENTS.md` mandates `flake.nix` for build/task automation, yet this
   repo uses raw `go test` / `golangci-lint` (and `AGENTS.md` documents that as

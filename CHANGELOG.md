@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **License changed to MIT** — was proprietary ("all rights reserved"), which
+  contradicted the public importable module path. Now MIT, enabling `go get`.
 - **`README.md` rewritten** — was a broken template (`# .`, fake
   `go get github.com/username/.`, nonexistent `just` commands); now an accurate
   package description with the real module path, a runnable quick start, a

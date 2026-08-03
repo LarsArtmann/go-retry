@@ -131,4 +131,4 @@ are the only tools. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## License
 
-Proprietary — all rights reserved. See [`LICENSE`](LICENSE).
+MIT — see [`LICENSE`](LICENSE).

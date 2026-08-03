@@ -118,7 +118,7 @@ func ComputeDelay(initial, maxDelay time.Duration, multiplier float64, attempt i
 	delay = min(delay, maxDelay)
 
 	delay += time.Duration(
-		rand.Int64N(int64(delay) / 2), //nolint:mnd,gosec // jitter divisor; weak rand fine
+		rand.Int64N(int64(delay) / 2), //nolint:gosec // jitter divisor; weak rand fine
 	)
 
 	return delay

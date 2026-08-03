@@ -48,9 +48,8 @@ readers find both (`retry.go:97`, `retry.go:108`).
 
 ### T4. Add a `SECURITY.md`
 
-The `LICENSE` is proprietary with a reporting contact (`git@lars.software`),
-but a dedicated `SECURITY.md` is the conventional place for vulnerability
-reporting policy. Low effort.
+The `LICENSE` is MIT; a dedicated `SECURITY.md` is the conventional place for
+vulnerability reporting policy. Low effort.
 
 ## P3 — Blocked on a git remote (see ROADMAP → Open questions)
 
