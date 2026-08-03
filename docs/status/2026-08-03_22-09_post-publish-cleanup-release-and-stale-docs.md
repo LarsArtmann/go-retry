@@ -49,6 +49,7 @@ against the old tag would have gotten a proprietary-licensed, broken-README,
 no-lint-config version.
 
 This session:
+
 - Deleted the old tag locally and on the remote (`git push origin --delete v0.1.0`).
 - Created a new signed annotated tag at HEAD (`2e9fe52` at the time).
 - Pushed the new tag.
@@ -65,6 +66,7 @@ This session:
 URL: <https://github.com/LarsArtmann/go-retry/releases/tag/v0.1.0>
 
 Release notes include:
+
 - Core feature summary (`Do`, backoff, jitter, cancellation, error-family).
 - Full configuration table (7 fields with defaults).
 - Quality stats (22 tests, 100% coverage, 0 lint issues, ~18 ns/op benchmark).
@@ -77,10 +79,10 @@ Release notes include:
 
 Files fixed:
 
-| File | What was stale | Fix |
-|------|---------------|-----|
-| `TODO_LIST.md` | "P3 — Blocked on a git remote" section; "git remote -v is empty" | Removed blocker framing; promoted to "P2 — Infrastructure"; removed completed T6 (compare links) |
-| `ROADMAP.md` | Open question: "Is a public git remote intended? ... git remote -v is empty" | Deleted the resolved question entirely |
+| File           | What was stale                                                                | Fix                                                                                                             |
+| -------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `TODO_LIST.md` | "P3 — Blocked on a git remote" section; "git remote -v is empty"              | Removed blocker framing; promoted to "P2 — Infrastructure"; removed completed T6 (compare links)                |
+| `ROADMAP.md`   | Open question: "Is a public git remote intended? ... git remote -v is empty"  | Deleted the resolved question entirely                                                                          |
 | `CHANGELOG.md` | Note block: "this repo currently has no git remote ... intentionally omitted" | Removed note; added `[Unreleased]` and `[0.1.0]` compare links; fixed `LICENSE (proprietary)` → `LICENSE (MIT)` |
 
 Verified via: `rg -c "no remote|blocked on.*remote|remote.*empty|will be published" CHANGELOG.md TODO_LIST.md ROADMAP.md README.md FEATURES.md CONTRIBUTING.md AGENTS.md` → zero matches.
@@ -90,6 +92,7 @@ Verified via: `rg -c "no remote|blocked on.*remote|remote.*empty|will be publish
 **Status:** Done.
 
 Added Keep-a-Changelog footer links:
+
 - `[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.1.0...HEAD`
 - `[0.1.0]: https://github.com/LarsArtmann/go-retry/releases/tag/v0.1.0`
 
@@ -112,13 +115,13 @@ the public module path works end-to-end.
 
 ### A7. Quality gates green
 
-| Gate | Result |
-|------|--------|
-| `go test ./... -race -count=1` | 22/22 PASS (0.96s) |
-| `go vet ./...` | clean |
-| `golangci-lint run ./...` | 0 issues |
-| Coverage | 100.0% of statements |
-| `BenchmarkComputeDelay` | 17.65 ns/op, 0 B/op, 0 allocs |
+| Gate                           | Result                        |
+| ------------------------------ | ----------------------------- |
+| `go test ./... -race -count=1` | 22/22 PASS (0.96s)            |
+| `go vet ./...`                 | clean                         |
+| `golangci-lint run ./...`      | 0 issues                      |
+| Coverage                       | 100.0% of statements          |
+| `BenchmarkComputeDelay`        | 17.65 ns/op, 0 B/op, 0 allocs |
 
 ---
 
@@ -218,7 +221,8 @@ version). Standard for public Go libraries.
 
 **What happened:** My `edit` call to rename "P2 — Polish" to "P2 —
 Infrastructure" replaced the heading + T3 block, but left the **old** T4/T5
-+ "P2 — Infrastructure" + T5 section below it. The result was:
+
+- "P2 — Infrastructure" + T5 section below it. The result was:
 
 ```
 ## P2 — Infrastructure        ← my new heading
@@ -401,7 +405,7 @@ Sorted by impact, Pareto-style.
     shows a realistic retry scenario (HTTP call with backoff).
 17. **Backoff visualization in docs** — a table or chart showing actual delay
     sequences for common configs (e.g., `InitialDelay=100ms, Multiplier=2,
-    MaxDelay=5s` → 100ms, 200ms, 400ms, 800ms, 1.6s, 3.2s, 5s, 5s...).
+MaxDelay=5s` → 100ms, 200ms, 400ms, 800ms, 1.6s, 3.2s, 5s, 5s...).
 18. **`CONTRIBUTING.md` PR workflow** — document the branch/PR/review process
     now that the repo is public and could accept external contributions.
 19. **Issue templates** — `.github/ISSUE_TEMPLATE/` for bug reports and
