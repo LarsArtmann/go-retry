@@ -16,7 +16,7 @@ Priority uses a simple Pareto ranking: **P1** = high impact, do first;
 The current README is a generic project template that actively misleads:
 
 - Title is literally `# .` and description is "A Go project."
-  (`README.md:1-4`).
+  (`README.md:1-5`).
 - Install command is fake: `go get github.com/username/.`
   (`README.md:9-11`) — the real module path is `github.com/larsartmann/go-retry`
   (`go.mod:1`), and **no git remote exists yet** (`git remote -v` is empty).
@@ -64,7 +64,7 @@ concrete number to cite if/when the jitter implementation is revisited (see
 ### T5. Document the coverage workflow
 
 `reports/coverage.out` exists (100% statement coverage today) but the
-`reports/` directory is gitignored (`.gitignore:42-44`). Nothing tells a
+`reports/` directory is gitignored (`.gitignore:43`). Nothing tells a
 contributor how to regenerate it. Add a one-liner to `CONTRIBUTING.md`:
 `go test ./... -race -coverprofile=reports/coverage.out && go tool cover
 -func=reports/coverage.out`.
