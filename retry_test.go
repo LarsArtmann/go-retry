@@ -300,10 +300,56 @@ func TestBackoff_RespectsMaxDelay(t *testing.T) {
 		Multiplier:   10.0,
 	}
 
-	delay := retry.Backoff(cfg, 5) // attempt 5 would be 100ms * 10^4 = huge
+	delay, err := retry.Backoff(cfg, 5) // attempt 5 would be 100ms * 10^4 = huge
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if delay > 400*time.Millisecond { // max delay + 50% jitter = 300ms max
 		t.Fatalf("expected delay <= 400ms (capped), got %v", delay)
+	}
+}
+
+func TestBackoff_InvalidAttemptReturnsError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		attempt int
+	}{
+		{name: "zero", attempt: 0},
+		{name: "negative", attempt: -1},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfg := retry.Config{
+				MaxAttempts:  3,
+				InitialDelay: 10 * time.Millisecond,
+				MaxDelay:     1 * time.Second,
+				Multiplier:   2.0,
+			}
+
+			_, err := retry.Backoff(cfg, tt.attempt)
+
+			if errorfamily.Classify(err) != errorfamily.Rejection {
+				t.Fatalf("expected Rejection for attempt %d, got %v (family: %s)",
+					tt.attempt, err, errorfamily.Classify(err))
+			}
+		})
+	}
+}
+
+func TestComputeDelay_InvalidAttemptReturnsError(t *testing.T) {
+	t.Parallel()
+
+	_, err := retry.ComputeDelay(10*time.Millisecond, 1*time.Second, 2.0, 0)
+
+	if errorfamily.Classify(err) != errorfamily.Rejection {
+		t.Fatalf("expected Rejection for attempt 0, got %v (family: %s)",
+			err, errorfamily.Classify(err))
 	}
 }
 
@@ -509,6 +555,6 @@ func BenchmarkComputeDelay(b *testing.B) {
 	b.ResetTimer()
 
 	for range b.N {
-		_ = retry.ComputeDelay(initial, maxDelay, multiplier, attempt)
+		_, _ = retry.ComputeDelay(initial, maxDelay, multiplier, attempt)
 	}
 }

@@ -2,6 +2,7 @@ package retry
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"math/rand/v2"
 	"time"
@@ -66,7 +67,7 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 			break
 		}
 
-		delay := Backoff(config, attempt)
+		delay := computeDelay(config.InitialDelay, config.MaxDelay, config.Multiplier, attempt)
 
 		if config.OnRetry != nil {
 			config.OnRetry(attempt, delay, err)
@@ -101,7 +102,9 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 //
 // The result is capped at MaxDelay. Exported so callers can preview or
 // log the planned delay without executing the retry loop.
-func Backoff(config Config, attempt int) time.Duration {
+//
+// attempt must be >= 1; passing a lower value returns a Rejection error.
+func Backoff(config Config, attempt int) (time.Duration, error) {
 	return ComputeDelay(config.InitialDelay, config.MaxDelay, config.Multiplier, attempt)
 }
 
@@ -110,8 +113,22 @@ func Backoff(config Config, attempt int) time.Duration {
 //
 //	initial * multiplier^(n-1) + random jitter (up to 50% of the delay)
 //
-// The result is capped at max.
-func ComputeDelay(initial, maxDelay time.Duration, multiplier float64, attempt int) time.Duration {
+// The result is capped at max. attempt must be >= 1; passing a lower value
+// returns a Rejection error.
+func ComputeDelay(initial, maxDelay time.Duration, multiplier float64, attempt int) (time.Duration, error) {
+	if attempt < 1 {
+		return 0, errorfamily.NewRejection(
+			"retry.invalid_attempt",
+			fmt.Sprintf("attempt must be >= 1, got %d", attempt),
+		)
+	}
+
+	return computeDelay(initial, maxDelay, multiplier, attempt), nil
+}
+
+// computeDelay is the trusted internal computation. Callers must guarantee
+// attempt >= 1; no validation is performed.
+func computeDelay(initial, maxDelay time.Duration, multiplier float64, attempt int) time.Duration {
 	delay := time.Duration(
 		float64(initial) * math.Pow(multiplier, float64(attempt-1)),
 	)
