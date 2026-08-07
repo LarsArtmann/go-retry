@@ -38,7 +38,7 @@ _Nothing yet._
     at attempt 38) the `float64 → time.Duration` conversion wrapped to
     `INT64_MIN`; the comparison is now done in float space and saturates to
     `MaxDelay` instead of wrapping.
-  `retry.go`. All three were reproduced against `v0.1.0` source before fixing.
+    `retry.go`. All three were reproduced against `v0.1.0` source before fixing.
 
 ### Added
 

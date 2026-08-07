@@ -40,9 +40,9 @@
           <p class="hero-subtitle">
             This session added <code>attempt &ge; 1</code> validation to
             <code>Backoff</code>/<code>ComputeDelay</code> — but missed three
-            reachable <code>rand.Int64N</code> panics in the same function, all on
-            the retry failure path. Every panic was reproduced against the current
-            source this session.
+            reachable <code>rand.Int64N</code> panics in the same function, all
+            on the retry failure path. Every panic was reproduced against the
+            current source this session.
           </p>
         </div>
 
@@ -83,10 +83,10 @@
           <h4>Attempt validation on Backoff / ComputeDelay</h4>
           <p>
             <code>Backoff</code> and <code>ComputeDelay</code> now return
-            <code>(time.Duration, error)</code>. An <code>attempt &lt; 1</code>
-            yields a <code>Rejection</code>-family error
-            (<code>retry.invalid_attempt</code>) instead of silently computing
-            garbage via a <code>-1</code> exponent. Commit
+            <code>(time.Duration, error)</code>. An
+            <code>attempt &lt; 1</code> yields a <code>Rejection</code>-family
+            error (<code>retry.invalid_attempt</code>) instead of silently
+            computing garbage via a <code>-1</code> exponent. Commit
             <code>d67798a</code>. Internal <code>Do</code> loop calls an
             unexported <code>computeDelay</code> (no error tax on a
             loop-controlled value).
@@ -97,8 +97,9 @@
           <h4>Tests for the new error path</h4>
           <p>
             <code>TestBackoff_InvalidAttemptReturnsError</code> (table-driven:
-            zero + negative) and <code>TestComputeDelay_InvalidAttemptReturnsError</code>
-            added. Full suite passes <code>-race -count=3</code>;
+            zero + negative) and
+            <code>TestComputeDelay_InvalidAttemptReturnsError</code> added. Full
+            suite passes <code>-race -count=3</code>;
             <code>golangci-lint</code> + <code>go vet</code> clean.
           </p>
         </div>
@@ -110,8 +111,7 @@
               <strong>Verified before claiming done</strong>
               <span
                 >Tests run 3&times; with <code>-race</code>; lint and vet both
-                clean. No flaky jitter path touched the
-                validation.</span
+                clean. No flaky jitter path touched the validation.</span
               >
             </div>
           </div>
@@ -120,9 +120,10 @@
             <div class="text">
               <strong>Internal/public split is correct</strong>
               <span
-                >The <code>Do</code> loop calls <code>computeDelay</code>
-                directly, so the validation is enforced only at the external
-                boundary where untrusted values arrive.</span
+                >The <code>Do</code> loop calls
+                <code>computeDelay</code> directly, so the validation is
+                enforced only at the external boundary where untrusted values
+                arrive.</span
               >
             </div>
           </div>
@@ -134,7 +135,9 @@
         <div class="issue issue-important">
           <span class="severity severity-important">Type safety</span>
           <h3>Phantom-type finding addressed with errors, not a named type</h3>
-          <div class="where">retry.go:29, 104, 118 &middot; branching-flow PHANTOM_TYPE</div>
+          <div class="where">
+            retry.go:29, 104, 118 &middot; branching-flow PHANTOM_TYPE
+          </div>
           <p>
             The <code>branching-flow</code> report suggested a phantom
             <code>Attempt</code> type. This session added runtime error returns
@@ -180,15 +183,21 @@
             The validator rejects bad <code>MaxAttempts</code>,
             <code>InitialDelay</code>, and <code>Multiplier</code>, but
             <code>MaxDelay</code> is never checked. An unset
-            <code>MaxDelay</code> (zero value) is the trigger for panic B1.
-            Not addressed this session.
+            <code>MaxDelay</code> (zero value) is the trigger for panic B1. Not
+            addressed this session.
           </p>
         </div>
 
         <!-- d) TOTALLY FUCKED UP -->
         <h2 id="fuckedup"><span class="num">d</span>Totally Fucked Up</h2>
 
-        <div class="callout callout-solution" style="background: color-mix(in srgb, var(--problem) 12%, transparent); border-color: var(--problem);">
+        <div
+          class="callout callout-solution"
+          style="
+            background: color-mix(in srgb, var(--problem) 12%, transparent);
+            border-color: var(--problem);
+          "
+        >
           <strong>Every panic below was reproduced this session</strong>
           against the current source (post-commit <code>d67798a</code>) with
           runnable programs. All three sit on the retry <em>failure path</em> —
@@ -239,13 +248,15 @@ retry.ComputeDelay(1, 5_000_000_000, 2.0, 1)</code></pre>
           <h3>DefaultConfig panics at attempt 38 (math.Pow overflow)</h3>
           <div class="where">retry.go:132-135 &middot; reproduced</div>
           <p>
-            At high attempts, <code>float64(initial) * math.Pow(mult, n)</code>
-            overflows <code>int64</code>. The conversion
+            At high attempts,
+            <code>float64(initial) * math.Pow(mult, n)</code> overflows
+            <code>int64</code>. The conversion
             <code>time.Duration(hugeFloat)</code> wraps to
             <code>INT64_MIN</code>; <code>min(negative, MaxDelay)</code> keeps
             the negative; <code>Int64N(negative)</code> &rarr;
-            <strong>panic</strong>. Plain <code>DefaultConfig()</code>
-            (<code>100ms &times; 2.0</code>) overflows at attempt 38.
+            <strong>panic</strong>. Plain <code>DefaultConfig()</code> (<code
+              >100ms &times; 2.0</code
+            >) overflows at attempt 38.
           </p>
           <pre><code><span class="tok-comment">// REPRODUCED 2026-08-07: "B3 PANIC: invalid argument to Int64N"</span>
 cfg := retry.DefaultConfig()
@@ -253,9 +264,9 @@ cfg.MaxAttempts = 40
 retry.Backoff(cfg, 38)</code></pre>
           <div class="callout callout-solution">
             <strong>Verified fix exists.</strong>
-            TODO_LIST T6 documents a fix validated against an 84,000-case
-            matrix (compare in float space before conversion; saturate overflow
-            to <code>maxDelay</code>; guard <code>half &le; 0</code>).
+            TODO_LIST T6 documents a fix validated against an 84,000-case matrix
+            (compare in float space before conversion; saturate overflow to
+            <code>maxDelay</code>; guard <code>half &le; 0</code>).
             <em>Not applied this session.</em>
           </div>
         </div>
@@ -292,8 +303,9 @@ retry.Backoff(cfg, 38)</code></pre>
             <h4>Validate should cover all Config fields</h4>
             <p>
               <code>MaxDelay</code> is the only field with no validator. Either
-              reject <code>&le; 0</code> with <code>retry.invalid_max_delay</code>,
-              or document zero as "cap at InitialDelay." Pick one, test it.
+              reject <code>&le; 0</code> with
+              <code>retry.invalid_max_delay</code>, or document zero as "cap at
+              InitialDelay." Pick one, test it.
             </p>
           </div>
           <div class="card">
@@ -314,7 +326,9 @@ retry.Backoff(cfg, 38)</code></pre>
         </div>
 
         <!-- f) NEXT TASKS -->
-        <h2 id="next"><span class="num">f</span>Next Tasks (ranked by impact)</h2>
+        <h2 id="next">
+          <span class="num">f</span>Next Tasks (ranked by impact)
+        </h2>
         <table>
           <thead>
             <tr>
@@ -331,35 +345,50 @@ retry.Backoff(cfg, 38)</code></pre>
               <td><span class="badge badge-critical">Critical</span></td>
               <td>M</td>
               <td>Bug</td>
-              <td>Fix B1: add MaxDelay validation + guard <code>Int64N(0)</code> in computeDelay</td>
+              <td>
+                Fix B1: add MaxDelay validation + guard
+                <code>Int64N(0)</code> in computeDelay
+              </td>
             </tr>
             <tr>
               <td>2</td>
               <td><span class="badge badge-critical">Critical</span></td>
               <td>S</td>
               <td>Bug</td>
-              <td>Fix B2: guard <code>half &le; 0</code> (sub-2ns delays) in computeDelay</td>
+              <td>
+                Fix B2: guard <code>half &le; 0</code> (sub-2ns delays) in
+                computeDelay
+              </td>
             </tr>
             <tr>
               <td>3</td>
               <td><span class="badge badge-critical">Critical</span></td>
               <td>M</td>
               <td>Bug</td>
-              <td>Fix B3: float-space overflow comparison + saturation in computeDelay</td>
+              <td>
+                Fix B3: float-space overflow comparison + saturation in
+                computeDelay
+              </td>
             </tr>
             <tr>
               <td>4</td>
               <td><span class="badge badge-high">High</span></td>
               <td>S</td>
               <td>Documentation</td>
-              <td>Add [Unreleased] CHANGELOG entry for the breaking Backoff/ComputeDelay signature change</td>
+              <td>
+                Add [Unreleased] CHANGELOG entry for the breaking
+                Backoff/ComputeDelay signature change
+              </td>
             </tr>
             <tr>
               <td>5</td>
               <td><span class="badge badge-high">High</span></td>
               <td>S</td>
               <td>Documentation</td>
-              <td>Update AGENTS.md jitter gotcha + API notes for the new error return</td>
+              <td>
+                Update AGENTS.md jitter gotcha + API notes for the new error
+                return
+              </td>
             </tr>
             <tr>
               <td>6</td>
@@ -373,63 +402,89 @@ retry.Backoff(cfg, 38)</code></pre>
               <td><span class="badge badge-high">High</span></td>
               <td>M</td>
               <td>Quality</td>
-              <td>Land the ComputeDelay fuzz target (TODO T1) &mdash; would have caught B2/B3</td>
+              <td>
+                Land the ComputeDelay fuzz target (TODO T1) &mdash; would have
+                caught B2/B3
+              </td>
             </tr>
             <tr>
               <td>8</td>
               <td><span class="badge badge-high">High</span></td>
               <td>S</td>
               <td>Quality</td>
-              <td>Add property test: assert computeDelay never panics across a wide input matrix</td>
+              <td>
+                Add property test: assert computeDelay never panics across a
+                wide input matrix
+              </td>
             </tr>
             <tr>
               <td>9</td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>S</td>
               <td>Quality</td>
-              <td>Decide phantom <code>type Attempt int</code> vs. bare <code>int</code> (branching-flow finding)</td>
+              <td>
+                Decide phantom <code>type Attempt int</code> vs. bare
+                <code>int</code> (branching-flow finding)
+              </td>
             </tr>
             <tr>
               <td>10</td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>S</td>
               <td>Documentation</td>
-              <td>Cross-link Backoff &harr; ComputeDelay doc comments (TODO T4)</td>
+              <td>
+                Cross-link Backoff &harr; ComputeDelay doc comments (TODO T4)
+              </td>
             </tr>
             <tr>
               <td>11</td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>S</td>
               <td>Quality</td>
-              <td>Modernize <code>for range b.N</code> &rarr; <code>b.Loop()</code> in BenchmarkComputeDelay (gopls warning)</td>
+              <td>
+                Modernize <code>for range b.N</code> &rarr;
+                <code>b.Loop()</code> in BenchmarkComputeDelay (gopls warning)
+              </td>
             </tr>
             <tr>
               <td>12</td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>M</td>
               <td>Quality</td>
-              <td>Add parallel stress test proving concurrent Do invocations share no mutable state (TODO T1)</td>
+              <td>
+                Add parallel stress test proving concurrent Do invocations share
+                no mutable state (TODO T1)
+              </td>
             </tr>
             <tr>
               <td>13</td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>M</td>
               <td>Infrastructure</td>
-              <td>Add minimal CI: <code>go test -race</code> + <code>golangci-lint</code> on push/PR (TODO T3)</td>
+              <td>
+                Add minimal CI: <code>go test -race</code> +
+                <code>golangci-lint</code> on push/PR (TODO T3)
+              </td>
             </tr>
             <tr>
               <td>14</td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>S</td>
               <td>Quality</td>
-              <td>Wire branching-flow into CI / pre-commit so phantom-type findings are caught automatically</td>
+              <td>
+                Wire branching-flow into CI / pre-commit so phantom-type
+                findings are caught automatically
+              </td>
             </tr>
             <tr>
               <td>15</td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>L</td>
               <td>Architecture</td>
-              <td>Reconcile Config with errorfamily.RetryPolicy (TODO T7) &mdash; split-brain across two libs</td>
+              <td>
+                Reconcile Config with errorfamily.RetryPolicy (TODO T7) &mdash;
+                split-brain across two libs
+              </td>
             </tr>
             <tr>
               <td>16</td>
@@ -443,53 +498,71 @@ retry.Backoff(cfg, 38)</code></pre>
               <td><span class="badge badge-low">Low</span></td>
               <td>S</td>
               <td>Quality</td>
-              <td>Verify hierarchical-errors migration is a no-op here (TODO T2)</td>
+              <td>
+                Verify hierarchical-errors migration is a no-op here (TODO T2)
+              </td>
             </tr>
             <tr>
               <td>18</td>
               <td><span class="badge badge-low">Low</span></td>
               <td>S</td>
               <td>Documentation</td>
-              <td>README quick-start: update any ComputeDelay/Backoff call sites for the new signature</td>
+              <td>
+                README quick-start: update any ComputeDelay/Backoff call sites
+                for the new signature
+              </td>
             </tr>
             <tr>
               <td>19</td>
               <td><span class="badge badge-low">Low</span></td>
               <td>S</td>
               <td>Quality</td>
-              <td>Consider saturating <code>delay + jitter</code> at <code>math.MaxInt64</code> to avoid wrap</td>
+              <td>
+                Consider saturating <code>delay + jitter</code> at
+                <code>math.MaxInt64</code> to avoid wrap
+              </td>
             </tr>
             <tr>
               <td>20</td>
               <td><span class="badge badge-low">Low</span></td>
               <td>M</td>
               <td>Documentation</td>
-              <td>Document the documented bound (<code>MaxDelay + 50%</code> jitter) in ComputeDelay doc comment</td>
+              <td>
+                Document the documented bound (<code>MaxDelay + 50%</code>
+                jitter) in ComputeDelay doc comment
+              </td>
             </tr>
           </tbody>
         </table>
 
         <!-- g) QUESTIONS -->
-        <h2 id="questions"><span class="num">g</span>Questions I Cannot Answer Myself</h2>
+        <h2 id="questions">
+          <span class="num">g</span>Questions I Cannot Answer Myself
+        </h2>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Q1</span>
-          <h3>Breaking change on a published v0.1.0 &mdash; patch or minor bump?</h3>
+          <h3>
+            Breaking change on a published v0.1.0 &mdash; patch or minor bump?
+          </h3>
           <p>
             <code>Backoff</code>/<code>ComputeDelay</code> now return
             <code>(time.Duration, error)</code>. This breaks every external
             caller. Semver permits breaking changes under <code>0.x</code> on a
             minor bump, but the project is published on public GitHub with a
-            tagged <code>v0.1.0</code>. Do you want a <code>v0.2.0</code>
-            release with a CHANGELOG entry, or should I find a non-breaking
-            alternative (e.g. a separate <code>ComputeDelayValidated</code>)?
-            I cannot decide your release cadence.
+            tagged <code>v0.1.0</code>. Do you want a
+            <code>v0.2.0</code> release with a CHANGELOG entry, or should I find
+            a non-breaking alternative (e.g. a separate
+            <code>ComputeDelayValidated</code>)? I cannot decide your release
+            cadence.
           </p>
         </div>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Q2</span>
-          <h3>MaxDelay zero &mdash; reject, or treat as "cap at InitialDelay"?</h3>
+          <h3>
+            MaxDelay zero &mdash; reject, or treat as "cap at InitialDelay"?
+          </h3>
           <p>
             Fixing B1 requires choosing semantics for an unset
             <code>MaxDelay</code>. Option A: reject <code>&le; 0</code> in
