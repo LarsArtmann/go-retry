@@ -74,11 +74,21 @@ Error codes follow a `retry.<snake_case_event>` convention
 - **`IsRetryable` is nullable.** When `nil`, `Do` substitutes
   `errorfamily.IsRetryable` — do not assume a bare nil check means "retry
   nothing". `DefaultConfig()` pre-populates it with the same function.
-- **Jitter is additive, not symmetric.** `ComputeDelay` adds `rand.Int64N(delay/2)`
+- **`Backoff`/`ComputeDelay` return `(time.Duration, error)`.** An
+  `attempt < 1` yields a `Rejection` (`retry.invalid_attempt`). The internal
+  `Do` loop calls the unexported `computeDelay` (no error tax on a
+  loop-controlled value).
+- **Jitter is additive, not symmetric.** `computeDelay` adds `rand.Int64N(half)`
   _on top of_ the computed delay, so the actual wait is in `[base, base * 1.5]`,
   not centered on `base`. Tests that compare two sampled delays can be flaky;
   the existing exponential-growth test verifies the **formula**, not sampled
   values, for this reason. Follow that pattern.
+- **`computeDelay` is panic-proof by design.** It sits on the failure path, so
+  it must never crash: an unset/zero `MaxDelay` degrades to "no growth beyond
+  `InitialDelay`", sub-2ns delays skip jitter, and `math.Pow` overflow saturates
+  to `MaxDelay` instead of wrapping negative. A matrix property test
+  (`TestComputeDelay_NeverPanicsAcrossMatrix`) guards this. Do not reintroduce
+  an unguarded `rand.Int64N` call.
 - **Concurrent call counting in tests uses `atomic.Int32`** (`sync/atomic`), not
   mutexes. Follow the same style.
 - **`OnRetry` fires before the sleep**, after a failed attempt but only when more

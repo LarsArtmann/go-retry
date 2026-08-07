@@ -150,6 +150,7 @@ func computeDelay(initial, maxDelay time.Duration, multiplier float64, attempt i
 	} else {
 		delay = min(time.Duration(scaled), maxDelay)
 	}
+
 	if delay <= 0 {
 		return 0
 	}

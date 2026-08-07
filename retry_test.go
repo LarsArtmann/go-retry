@@ -389,17 +389,18 @@ func TestComputeDelay_NeverPanicsOnExtremeInputs(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
+
 			if delay < 0 {
 				t.Fatalf("delay must never be negative, got %v", delay)
 			}
 			// The effective cap is maxDelay when set, else initial (B1 path).
-			cap := tt.maxDelay
-			if cap <= 0 {
-				cap = tt.initial
+			effectiveCap := tt.maxDelay
+			if effectiveCap <= 0 {
+				effectiveCap = tt.initial
 			}
 			// Jitter adds up to 50% of the capped delay, so bound is cap * 1.5.
-			if cap > 0 && delay > cap+cap/2 {
-				t.Fatalf("delay %v exceeds cap+50%% (%v)", delay, cap+cap/2)
+			if effectiveCap > 0 && delay > effectiveCap+effectiveCap/2 {
+				t.Fatalf("delay %v exceeds cap+50%% (%v)", delay, effectiveCap+effectiveCap/2)
 			}
 		})
 	}
@@ -427,6 +428,7 @@ func TestComputeDelay_NeverPanicsAcrossMatrix(t *testing.T) {
 						t.Fatalf("unexpected error for initial=%v maxDelay=%v mult=%v attempt=%d: %v",
 							initial, maxDelay, multiplier, attempt, err)
 					}
+
 					if delay < 0 {
 						t.Fatalf("negative delay for initial=%v maxDelay=%v mult=%v attempt=%d: %v",
 							initial, maxDelay, multiplier, attempt, delay)
