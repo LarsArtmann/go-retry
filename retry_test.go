@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -448,6 +449,30 @@ func TestValidate_RejectsInvalidMaxDelay(t *testing.T) {
 	if errorfamily.Classify(err) != errorfamily.Rejection {
 		t.Fatalf("expected Rejection for MaxDelay=0, got %v (family: %s)",
 			err, errorfamily.Classify(err))
+	}
+}
+
+// TestComputeDelay_SaturatesNearMaxInt64 covers the overflow-saturation path:
+// when the capped delay is near math.MaxInt64, adding jitter must saturate to
+// math.MaxInt64 rather than wrapping negative. No panic, never exceeds MaxInt64.
+func TestComputeDelay_SaturatesNearMaxInt64(t *testing.T) {
+	t.Parallel()
+
+	const nearMax = time.Duration(math.MaxInt64)
+
+	for range 100 {
+		delay, err := retry.ComputeDelay(nearMax, nearMax, 2.0, 1)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if delay < 0 {
+			t.Fatalf("delay must never be negative near MaxInt64, got %v", delay)
+		}
+
+		if delay > nearMax {
+			t.Fatalf("delay must not exceed MaxInt64, got %v", delay)
+		}
 	}
 }
 

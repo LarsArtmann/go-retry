@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.2.0] - 2026-08-07
+
 ### Changed
 
 - **Breaking:** `Backoff` and `ComputeDelay` now return
@@ -111,5 +115,6 @@ Initial public release. Signed annotated tag `v0.1.0`.
 - **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
   links resolve against the public GitHub remote.
 
-[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/LarsArtmann/go-retry/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LarsArtmann/go-retry/releases/tag/v0.1.0
