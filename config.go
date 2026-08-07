@@ -56,6 +56,18 @@ func DefaultConfig() Config {
 	}
 }
 
+// FromPolicy converts an error-family retry policy into a Config. MinDelay maps
+// to InitialDelay; the multiplier and retry predicate retain their defaults.
+// Hooks remain unset so callers can attach their own observability.
+func FromPolicy(policy errorfamily.RetryPolicy) Config {
+	config := DefaultConfig()
+	config.MaxAttempts = policy.MaxAttempts
+	config.InitialDelay = policy.MinDelay
+	config.MaxDelay = policy.MaxDelay
+
+	return config
+}
+
 // Validate checks that the configuration is valid.
 func (c Config) Validate() error {
 	if c.MaxAttempts < 1 {
