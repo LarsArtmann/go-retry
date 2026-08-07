@@ -101,7 +101,8 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 //	InitialDelay * Multiplier^(n-1) + random jitter (up to 50% of the delay)
 //
 // The result is capped at MaxDelay. Exported so callers can preview or
-// log the planned delay without executing the retry loop.
+// log the planned delay without executing the retry loop. See [ComputeDelay]
+// for the raw-parameter variant.
 //
 // attempt must be >= 1; passing a lower value returns a Rejection error.
 func Backoff(config Config, attempt int) (time.Duration, error) {
@@ -114,7 +115,7 @@ func Backoff(config Config, attempt int) (time.Duration, error) {
 //	initial * multiplier^(n-1) + random jitter (up to 50% of the delay)
 //
 // The result is capped at max. attempt must be >= 1; passing a lower value
-// returns a Rejection error.
+// returns a Rejection error. See [Backoff] for the Config-based variant.
 func ComputeDelay(initial, maxDelay time.Duration, multiplier float64, attempt int) (time.Duration, error) {
 	if attempt < 1 {
 		return 0, errorfamily.NewRejection(

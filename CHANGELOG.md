@@ -42,6 +42,8 @@ _Nothing yet._
 
 ### Added
 
+- `FromPolicy(errorfamily.RetryPolicy)` converts advisory error-family retry
+  defaults into this package's `Config`, mapping `MinDelay` to `InitialDelay`.
 - `TestComputeDelay_NeverPanicsOnExtremeInputs` — regression test for each of
   B1/B2/B3 plus overflow edges; asserts no panic, non-negative delay, and the
   documented `MaxDelay + 50%` bound.

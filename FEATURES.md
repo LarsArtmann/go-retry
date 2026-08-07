@@ -26,6 +26,10 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   the dependency-free `ComputeDelay(...)` are exported (both return
   `(time.Duration, error)`; an `attempt < 1` yields a `Rejection` error) so
   callers can log/preview the planned delay. `retry.go:107`, `retry.go:118`.
+- **Retry-policy interoperability** — `FromPolicy` maps an
+  `errorfamily.RetryPolicy` into this package's `Config`, preserving the
+  dependency's advisory attempt and delay defaults while retaining this
+  package's multiplier and hooks. `config.go`.
 - **Panic-proof delay computation** — the internal `computeDelay`
   (`retry.go:133`) is hardened so no input combination can panic or return a
   negative duration: zero/unset `MaxDelay` degrades to "no growth beyond

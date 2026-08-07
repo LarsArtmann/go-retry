@@ -75,8 +75,9 @@ succeeded on attempt 3
 
 Delay for attempt _n_ is `InitialDelay * Multiplier^(n-1)`, capped at
 `MaxDelay`, plus random jitter of up to 50% of the capped delay. Use the
-exported `Backoff(config, attempt)` or `ComputeDelay(...)` to preview the planned
-delay without running the loop.
+exported [`Backoff`](retry.go) or [`ComputeDelay`](retry.go) to preview the planned
+delay without running the loop. Both return `(time.Duration, error)` and reject
+attempts below 1.
 
 ### Custom retryable predicate and observability hooks
 

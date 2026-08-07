@@ -10,7 +10,8 @@ Priority uses a simple Pareto ranking: **P1** = high impact, do first;
 
 _Recently completed (now in `CHANGELOG.md` `[0.2.0]`): panic-proof
 `computeDelay` (B1/B2/B3), `MaxDelay` validation, no-panic matrix test,
-`Backoff`/`ComputeDelay` error-return signature._
+`Backoff`/`ComputeDelay` error-return signature, `FromPolicy` interoperability,
+concurrent retry coverage, fuzz seeds, CI, API cross-links, and security policy._
 
 _Previously (`[0.1.0]`): README rewrite, `.golangci.yml`, godoc `Example*`
 functions, `BenchmarkComputeDelay`, coverage workflow in CONTRIBUTING,
