@@ -63,6 +63,49 @@ func TestDo_RetriesUntilSuccess(t *testing.T) {
 	}
 }
 
+func TestDo_ConcurrentInvocationsShareNoMutableState(t *testing.T) {
+	t.Parallel()
+
+	const invocationCount = 100
+
+	results := make(chan error, invocationCount)
+
+	for range invocationCount {
+		go func() {
+			var calls atomic.Int32
+
+			err := retry.Do(context.Background(), fastConfig(), func(ctx context.Context, attempt int) error {
+				calls.Add(1)
+
+				if attempt == 1 {
+					return errorfamily.NewTransient("test.transient", "retry once")
+				}
+
+				return nil
+			})
+			if err != nil {
+				results <- err
+
+				return
+			}
+
+			if calls.Load() != 2 {
+				results <- fmt.Errorf("expected 2 calls, got %d", calls.Load())
+
+				return
+			}
+
+			results <- nil
+		}()
+	}
+
+	for range invocationCount {
+		if err := <-results; err != nil {
+			t.Fatalf("concurrent retry invocation failed: %v", err)
+		}
+	}
+}
+
 func TestDo_ReturnsErrExhaustedWhenAllAttemptsFail(t *testing.T) {
 	t.Parallel()
 
@@ -476,6 +519,34 @@ func TestComputeDelay_SaturatesNearMaxInt64(t *testing.T) {
 	}
 }
 
+func FuzzComputeDelayNeverPanics(f *testing.F) {
+	f.Add(int64(time.Millisecond), int64(time.Second), 2.0, 1)
+	f.Add(int64(1), int64(0), 10.0, 38)
+	f.Add(int64(math.MaxInt64), int64(math.MaxInt64), 2.0, 1)
+
+	f.Fuzz(func(t *testing.T, initialNanos, maxDelayNanos int64, multiplier float64, attempt int) {
+		initial := time.Duration(initialNanos)
+		maxDelay := time.Duration(maxDelayNanos)
+
+		delay, err := retry.ComputeDelay(initial, maxDelay, multiplier, attempt)
+		if attempt < 1 {
+			if err == nil {
+				t.Fatal("expected invalid attempt error")
+			}
+
+			return
+		}
+
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if delay < 0 {
+			t.Fatalf("delay must never be negative, got %v", delay)
+		}
+	})
+}
+
 func TestBackoff_IncreasesExponentially(t *testing.T) {
 	t.Parallel()
 
@@ -503,6 +574,53 @@ func TestDefaultConfig_IsValid(t *testing.T) {
 	cfg := retry.DefaultConfig()
 	if err := cfg.Validate(); err != nil {
 		t.Fatalf("DefaultConfig should be valid: %v", err)
+	}
+}
+
+func TestFromPolicy_MapsRetryPolicy(t *testing.T) {
+	t.Parallel()
+
+	policy := errorfamily.Transient.RetryPolicy()
+	cfg := retry.FromPolicy(policy)
+
+	if cfg.MaxAttempts != policy.MaxAttempts {
+		t.Fatalf("expected MaxAttempts=%d, got %d", policy.MaxAttempts, cfg.MaxAttempts)
+	}
+
+	if cfg.InitialDelay != policy.MinDelay {
+		t.Fatalf("expected InitialDelay=%v, got %v", policy.MinDelay, cfg.InitialDelay)
+	}
+
+	if cfg.MaxDelay != policy.MaxDelay {
+		t.Fatalf("expected MaxDelay=%v, got %v", policy.MaxDelay, cfg.MaxDelay)
+	}
+
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("converted policy should be valid: %v", err)
+	}
+}
+
+func TestFromPolicy_PreservesDefaultLoopSettings(t *testing.T) {
+	t.Parallel()
+
+	cfg := retry.FromPolicy(errorfamily.Transient.RetryPolicy())
+	defaults := retry.DefaultConfig()
+
+	if cfg.Multiplier != defaults.Multiplier {
+		t.Fatalf("expected default Multiplier=%v, got %v", defaults.Multiplier, cfg.Multiplier)
+	}
+
+	if cfg.IsRetryable == nil {
+		t.Fatal("expected default IsRetryable predicate")
+	}
+}
+
+func TestFromPolicy_NonRetryableFamilyIsInvalidForLoop(t *testing.T) {
+	t.Parallel()
+
+	cfg := retry.FromPolicy(errorfamily.Rejection.RetryPolicy())
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected non-retryable family policy to require caller configuration")
 	}
 }
 
