@@ -244,58 +244,58 @@ The TODO list should contain only actionable open work. Status reports should pr
 
 Ranked by impact, then effort.
 
-| # | Task | Impact | Effort | Category |
-|---:|---|---|---|---|
-| 1 | Commit the final `TODO_LIST.md` cleanup after reviewing the daemon's latest history. | Critical | S | Cleanup |
-| 2 | Push `master` and signed tag `v0.2.0` only when publication is authorized. | Critical | S | Release |
-| 3 | Verify the GitHub Actions workflow on an actual push/PR run. | Critical | S | Infrastructure |
-| 4 | Verify GitHub release rendering and pkg.go.dev indexing for `v0.2.0`. | High | S | Release |
-| 5 | Add a v0.1.x to v0.2.0 migration section documenting the new error returns. | High | S | Documentation |
-| 6 | Add `go vet ./...` to CI. | High | S | Quality |
-| 7 | Add a CI coverage threshold and fail below the agreed floor. | High | S | Quality |
-| 8 | Run a bounded `FuzzComputeDelayNeverPanics` campaign. | High | S | Quality |
-| 9 | Add a short fuzz smoke job to CI or a scheduled workflow. | Medium | S-M | Infrastructure |
-| 10 | Add `govulncheck` to CI after verifying availability for Go 1.26.5. | High | S-M | Security |
-| 11 | Add secret scanning for pull requests. | Medium | S | Security |
-| 12 | Decide whether the single policy converter should remain additive or evolve into a richer family-aware API. | High | M | API design |
-| 13 | Document that `FromPolicy` cannot infer retryability from `RetryPolicy` alone. | High | S | Documentation |
-| 14 | Add an `ExampleFromPolicy` godoc example. | Medium | S | Documentation |
-| 15 | Add invalid-attempt and invalid-config examples. | Medium | S | Documentation |
-| 16 | Add external consumer compile tests for the public API. | High | M | Compatibility |
-| 17 | Add a v0.2.0 API compatibility snapshot/check. | Medium | M | Quality |
-| 18 | Resolve the `b.N` versus `b.Loop()` modernizer diagnostic. | Low | S | Cleanup |
-| 19 | Add hook-order and exact-argument tests. | Medium | S-M | Quality |
-| 20 | Add timer cleanup tests where practical without brittle timing. | Medium | M | Quality |
-| 21 | Add tests for `NaN`, infinity, negative, and zero multiplier boundary behavior. | High | S | Quality |
-| 22 | Decide and document policy for `MaxDelay < InitialDelay`. | Medium | S | API design |
-| 23 | Add tests for very large valid attempt counts with cancellation. | Medium | S | Quality |
-| 24 | Add stable error-code assertions for all validation branches. | Medium | S | Quality |
-| 25 | Add a release checklist covering tag, push, Actions, GitHub, and pkg.go.dev. | High | S | Process |
-| 26 | Add release automation for signed annotated tags if the repository workflow supports it. | Medium | M | Release |
-| 27 | Add dependency update automation with review constraints. | Medium | M | Maintenance |
-| 28 | Add supported-version testing if compatibility beyond Go 1.26 is desired. | Medium | M | CI |
-| 29 | Add a benchmark for end-to-end `Do`. | Low | S | Performance |
-| 30 | Establish benchmark regression thresholds before enforcing them. | Low | M | Performance |
-| 31 | Add allocation regression checks for delay calculation. | Low | S-M | Performance |
-| 32 | Decide whether deterministic RNG injection belongs in the API. | Medium | M | API design |
-| 33 | Decide whether configurable jitter belongs in the API. | Medium | M | API design |
-| 34 | Add deadline-aware retry budgeting if real consumers need it. | Medium | L | Feature |
-| 35 | Add an explicit nil `AttemptFunc` contract and test. | Medium | S | API design |
-| 36 | Decide whether callback panics are caller-owned and document that boundary. | Low | S | Documentation |
-| 37 | Add callback isolation tests for concurrent `Do` calls. | Medium | S-M | Quality |
-| 38 | Add documentation-link validation. | Low | M | Quality |
-| 39 | Add generated API documentation checks. | Low | M | Documentation |
-| 40 | Add GitHub issue templates for bugs and feature requests. | Low | S | Infrastructure |
-| 41 | Add a pull-request template containing the race/lint/vet checklist. | Low | S | Infrastructure |
-| 42 | Add a public release note for panic fixes and the breaking API change. | High | S | Documentation |
-| 43 | Add consumer guidance on `MaxAttempts` counting the initial call. | Medium | S | Documentation |
-| 44 | Add property tests for delay upper bounds under unusual valid configurations. | Medium | S-M | Quality |
-| 45 | Define fuzz corpus retention and minimization policy. | Low | S | Process |
-| 46 | Add a formal v1.0 readiness checklist. | Medium | M | Planning |
-| 47 | Reassess whether the flat single-package boundary remains appropriate. | Low | M | Architecture |
-| 48 | Add a compatibility policy for error-family dependency upgrades. | Medium | S-M | Maintenance |
-| 49 | Review GitHub Actions pinning and supply-chain trust policy. | High | S | Security |
-| 50 | Perform a focused public API review before the next release. | High | M | Quality |
+|   # | Task                                                                                                        | Impact   | Effort | Category       |
+| --: | ----------------------------------------------------------------------------------------------------------- | -------- | ------ | -------------- |
+|   1 | Commit the final `TODO_LIST.md` cleanup after reviewing the daemon's latest history.                        | Critical | S      | Cleanup        |
+|   2 | Push `master` and signed tag `v0.2.0` only when publication is authorized.                                  | Critical | S      | Release        |
+|   3 | Verify the GitHub Actions workflow on an actual push/PR run.                                                | Critical | S      | Infrastructure |
+|   4 | Verify GitHub release rendering and pkg.go.dev indexing for `v0.2.0`.                                       | High     | S      | Release        |
+|   5 | Add a v0.1.x to v0.2.0 migration section documenting the new error returns.                                 | High     | S      | Documentation  |
+|   6 | Add `go vet ./...` to CI.                                                                                   | High     | S      | Quality        |
+|   7 | Add a CI coverage threshold and fail below the agreed floor.                                                | High     | S      | Quality        |
+|   8 | Run a bounded `FuzzComputeDelayNeverPanics` campaign.                                                       | High     | S      | Quality        |
+|   9 | Add a short fuzz smoke job to CI or a scheduled workflow.                                                   | Medium   | S-M    | Infrastructure |
+|  10 | Add `govulncheck` to CI after verifying availability for Go 1.26.5.                                         | High     | S-M    | Security       |
+|  11 | Add secret scanning for pull requests.                                                                      | Medium   | S      | Security       |
+|  12 | Decide whether the single policy converter should remain additive or evolve into a richer family-aware API. | High     | M      | API design     |
+|  13 | Document that `FromPolicy` cannot infer retryability from `RetryPolicy` alone.                              | High     | S      | Documentation  |
+|  14 | Add an `ExampleFromPolicy` godoc example.                                                                   | Medium   | S      | Documentation  |
+|  15 | Add invalid-attempt and invalid-config examples.                                                            | Medium   | S      | Documentation  |
+|  16 | Add external consumer compile tests for the public API.                                                     | High     | M      | Compatibility  |
+|  17 | Add a v0.2.0 API compatibility snapshot/check.                                                              | Medium   | M      | Quality        |
+|  18 | Resolve the `b.N` versus `b.Loop()` modernizer diagnostic.                                                  | Low      | S      | Cleanup        |
+|  19 | Add hook-order and exact-argument tests.                                                                    | Medium   | S-M    | Quality        |
+|  20 | Add timer cleanup tests where practical without brittle timing.                                             | Medium   | M      | Quality        |
+|  21 | Add tests for `NaN`, infinity, negative, and zero multiplier boundary behavior.                             | High     | S      | Quality        |
+|  22 | Decide and document policy for `MaxDelay < InitialDelay`.                                                   | Medium   | S      | API design     |
+|  23 | Add tests for very large valid attempt counts with cancellation.                                            | Medium   | S      | Quality        |
+|  24 | Add stable error-code assertions for all validation branches.                                               | Medium   | S      | Quality        |
+|  25 | Add a release checklist covering tag, push, Actions, GitHub, and pkg.go.dev.                                | High     | S      | Process        |
+|  26 | Add release automation for signed annotated tags if the repository workflow supports it.                    | Medium   | M      | Release        |
+|  27 | Add dependency update automation with review constraints.                                                   | Medium   | M      | Maintenance    |
+|  28 | Add supported-version testing if compatibility beyond Go 1.26 is desired.                                   | Medium   | M      | CI             |
+|  29 | Add a benchmark for end-to-end `Do`.                                                                        | Low      | S      | Performance    |
+|  30 | Establish benchmark regression thresholds before enforcing them.                                            | Low      | M      | Performance    |
+|  31 | Add allocation regression checks for delay calculation.                                                     | Low      | S-M    | Performance    |
+|  32 | Decide whether deterministic RNG injection belongs in the API.                                              | Medium   | M      | API design     |
+|  33 | Decide whether configurable jitter belongs in the API.                                                      | Medium   | M      | API design     |
+|  34 | Add deadline-aware retry budgeting if real consumers need it.                                               | Medium   | L      | Feature        |
+|  35 | Add an explicit nil `AttemptFunc` contract and test.                                                        | Medium   | S      | API design     |
+|  36 | Decide whether callback panics are caller-owned and document that boundary.                                 | Low      | S      | Documentation  |
+|  37 | Add callback isolation tests for concurrent `Do` calls.                                                     | Medium   | S-M    | Quality        |
+|  38 | Add documentation-link validation.                                                                          | Low      | M      | Quality        |
+|  39 | Add generated API documentation checks.                                                                     | Low      | M      | Documentation  |
+|  40 | Add GitHub issue templates for bugs and feature requests.                                                   | Low      | S      | Infrastructure |
+|  41 | Add a pull-request template containing the race/lint/vet checklist.                                         | Low      | S      | Infrastructure |
+|  42 | Add a public release note for panic fixes and the breaking API change.                                      | High     | S      | Documentation  |
+|  43 | Add consumer guidance on `MaxAttempts` counting the initial call.                                           | Medium   | S      | Documentation  |
+|  44 | Add property tests for delay upper bounds under unusual valid configurations.                               | Medium   | S-M    | Quality        |
+|  45 | Define fuzz corpus retention and minimization policy.                                                       | Low      | S      | Process        |
+|  46 | Add a formal v1.0 readiness checklist.                                                                      | Medium   | M      | Planning       |
+|  47 | Reassess whether the flat single-package boundary remains appropriate.                                      | Low      | M      | Architecture   |
+|  48 | Add a compatibility policy for error-family dependency upgrades.                                            | Medium   | S-M    | Maintenance    |
+|  49 | Review GitHub Actions pinning and supply-chain trust policy.                                                | High     | S      | Security       |
+|  50 | Perform a focused public API review before the next release.                                                | High     | M      | Quality        |
 
 ## g) Questions I cannot determine from the repository
 
