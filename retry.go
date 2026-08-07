@@ -126,17 +126,45 @@ func ComputeDelay(initial, maxDelay time.Duration, multiplier float64, attempt i
 	return computeDelay(initial, maxDelay, multiplier, attempt), nil
 }
 
-// computeDelay is the trusted internal computation. Callers must guarantee
-// attempt >= 1; no validation is performed.
+// computeDelay is the trusted internal computation. It is hardened so that no
+// combination of inputs can panic: a retry loop sits on the failure path, so a
+// panic here converts a recoverable downstream blip into a process crash.
+// Callers must guarantee attempt >= 1; no attempt validation is performed.
 func computeDelay(initial, maxDelay time.Duration, multiplier float64, attempt int) time.Duration {
-	delay := time.Duration(
-		float64(initial) * math.Pow(multiplier, float64(attempt-1)),
-	)
-	delay = min(delay, maxDelay)
+	if initial <= 0 {
+		return 0
+	}
+	// B1: treat an unset cap as "no growth beyond initial" so a missing
+	// MaxDelay can never collapse the delay to zero.
+	if maxDelay <= 0 {
+		maxDelay = initial
+	}
 
-	delay += time.Duration(
-		rand.Int64N(int64(delay) / 2), //nolint:gosec // jitter divisor; weak rand fine
-	)
+	scaled := float64(initial) * math.Pow(multiplier, float64(attempt-1))
 
-	return delay
+	// B3: compare in float space before converting, so an out-of-range value
+	// saturates to maxDelay instead of wrapping to INT64_MIN.
+	var delay time.Duration
+	if scaled >= float64(maxDelay) || math.IsInf(scaled, 1) || math.IsNaN(scaled) {
+		delay = maxDelay
+	} else {
+		delay = min(time.Duration(scaled), maxDelay)
+	}
+	if delay <= 0 {
+		return 0
+	}
+
+	// B2: a delay under 2ns has no room for jitter (half == 0); return as-is
+	// rather than calling Int64N(0), which panics.
+	half := int64(delay) / 2
+	if half <= 0 {
+		return delay
+	}
+
+	jitter := time.Duration(rand.Int64N(half)) //nolint:gosec // jitter divisor; weak rand fine
+	if delay > math.MaxInt64-jitter {          // saturate rather than wrap
+		return math.MaxInt64
+	}
+
+	return delay + jitter
 }

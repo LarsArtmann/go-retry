@@ -24,7 +24,7 @@ type Config struct {
 	// InitialDelay is the delay before the second attempt. Default: 100ms.
 	InitialDelay time.Duration
 
-	// MaxDelay caps the backoff delay between attempts. Default: 5s.
+	// MaxDelay caps the backoff delay between attempts. Must be > 0. Default: 5s.
 	MaxDelay time.Duration
 
 	// Multiplier is the exponential backoff factor. Must be > 1. Default: 2.0.
@@ -69,6 +69,13 @@ func (c Config) Validate() error {
 		return errorfamily.NewRejection(
 			"retry.invalid_initial_delay",
 			fmt.Sprintf("InitialDelay must be positive, got %s", c.InitialDelay),
+		)
+	}
+
+	if c.MaxDelay <= 0 {
+		return errorfamily.NewRejection(
+			"retry.invalid_max_delay",
+			fmt.Sprintf("MaxDelay must be positive, got %s", c.MaxDelay),
 		)
 	}
 
