@@ -253,15 +253,19 @@ func TestDo_InvalidConfigReturnsError(t *testing.T) {
 	}{
 		{
 			name:   "zero attempts",
-			config: retry.Config{MaxAttempts: 0, InitialDelay: 1, Multiplier: 2},
+			config: retry.Config{MaxAttempts: 0, InitialDelay: 1, MaxDelay: 1, Multiplier: 2},
 		},
 		{
 			name:   "zero initial delay",
-			config: retry.Config{MaxAttempts: 1, InitialDelay: 0, Multiplier: 2},
+			config: retry.Config{MaxAttempts: 1, InitialDelay: 0, MaxDelay: 1, Multiplier: 2},
+		},
+		{
+			name:   "zero max delay",
+			config: retry.Config{MaxAttempts: 1, InitialDelay: 1, MaxDelay: 0, Multiplier: 2},
 		},
 		{
 			name:   "multiplier <= 1",
-			config: retry.Config{MaxAttempts: 1, InitialDelay: 1, Multiplier: 1},
+			config: retry.Config{MaxAttempts: 1, InitialDelay: 1, MaxDelay: 1, Multiplier: 1},
 		},
 	}
 
@@ -349,6 +353,98 @@ func TestComputeDelay_InvalidAttemptReturnsError(t *testing.T) {
 
 	if errorfamily.Classify(err) != errorfamily.Rejection {
 		t.Fatalf("expected Rejection for attempt 0, got %v (family: %s)",
+			err, errorfamily.Classify(err))
+	}
+}
+
+// TestComputeDelay_NeverPanicsOnExtremeInputs guards against the three
+// reproduced Int64N panics (B1: omitted MaxDelay, B2: sub-2ns delay,
+// B3: math.Pow overflow). A retry loop sits on the failure path, so no input
+// combination may crash the process. Each case must return a non-negative
+// duration without panicking.
+func TestComputeDelay_NeverPanicsOnExtremeInputs(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		initial    time.Duration
+		maxDelay   time.Duration
+		multiplier float64
+		attempt    int
+	}{
+		{"B1 omitted maxDelay", 100 * time.Millisecond, 0, 2.0, 1},
+		{"B2 sub-2ns delay", 1, 5 * time.Second, 2.0, 1},
+		{"B3 default config overflow at 38", 100 * time.Millisecond, 5 * time.Second, 2.0, 38},
+		{"B3 large multiplier fast overflow", time.Millisecond, 5 * time.Second, 10.0, 15},
+		{"B3 attempt 1000", 100 * time.Millisecond, 5 * time.Second, 2.0, 1000},
+		{"zero initial", 0, 5 * time.Second, 2.0, 5},
+		{"maxDelay below initial", time.Second, time.Millisecond, 2.0, 5},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			delay, err := retry.ComputeDelay(tt.initial, tt.maxDelay, tt.multiplier, tt.attempt)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if delay < 0 {
+				t.Fatalf("delay must never be negative, got %v", delay)
+			}
+			// The effective cap is maxDelay when set, else initial (B1 path).
+			cap := tt.maxDelay
+			if cap <= 0 {
+				cap = tt.initial
+			}
+			// Jitter adds up to 50% of the capped delay, so bound is cap * 1.5.
+			if cap > 0 && delay > cap+cap/2 {
+				t.Fatalf("delay %v exceeds cap+50%% (%v)", delay, cap+cap/2)
+			}
+		})
+	}
+}
+
+// TestComputeDelay_NeverPanicsAcrossMatrix sweeps a broad input domain to prove
+// computeDelay cannot panic or return a negative duration for any reachable
+// combination. Statement coverage could not catch B1/B2/B3 because the
+// panicking lines were already exercised with benign inputs; this property
+// test covers the input domain instead.
+func TestComputeDelay_NeverPanicsAcrossMatrix(t *testing.T) {
+	t.Parallel()
+
+	initials := []time.Duration{0, 1, 2, time.Millisecond, 100 * time.Millisecond, time.Second}
+	maxDelays := []time.Duration{0, 1, time.Millisecond, 5 * time.Second}
+	multipliers := []float64{0.5, 1.0, 1.5, 2.0, 10.0}
+	attempts := []int{1, 2, 5, 38, 50, 100, 1000}
+
+	for _, initial := range initials {
+		for _, maxDelay := range maxDelays {
+			for _, multiplier := range multipliers {
+				for _, attempt := range attempts {
+					delay, err := retry.ComputeDelay(initial, maxDelay, multiplier, attempt)
+					if err != nil {
+						t.Fatalf("unexpected error for initial=%v maxDelay=%v mult=%v attempt=%d: %v",
+							initial, maxDelay, multiplier, attempt, err)
+					}
+					if delay < 0 {
+						t.Fatalf("negative delay for initial=%v maxDelay=%v mult=%v attempt=%d: %v",
+							initial, maxDelay, multiplier, attempt, delay)
+					}
+				}
+			}
+		}
+	}
+}
+
+func TestValidate_RejectsInvalidMaxDelay(t *testing.T) {
+	t.Parallel()
+
+	cfg := retry.Config{MaxAttempts: 1, InitialDelay: 1, MaxDelay: 0, Multiplier: 2}
+	err := cfg.Validate()
+
+	if errorfamily.Classify(err) != errorfamily.Rejection {
+		t.Fatalf("expected Rejection for MaxDelay=0, got %v (family: %s)",
 			err, errorfamily.Classify(err))
 	}
 }

@@ -7,7 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed
+
+- **Breaking:** `Backoff` and `ComputeDelay` now return
+  `(time.Duration, error)`. Passing `attempt < 1` returns a `Rejection`-family
+  error (`retry.invalid_attempt`) instead of computing a meaningless value via
+  a negative exponent. The internal `Do` loop is unaffected — it calls an
+  unexported `computeDelay` directly, so validation is enforced only at the
+  external boundary where untrusted values arrive. `retry.go`.
+- `Config.Validate()` now rejects `MaxDelay <= 0` with a `Rejection`-family
+  error (`retry.invalid_max_delay`). Previously an unset `MaxDelay` was the
+  most common trigger for the B1 panic below. `config.go`.
+
+### Fixed
+
+- **Three `rand.Int64N` panics on the retry failure path.** A retry library
+  must never panic when a downstream call fails — a panic here converts a
+  recoverable blip into a process crash. `computeDelay` is now hardened so no
+  input combination can panic or return a negative duration:
+  - **B1 — omitted/zero `MaxDelay`:** `min(delay, 0) == 0` made
+    `Int64N(0)` panic. Now an unset cap degrades to "no growth beyond
+    `InitialDelay`" instead of crashing, and `Validate()` rejects it up front.
+  - **B2 — sub-2ns delays:** `int64(delay)/2 == 0` made `Int64N(0)` panic.
+    Delays too small to halve now return as-is.
+  - **B3 — `math.Pow` overflow:** at high attempts (e.g. plain `DefaultConfig()`
+    at attempt 38) the `float64 → time.Duration` conversion wrapped to
+    `INT64_MIN`; the comparison is now done in float space and saturates to
+    `MaxDelay` instead of wrapping.
+  `retry.go`. All three were reproduced against `v0.1.0` source before fixing.
+
+### Added
+
+- `TestComputeDelay_NeverPanicsOnExtremeInputs` — regression test for each of
+  B1/B2/B3 plus overflow edges; asserts no panic, non-negative delay, and the
+  documented `MaxDelay + 50%` bound.
+- `TestComputeDelay_NeverPanicsAcrossMatrix` — property test sweeping
+  `initial × maxDelay × multiplier × attempt` to prove `computeDelay` cannot
+  panic for any reachable input combination. Statement coverage could not catch
+  B1/B2/B3 because the panicking lines were already exercised with benign
+  inputs; this covers the input domain instead.
+- `TestValidate_RejectsInvalidMaxDelay` and a `zero max delay` row in the
+  table-driven invalid-config test.
 
 ## [0.1.0] - 2026-08-03
 

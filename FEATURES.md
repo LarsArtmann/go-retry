@@ -20,14 +20,20 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   `retry.go:43` (`func Do`).
 - **Exponential backoff with additive jitter** — delay for attempt `n` is
   `InitialDelay * Multiplier^(n-1)`, capped at `MaxDelay`, plus random jitter
-  up to 50% of the capped delay. `retry.go:104` (`Backoff`),
-  `retry.go:114` (`ComputeDelay`).
+  up to 50% of the capped delay. `retry.go:107` (`Backoff`),
+  `retry.go:118` (`ComputeDelay`).
 - **Backoff is previewable without running the loop** — `Backoff(config, n)` and
-  the dependency-free `ComputeDelay(...)` are exported so callers can log/preview
-  the planned delay. `retry.go:104`, `retry.go:114`.
+  the dependency-free `ComputeDelay(...)` are exported (both return
+  `(time.Duration, error)`; an `attempt < 1` yields a `Rejection` error) so
+  callers can log/preview the planned delay. `retry.go:107`, `retry.go:118`.
+- **Panic-proof delay computation** — the internal `computeDelay`
+  (`retry.go:133`) is hardened so no input combination can panic or return a
+  negative duration: zero/unset `MaxDelay` degrades to "no growth beyond
+  initial", sub-2ns delays skip jitter, and `math.Pow` overflow saturates to
+  `MaxDelay` instead of wrapping. Proven by a matrix property test.
 - **Context cancellation during backoff** — if `ctx` is canceled while waiting,
   `Do` returns an error wrapping `ErrCanceled` (with the last `fn` error as its
-  cause), using a `select` on `timer.C` vs `ctx.Done()`. `retry.go:75-86`.
+  cause), using a `select` on `timer.C` vs `ctx.Done()`. `retry.go:78-87`.
 
 ### Configuration
 
@@ -35,8 +41,8 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   `MaxDelay: 5s`, `Multiplier: 2.0`. `config.go:10-15` (defaults),
   `config.go:49` (`DefaultConfig`).
 - **Config validation** — `Validate()` rejects `MaxAttempts < 1`,
-  `InitialDelay <= 0`, and `Multiplier <= 1` with `Rejection`-family errors.
-  `config.go:60-83`.
+  `InitialDelay <= 0`, `MaxDelay <= 0`, and `Multiplier <= 1` with
+  `Rejection`-family errors. `config.go:60-89`.
 - **Pluggable retryable predicate** — `Config.IsRetryable func(error) bool`;
   when `nil`, `Do` substitutes `errorfamily.IsRetryable`. `config.go:35`,
   `retry.go:48-51`.
@@ -59,7 +65,8 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   error via `WithCause`, so `errors.Is(err, lastFnErr)` holds. `retry.go:82-94`.
 - **Stable error codes** — `retry.exhausted`, `retry.canceled`,
   `retry.invalid_max_attempts`, `retry.invalid_initial_delay`,
-  `retry.invalid_multiplier`. `retry.go:16,22`; `config.go:63,69,76`.
+  `retry.invalid_max_delay`, `retry.invalid_multiplier`,
+  `retry.invalid_attempt`. `retry.go:16,22,121`; `config.go:63,69,77,85`.
 
 ### Documentation & developer experience
 
@@ -93,11 +100,11 @@ These are uncommitted ideas — no design, no code. They are candidates for
 graduation into `TODO_LIST.md` once scoped.
 
 - **Configurable jitter factor** — jitter is currently hardcoded to "up to 50%
-  of the delay" (`retry.go:121`). A `Config.JitterFactor` (or `Jitter: none |
+  of the delay" (`retry.go:164`). A `Config.JitterFactor` (or `Jitter: none |
 additive | full`) would let callers disable jitter for deterministic tests or
   tune spread. Tradeoff: another `Config` field to validate.
 - **Deterministic RNG option** — `ComputeDelay` uses `math/rand/v2` globally
-  (`retry.go:6`); a pluggable `rand` source would make delay sequences
+  (`retry.go:7`); a pluggable `rand` source would make delay sequences
   reproducible in tests without sampling-based assertions (the existing
   `TestBackoff_IncreasesExponentially` works around this by testing the formula,
   not sampled values).
