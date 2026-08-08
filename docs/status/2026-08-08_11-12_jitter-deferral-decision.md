@@ -19,17 +19,17 @@ Key reasoning:
    exponential (zero jitter) can compute `initial * mult^(n-1)` in the callback.
 2. Adding a `Jitter` field now would prematurely freeze the `Config` struct
    shape before the planned options-pattern migration (`WithJitter(...)`).
-3. Doing it properly requires deciding on jitter *strategy* (none / additive /
+3. Doing it properly requires deciding on jitter _strategy_ (none / additive /
    full / equal / decorrelated), not just a numeric factor.
 4. Always-on jitter prevents thundering-herd problems without requiring callers
    to opt in.
 
 ### Files Changed
 
-| File           | Change                                                                       |
-| -------------- | ---------------------------------------------------------------------------- |
-| `ROADMAP.md`   | Added "Decision (2026-08-08): defer configurable jitter" block under v1.0   |
-| `FEATURES.md`  | Updated WORTH_CONSIDERING jitter entry with deferral note + fixed line ref  |
+| File          | Change                                                                     |
+| ------------- | -------------------------------------------------------------------------- |
+| `ROADMAP.md`  | Added "Decision (2026-08-08): defer configurable jitter" block under v1.0  |
+| `FEATURES.md` | Updated WORTH_CONSIDERING jitter entry with deferral note + fixed line ref |
 
 ### Verification
 
