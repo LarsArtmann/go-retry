@@ -28,6 +28,17 @@ v1.0:
   (configurable jitter factor, deterministic RNG) would add fields. Decide
   before freezing, or commit to adding new behavior via options-style
   extension so the struct can stay compatible.
+
+  **Decision (2026-08-08): defer configurable jitter.** The existing `DelayFunc`
+  field already provides a full escape hatch — a caller who needs pure
+  exponential (zero jitter) can compute `initial * mult^(n-1)` in the callback.
+  The hardcoded additive jitter (up to 50%) is a sound default that prevents
+  thundering-herd problems without requiring callers to opt in. Adding a
+  `Jitter` field now would prematurely freeze the API shape before the planned
+  options-pattern migration, and doing it properly requires deciding on jitter
+  *strategy* (none / additive / full / equal / decorrelated), not just a numeric
+  factor. Defer until options-based configuration, where `WithJitter(...)` can
+  land without breaking existing struct literals.
 - **Is `AttemptFunc(ctx, attempt)` the signature callers want?** Some retry
   libraries pass the previous error back into `fn`; this one does not. Worth a
   deliberate decision, not an accident.
