@@ -771,13 +771,23 @@ func TestDo_DelayFuncReceivesError(t *testing.T) {
 	}
 }
 
-func TestDo_DelayFuncZeroMeansNoWait(t *testing.T) {
+func TestDo_DelayFuncZeroFallsBackToExponential(t *testing.T) {
 	t.Parallel()
 
-	cfg := fastConfig()
-	cfg.DelayFunc = func(_ int, _ error) time.Duration { return 0 }
+	var delayFuncCalled bool
 
-	start := time.Now()
+	cfg := fastConfig()
+	cfg.DelayFunc = func(_ int, _ error) time.Duration {
+		delayFuncCalled = true
+
+		return 0 // 0 = use default exponential backoff
+	}
+
+	var totalBackoff time.Duration
+
+	cfg.OnRetry = func(_ int, delay time.Duration, _ error) {
+		totalBackoff += delay
+	}
 
 	transient := errorfamily.NewTransient("test.transient", "fail")
 
@@ -785,12 +795,15 @@ func TestDo_DelayFuncZeroMeansNoWait(t *testing.T) {
 		return transient
 	})
 
-	elapsed := time.Since(start)
+	if !delayFuncCalled {
+		t.Fatal("expected DelayFunc to be called")
+	}
 
-	// With zero delay and fastConfig's tiny exponential backoff overridden,
-	// 3 attempts should complete in well under 10ms.
-	if elapsed > 10*time.Millisecond {
-		t.Fatalf("expected near-instant completion, took %v", elapsed)
+	// With fastConfig (1ms initial, 5ms max, multiplier 2.0), returning 0
+	// should fall back to exponential backoff, not skip the delay entirely.
+	// Two retries → at least the initial delay should have been used.
+	if totalBackoff <= 0 {
+		t.Fatalf("expected positive backoff from default, got %v", totalBackoff)
 	}
 }
 

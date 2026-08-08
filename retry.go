@@ -70,7 +70,9 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 		delay := computeDelay(config.InitialDelay, config.MaxDelay, config.Multiplier, attempt)
 
 		if config.DelayFunc != nil {
-			delay = config.DelayFunc(attempt, err)
+			if d := config.DelayFunc(attempt, err); d > 0 {
+				delay = d
+			}
 		}
 
 		if config.OnRetry != nil {
