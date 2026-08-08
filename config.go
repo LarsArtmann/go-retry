@@ -34,6 +34,17 @@ type Config struct {
 	// If nil, defaults to [errorfamily.IsRetryable].
 	IsRetryable func(error) bool
 
+	// DelayFunc overrides the exponential backoff computation. When non-nil,
+	// it is called after each failed retryable attempt to determine the wait
+	// before the next attempt. It receives the current attempt number (starting
+	// at 1) and the error from the failed attempt, so callers can honor
+	// server-provided delays (e.g. HTTP "Retry-After" headers) or implement
+	// custom backoff strategies.
+	//
+	// When nil, [Do] uses exponential backoff with jitter (see [ComputeDelay]).
+	// A return of 0 means "no delay".
+	DelayFunc func(attempt int, err error) time.Duration
+
 	// OnRetry is called after each failed attempt before sleeping.
 	// The attempt argument starts at 1 (the first failed attempt).
 	// Use this for structured logging or metrics without OTel.

@@ -719,6 +719,106 @@ func TestDo_OnExhaustedReceivesExactLastError(t *testing.T) {
 	}
 }
 
+func TestDo_DelayFuncOverridesExponentialBackoff(t *testing.T) {
+	t.Parallel()
+
+	var delays []time.Duration
+
+	cfg := fastConfig()
+	cfg.DelayFunc = func(attempt int, _ error) time.Duration {
+		d := time.Duration(attempt) * time.Microsecond
+		delays = append(delays, d)
+
+		return d
+	}
+
+	transient := errorfamily.NewTransient("test.transient", "fail")
+
+	_ = retry.Do(context.Background(), cfg, func(_ context.Context, _ int) error {
+		return transient
+	})
+
+	// DelayFunc is called after attempts 1 and 2 (not after the final attempt 3).
+	if len(delays) != 2 {
+		t.Fatalf("expected 2 DelayFunc calls, got %d", len(delays))
+	}
+
+	if delays[0] != 1*time.Microsecond || delays[1] != 2*time.Microsecond {
+		t.Fatalf("expected delays [1us, 2us], got %v", delays)
+	}
+}
+
+func TestDo_DelayFuncReceivesError(t *testing.T) {
+	t.Parallel()
+
+	sentinel := errorfamily.NewTransient("test.transient", "honor retry-after")
+
+	var receivedErr error
+
+	cfg := fastConfig()
+	cfg.DelayFunc = func(_ int, err error) time.Duration {
+		receivedErr = err
+
+		return 0
+	}
+
+	_ = retry.Do(context.Background(), cfg, func(_ context.Context, _ int) error {
+		return sentinel
+	})
+
+	if !errors.Is(receivedErr, sentinel) {
+		t.Fatalf("expected DelayFunc to receive the error, got %v", receivedErr)
+	}
+}
+
+func TestDo_DelayFuncZeroMeansNoWait(t *testing.T) {
+	t.Parallel()
+
+	cfg := fastConfig()
+	cfg.DelayFunc = func(_ int, _ error) time.Duration { return 0 }
+
+	start := time.Now()
+
+	transient := errorfamily.NewTransient("test.transient", "fail")
+
+	_ = retry.Do(context.Background(), cfg, func(_ context.Context, _ int) error {
+		return transient
+	})
+
+	elapsed := time.Since(start)
+
+	// With zero delay and fastConfig's tiny exponential backoff overridden,
+	// 3 attempts should complete in well under 10ms.
+	if elapsed > 10*time.Millisecond {
+		t.Fatalf("expected near-instant completion, took %v", elapsed)
+	}
+}
+
+func TestDo_OnRetryReceivesDelayFuncDelay(t *testing.T) {
+	t.Parallel()
+
+	const customDelay = 42 * time.Microsecond
+
+	var loggedDelay time.Duration
+
+	cfg := fastConfig()
+	cfg.DelayFunc = func(_ int, _ error) time.Duration { return customDelay }
+	cfg.OnRetry = func(_ int, delay time.Duration, _ error) {
+		loggedDelay = delay
+	}
+
+	transient := errorfamily.NewTransient("test.transient", "fail")
+
+	_ = retry.Do(context.Background(), cfg, func(_ context.Context, _ int) error {
+		return transient
+	})
+
+	// OnRetry must receive the DelayFunc-computed delay, not the exponential one.
+	if loggedDelay != customDelay {
+		t.Fatalf("expected OnRetry delay=%v, got %v", customDelay, loggedDelay)
+	}
+}
+
 func fastConfig() retry.Config {
 	return retry.Config{
 		MaxAttempts:  3,
