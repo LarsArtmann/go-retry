@@ -7,7 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed
+
+- **Configurable jitter deferred.** Decision recorded (2026-08-08): the hardcoded
+  additive jitter (up to 50% of the capped delay) remains the default.
+  `DelayFunc` already provides a full escape hatch for callers needing pure
+  exponential (zero jitter). Jitter configuration will land with the
+  options-pattern migration (`WithJitter(...)`) to avoid prematurely freezing
+  the `Config` struct shape. See `ROADMAP.md` for the full rationale.
+
+## [0.3.1] - 2026-08-08
+
+### Fixed
+
+- **`DelayFunc` returning 0 now falls back to default exponential backoff**
+  instead of meaning "no delay." Previously a `DelayFunc` that returned `0`
+  silently zeroed the wait; now `0` means "use the computed exponential backoff
+  with jitter," and only a positive return overrides it. This lets callers
+  override only when a server-provided delay (e.g. HTTP `Retry-After`) is
+  present and fall through to the normal backoff otherwise. `retry.go` (`Do`),
+  `config.go` (`DelayFunc` doc comment).
+
+### Changed
+
+- `DelayFunc` doc comment rewritten to clarify the zero-return semantics: a
+  return `> 0` overrides; `0` means "use the default." `config.go`.
+- Test renamed: `TestDo_DelayFuncZeroMeansNoWait` →
+  `TestDo_DelayFuncZeroFallsBackToExponential` (asserts positive backoff, not
+  near-instant completion). `retry_test.go`.
+
+## [0.3.0] - 2026-08-07
+
+### Added
+
+- **`Config.DelayFunc`** — optional callback that overrides the exponential
+  backoff delay for a single attempt. Receives the current attempt number and
+  the error from the failed attempt, so callers can honor server-provided
+  delays (e.g. HTTP `Retry-After` headers) or implement custom backoff
+  strategies. `config.go` (`DelayFunc` field), `retry.go` (`Do`).
+- **`FromPolicy(errorfamily.RetryPolicy) Config`** — converts an `error-family`
+  retry policy into this package's `Config`, mapping `MinDelay` to
+  `InitialDelay`. Retains the default multiplier, retry predicate, and unset
+  hooks. `config.go` (`FromPolicy`).
+- **Concurrent retry isolation test** — 100-goroutine test proving `Do`
+  invocations share no mutable state. `retry_test.go`
+  (`TestDo_ConcurrentInvocationsShareNoMutableState`).
+- **Fuzz target for `ComputeDelay`** — `FuzzComputeDelayNeverPanics` with seeds
+  for ordinary, zero-cap, overflow, and near-`MaxInt64` inputs.
+  `retry_test.go`.
+- **`FromPolicy` tests** — field mapping, default-preservation, and
+  non-retryable-family validation. `retry_test.go`.
+- **`DelayFunc` tests** — override behavior, error-receiving, zero-return
+  fallback, and `OnRetry` integration. `retry_test.go`.
+- **API cross-links** — `Backoff` and `ComputeDelay` doc comments now reference
+  each other. `retry.go`.
 
 ## [0.2.0] - 2026-08-07
 
@@ -117,6 +170,8 @@ Initial public release. Signed annotated tag `v0.1.0`.
 - **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
   links resolve against the public GitHub remote.
 
-[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/LarsArtmann/go-retry/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/LarsArtmann/go-retry/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/LarsArtmann/go-retry/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LarsArtmann/go-retry/releases/tag/v0.1.0

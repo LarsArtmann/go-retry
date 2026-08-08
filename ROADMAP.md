@@ -20,7 +20,7 @@ boundary: if a feature needs CQRS or OTel types, it belongs in
 
 ## v1.0 — what is the bar?
 
-v0.1.0 shipped today (2026-08-03, tag `v0.1.0`, signed). The path to v1.0 is an
+The current release is **v0.3.1** (tagged 2026-08-08). The path to v1.0 is an
 **API-stability promise**, not a feature list. Open questions to resolve before
 v1.0:
 
