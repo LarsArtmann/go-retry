@@ -95,7 +95,7 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   no mutable state (`-race` clean). `retry_test.go`
   (`TestDo_ConcurrentInvocationsShareNoMutableState`).
 - **No-panic property test** — sweeps `initial x maxDelay x multiplier x
-  attempt` to prove `computeDelay` cannot panic or return negative for any
+attempt` to prove `computeDelay` cannot panic or return negative for any
   reachable input. `retry_test.go` (`TestComputeDelay_NeverPanicsAcrossMatrix`).
 - **Fuzz target** — `FuzzComputeDelayNeverPanics` with seeds for ordinary,
   zero-cap, overflow, and near-`MaxInt64` inputs. `retry_test.go`.

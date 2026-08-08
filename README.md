@@ -63,21 +63,23 @@ succeeded on attempt 3
 
 `retry.DefaultConfig()` returns sensible defaults; override only what you need.
 
-| Field          | Default                   | Description                                                                  |
-| -------------- | ------------------------- | ---------------------------------------------------------------------------- |
-| `MaxAttempts`  | `3`                       | Total attempts **including the first call** (not retries on top).            |
-| `InitialDelay` | `100ms`                   | Delay before the second attempt.                                             |
-| `MaxDelay`     | `5s`                      | Cap on the backoff delay.                                                    |
-| `Multiplier`   | `2.0`                     | Exponential backoff factor. Delay for attempt _n_ is `Initial * Mult^(n-1)`. |
-| `IsRetryable`  | `errorfamily.IsRetryable` | Decides whether an error triggers a retry. Set `nil` for the default.        |
-| `OnRetry`      | `nil`                     | Called after each failed attempt, before sleeping.                           |
-| `OnExhausted`  | `nil`                     | Called once after all attempts have failed.                                  |
+| Field          | Default                   | Description                                                                                                                          |
+| -------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `MaxAttempts`  | `3`                       | Total attempts **including the first call** (not retries on top).                                                                    |
+| `InitialDelay` | `100ms`                   | Delay before the second attempt.                                                                                                     |
+| `MaxDelay`     | `5s`                      | Cap on the backoff delay.                                                                                                            |
+| `Multiplier`   | `2.0`                     | Exponential backoff factor. Delay for attempt _n_ is `Initial * Mult^(n-1)`.                                                         |
+| `IsRetryable`  | `errorfamily.IsRetryable` | Decides whether an error triggers a retry. Set `nil` for the default.                                                                |
+| `DelayFunc`    | `nil`                     | Overrides the backoff delay per attempt. Return `> 0` to use that delay; return `0` to fall back to the default exponential backoff. |
+| `OnRetry`      | `nil`                     | Called after each failed attempt, before sleeping.                                                                                   |
+| `OnExhausted`  | `nil`                     | Called once after all attempts have failed.                                                                                          |
 
-Delay for attempt _n_ is `InitialDelay * Multiplier^(n-1)`, capped at
-`MaxDelay`, plus random jitter of up to 50% of the capped delay. Use the
-exported [`Backoff`](retry.go) or [`ComputeDelay`](retry.go) to preview the planned
-delay without running the loop. Both return `(time.Duration, error)` and reject
-attempts below 1.
+When `DelayFunc` is set, it is called after each failed retryable attempt with the
+attempt number and the last error. A return greater than 0 overrides the
+computed backoff entirely; a return of 0 means "use the default exponential
+backoff" (see [`Backoff`](retry.go) / [`ComputeDelay`](retry.go)). This lets
+callers honor server-provided delays (e.g. HTTP "Retry-After") only when present.
+Both exported helpers return `(time.Duration, error)` and reject attempts below 1.
 
 ### Custom retryable predicate and observability hooks
 
@@ -93,6 +95,22 @@ cfg.OnRetry = func(attempt int, delay time.Duration, err error) {
 }
 cfg.OnExhausted = func(attempts int, err error) {
 	log.Printf("gave up after %d attempts: %v", attempts, err)
+}
+```
+
+### Server-provided delays (`DelayFunc`)
+
+`DelayFunc` lets you override the backoff delay per attempt — e.g. to honor an
+HTTP `Retry-After` header. Return `0` when no server delay is available and the
+default exponential backoff is used instead:
+
+```go
+cfg.DelayFunc = func(attempt int, err error) time.Duration {
+	var h *httpError
+	if errors.As(err, &h) && h.RetryAfter > 0 {
+		return h.RetryAfter
+	}
+	return 0 // fall back to exponential backoff
 }
 ```
 

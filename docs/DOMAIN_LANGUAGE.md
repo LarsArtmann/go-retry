@@ -72,15 +72,15 @@ Every error carries a behavioral **Family** and a stable string **code**.
 Every error carries a machine-readable string code. `go-retry`'s codes follow
 `retry.<snake_case_event>`:
 
-| Code                          | Family         | Source                                          |
-| ----------------------------- | -------------- | ----------------------------------------------- |
-| `retry.exhausted`             | Infrastructure | `retry.go:17` (`ErrExhausted`)                  |
-| `retry.canceled`              | Infrastructure | `retry.go:24` (`ErrCanceled`)                   |
-| `retry.invalid_max_attempts`  | Rejection      | `config.go:88` (`Validate`)                     |
-| `retry.invalid_initial_delay` | Rejection      | `config.go:95` (`Validate`)                     |
-| `retry.invalid_max_delay`     | Rejection      | `config.go:102` (`Validate`)                    |
-| `retry.invalid_multiplier`    | Rejection      | `config.go:109` (`Validate`)                    |
-| `retry.invalid_attempt`       | Rejection      | `retry.go:128` (`ComputeDelay`)                 |
+| Code                          | Family         | Source                          |
+| ----------------------------- | -------------- | ------------------------------- |
+| `retry.exhausted`             | Infrastructure | `retry.go:17` (`ErrExhausted`)  |
+| `retry.canceled`              | Infrastructure | `retry.go:24` (`ErrCanceled`)   |
+| `retry.invalid_max_attempts`  | Rejection      | `config.go:88` (`Validate`)     |
+| `retry.invalid_initial_delay` | Rejection      | `config.go:95` (`Validate`)     |
+| `retry.invalid_max_delay`     | Rejection      | `config.go:102` (`Validate`)    |
+| `retry.invalid_multiplier`    | Rejection      | `config.go:109` (`Validate`)    |
+| `retry.invalid_attempt`       | Rejection      | `retry.go:128` (`ComputeDelay`) |
 
 These codes are part of the public contract — callers may switch on them. New
 codes must follow the `retry.<event>` pattern.
