@@ -36,9 +36,10 @@ v1.0:
   thundering-herd problems without requiring callers to opt in. Adding a
   `Jitter` field now would prematurely freeze the API shape before the planned
   options-pattern migration, and doing it properly requires deciding on jitter
-  *strategy* (none / additive / full / equal / decorrelated), not just a numeric
+  _strategy_ (none / additive / full / equal / decorrelated), not just a numeric
   factor. Defer until options-based configuration, where `WithJitter(...)` can
   land without breaking existing struct literals.
+
 - **Is `AttemptFunc(ctx, attempt)` the signature callers want?** Some retry
   libraries pass the previous error back into `fn`; this one does not. Worth a
   deliberate decision, not an accident.

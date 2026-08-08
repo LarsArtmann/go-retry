@@ -105,7 +105,7 @@ graduation into `TODO_LIST.md` once scoped.
 
 - **Configurable jitter factor** — jitter is currently hardcoded to "up to 50%
   of the delay" (`retry.go:167`). A `Config.JitterFactor` (or `Jitter: none |
-  additive | full`) would let callers disable jitter for deterministic tests or
+additive | full`) would let callers disable jitter for deterministic tests or
   tune spread. **Deferred (2026-08-08):** `DelayFunc` already covers the
   custom-delay escape hatch (compute pure exponential in the callback for zero
   jitter); jitter config will land with the options-pattern migration (see
