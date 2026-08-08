@@ -84,7 +84,7 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
 - **Stable error codes** — `retry.exhausted`, `retry.canceled`,
   `retry.invalid_max_attempts`, `retry.invalid_initial_delay`,
   `retry.invalid_max_delay`, `retry.invalid_multiplier`,
-  `retry.invalid_attempt`. `retry.go` (lines 17, 24, 129); `config.go`
+  `retry.invalid_attempt`. `retry.go` (lines 17, 24, 128); `config.go`
   (lines 88, 95, 102, 109).
 
 ### Testing guarantees

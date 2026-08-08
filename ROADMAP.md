@@ -44,9 +44,11 @@ v1.0:
   libraries pass the previous error back into `fn`; this one does not. Worth a
   deliberate decision, not an accident.
 - **Public API surface audit** — confirm every exported symbol
-  (`Do`, `Config`, `DefaultConfig`, `Backoff`, `ComputeDelay`, `AttemptFunc`,
-  `ErrExhausted`, `ErrCanceled`) is one callers should depend on, and that
-  nothing exported is leaking an implementation detail.
+  (`Do`, `Config`, `DefaultConfig`, `FromPolicy`, `Backoff`, `ComputeDelay`,
+  `AttemptFunc`, `ErrExhausted`, `ErrCanceled`) and every exported `Config`
+  field (`MaxAttempts`, `InitialDelay`, `MaxDelay`, `Multiplier`, `IsRetryable`,
+  `DelayFunc`, `OnRetry`, `OnExhausted`) is one callers should depend on, and
+  that nothing exported is leaking an implementation detail.
 
 ## Raw ideas (unscoped)
 
