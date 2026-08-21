@@ -1032,10 +1032,7 @@ func BenchmarkComputeDelay(b *testing.B) {
 		attempt    = 5
 	)
 
-	b.ReportAllocs()
-	b.ResetTimer()
-
-	for range b.N {
+	for b.Loop() { // b.Loop auto-resets the timer and reports allocations
 		_, _ = retry.ComputeDelay(initial, maxDelay, multiplier, attempt)
 	}
 }

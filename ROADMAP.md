@@ -52,6 +52,14 @@ v1.0:
 
 ## Raw ideas (unscoped)
 
+- **`OnSuccess(attempts)` hook.** Would fire once when the loop succeeds
+  after retries, receiving the attempt count — the symmetric bookend to
+  `OnExhausted` (metrics: an "attempts until success" histogram).
+  **Deferred (2026-08-22):** no consumer has asked for it; every caller
+  that needs the count can already derive it (`attempt == n` on the
+  successful `fn` invocation, or a wrapper around `fn`); and each new
+  `Config` hook widens the API surface that must survive the planned
+  options-pattern migration. Revisit when a concrete consumer exists.
 - **Options-based configuration.** Migrate optional `Config` behavior
   (`OnRetry`, `OnExhausted`, a future jitter config) to functional options
   (`WithOnRetry(...)`) so new capabilities don't break the struct literal

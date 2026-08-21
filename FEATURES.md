@@ -151,13 +151,17 @@ These are uncommitted ideas — no design, no code. They are candidates for
 graduation into `TODO_LIST.md` once scoped.
 
 - **Configurable jitter factor** — jitter is currently hardcoded to "up to 50%
-  of the delay" (`retry.go`, `computeDelay`, line 172). A `Config.JitterFactor`
-  (or `Jitter: none | additive | full`) would let callers disable jitter for
-  deterministic tests or tune spread. **Deferred (2026-08-08):** `DelayFunc`
-  already covers the custom-delay escape hatch (compute pure exponential in the
-  callback for zero jitter); jitter config will land with the options-pattern
-  migration (see `ROADMAP.md` v1.0 section). Tradeoff: another `Config` field
-  to validate.
+  of the capped exponential delay, with the sum hard-capped at `MaxDelay`"
+  (`retry.go`, `computeDelay`). A `Config.JitterFactor` (or
+  `Jitter: none | additive | full | equal`) would let callers disable jitter
+  for deterministic tests or tune spread. **Deferred (2026-08-08, reaffirmed
+  2026-08-22):** `DelayFunc` already covers the custom-delay escape hatch
+  (compute pure exponential in the callback for zero jitter); jitter config
+  will land with the options-pattern migration (see `ROADMAP.md` v1.0
+  section). The v0.4.0 cap fix makes the additive strategy contract-safe —
+  the delay can never exceed `MaxDelay` — which removes the correctness
+  pressure to switch strategies but does not by itself justify a new
+  `Config` field. Tradeoff: another field to validate and freeze.
 - **Deterministic RNG option** — `ComputeDelay` uses `math/rand/v2` globally
   (`retry.go:7`); a pluggable `rand` source would make delay sequences
   reproducible in tests without sampling-based assertions (the existing
