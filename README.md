@@ -116,20 +116,43 @@ cfg.DelayFunc = func(attempt int, err error) time.Duration {
 
 ## Errors
 
-`Do` never returns a bare `context.Canceled`. On exhaustion or cancellation
-during backoff it returns an `error-family` `Infrastructure` error wrapping a
-stable sentinel, with the last operation error chained as its cause:
+`Do` never returns a bare `context.Canceled`. On exhaustion it returns an
+`error-family` `Infrastructure` error wrapping a stable sentinel, with the
+last operation error chained as its cause; on a context ending during
+backoff it chains both the context error and the last attempt error:
 
-| Situation                       | Sentinel             | Code              |
-| ------------------------------- | -------------------- | ----------------- |
-| All attempts failed             | `retry.ErrExhausted` | `retry.exhausted` |
-| Context canceled during backoff | `retry.ErrCanceled`  | `retry.canceled`  |
+| Situation                       | Sentinel                    | Also unwraps to               |
+| ------------------------------- | --------------------------- | ----------------------------- |
+| All attempts failed             | `retry.ErrExhausted`        | the last attempt's error      |
+| Context canceled during backoff | `retry.ErrCanceled`         | `context.Canceled` + last err |
+| Deadline exceeded during backoff | `retry.ErrDeadlineExceeded` | `context.DeadlineExceeded` + last err |
 
 Detect them with `errors.Is`:
 
 ```go
 if errors.Is(err, retry.ErrExhausted) { /* gave up */ }
+if errors.Is(err, retry.ErrDeadlineExceeded) { /* too slow, not shut down */ }
+if errors.Is(err, retry.ErrCanceled) { /* caller shut down */ }
 ```
+
+### Exhaustion and nesting
+
+When every attempt fails, the returned error matches `retry.ErrExhausted`
+**and** unwraps to the last attempt's error — no hand-unwrapping to recover
+the typed cause:
+
+```go
+err := retry.Do(ctx, cfg, fetch)
+if errors.Is(err, retry.ErrExhausted) && errors.Is(err, errQuotaExceeded) {
+	// the FINAL attempt failed on the quota, after every retry
+}
+```
+
+Nesting is fail-closed. `ErrExhausted` is `Infrastructure`, and the default
+`IsRetryable` predicate retries only `Transient` errors, so an outer retry
+loop treats an inner loop's exhaustion as terminal instead of multiplying
+attempts (`outer(3) × inner(3)` runs 3 inner attempts, not 9). Override
+`IsRetryable` deliberately if you actually want nested amplification.
 
 Invalid `Config` returns a `Rejection`-family error (`retry.invalid_*` codes)
 before the first attempt runs. See [`FEATURES.md`](FEATURES.md) for the full

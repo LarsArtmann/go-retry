@@ -14,6 +14,17 @@ import (
 // ErrExhausted is returned by [Do] when all retry attempts have failed.
 // It is classified as Infrastructure because retry exhaustion typically
 // indicates a downstream system problem.
+//
+// The returned error also unwraps to the last attempt's error, so
+// errors.Is and errors.AsType reach the original cause without manual
+// unwrapping:
+//
+//	if errors.Is(err, ErrExhausted) && errors.Is(err, errQuotaExceeded) { ... }
+//
+// Nesting is fail-closed: ErrExhausted is Infrastructure, and the default
+// IsRetryable predicate retries only Transient errors, so an outer retry
+// loop treats an inner loop's exhaustion as terminal rather than
+// multiplying attempts.
 var ErrExhausted = errorfamily.NewInfrastructure(
 	"retry.exhausted",
 	"all retry attempts failed",
@@ -56,7 +67,8 @@ type AttemptFunc func(ctx context.Context, attempt int) error
 // cases the last attempt error stays in the chain.
 //
 // If all attempts fail, Do calls config.OnExhausted (if set) and returns
-// an error wrapping [ErrExhausted] with the last error as its cause.
+// an error wrapping [ErrExhausted] with the last error as its cause, so
+// errors.Is and errors.AsType reach the final attempt's error.
 func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 	if err := config.Validate(); err != nil {
 		return err
