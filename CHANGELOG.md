@@ -9,7 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- **CI coverage floor** — a dedicated `coverage` job fails below 95% statement
+  coverage (local coverage is 100%; the floor leaves room for a legitimately
+  hard-to-test edge). `.github/workflows/ci.yml`.
+- **CI `go vet` step** — vet now runs in CI before the race-detector tests;
+  previously it was a local-only check. `.github/workflows/ci.yml`.
+- **Decision records** — `OnSuccess(attempts)` hook deferred (no consumer;
+  derivable today; widens the API to migrate); jitter-deferral decision
+  reaffirmed after the v0.4.0 cap fix removed the correctness pressure.
+  `ROADMAP.md`, `FEATURES.md`.
+
+### Changed
+
+- **`BenchmarkComputeDelay` uses `b.Loop()`** — the Go 1.24+ idiom; timer
+  reset and allocation reporting are now framework-owned. `retry_test.go`.
 
 ### Fixed
 

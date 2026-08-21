@@ -10,15 +10,6 @@ Priority uses a simple Pareto ranking: **P1** = high impact, do first;
 
 ---
 
-## P1 — Code quality (fix on sight)
-
-### T2. Modernize benchmark to `b.Loop()`
-
-`BenchmarkComputeDelay` uses `for range b.N` (Go pre-1.24 idiom). gopls flags
-`retry_test.go` as modernizable to `b.Loop()`. One-line change.
-**Evidence:** `retry_test.go` (`BenchmarkComputeDelay`); gopls `bloop`
-diagnostic.
-
 ## P3 — Polish
 
 ### T8. Run a bounded fuzz campaign on `FuzzComputeDelayNeverPanics`
@@ -35,6 +26,8 @@ preserve any useful corpus entries. **Evidence:** `retry_test.go`
 - ~~T1. Reduce `Do` cyclomatic complexity below the lint threshold~~ —
   `awaitBackoff`/`nextDelay` extraction, complexity 13 → below 12
   (shipped in v0.4.0).
+- ~~T2. Modernize benchmark to `b.Loop()`~~ — `BenchmarkComputeDelay`
+  migrated (see `[Unreleased]`).
 - ~~T3. Add `DelayFunc` to the README configuration table~~ — already
   present after the 2026-08-08 docs rebuild; verified during the v0.4.0
   docs pass.
