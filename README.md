@@ -121,10 +121,10 @@ cfg.DelayFunc = func(attempt int, err error) time.Duration {
 last operation error chained as its cause; on a context ending during
 backoff it chains both the context error and the last attempt error:
 
-| Situation                       | Sentinel                    | Also unwraps to               |
-| ------------------------------- | --------------------------- | ----------------------------- |
-| All attempts failed             | `retry.ErrExhausted`        | the last attempt's error      |
-| Context canceled during backoff | `retry.ErrCanceled`         | `context.Canceled` + last err |
+| Situation                        | Sentinel                    | Also unwraps to                       |
+| -------------------------------- | --------------------------- | ------------------------------------- |
+| All attempts failed              | `retry.ErrExhausted`        | the last attempt's error              |
+| Context canceled during backoff  | `retry.ErrCanceled`         | `context.Canceled` + last err         |
 | Deadline exceeded during backoff | `retry.ErrDeadlineExceeded` | `context.DeadlineExceeded` + last err |
 
 Detect them with `errors.Is`:

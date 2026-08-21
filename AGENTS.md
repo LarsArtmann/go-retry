@@ -34,12 +34,12 @@ go vet ./...
 
 Flat single-package layout — no internal subpackages:
 
-| File            | Responsibility                                                                                         |
-| --------------- | ------------------------------------------------------------------------------------------------------ |
+| File            | Responsibility                                                                                                                               |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `retry.go`      | `Do` (loop), `awaitBackoff`/`nextDelay` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded` |
-| `config.go`     | `Config` struct, `DefaultConfig()`, `Validate()`                                                       |
-| `doc.go`        | Package doc stating the no-CQRS/no-OTel boundary                                                       |
-| `retry_test.go` | External test package (`retry_test`)                                                                   |
+| `config.go`     | `Config` struct, `DefaultConfig()`, `Validate()`                                                                                             |
+| `doc.go`        | Package doc stating the no-CQRS/no-OTel boundary                                                                                             |
+| `retry_test.go` | External test package (`retry_test`)                                                                                                         |
 
 **Control flow of `Do`**: validate config → loop `attempt` from 1 to
 `MaxAttempts` → call `fn(ctx, attempt)` → on `nil` return immediately → if not
