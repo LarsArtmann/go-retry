@@ -353,8 +353,8 @@ func TestBackoff_RespectsMaxDelay(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if delay > 400*time.Millisecond { // max delay + 50% jitter = 300ms max
-		t.Fatalf("expected delay <= 400ms (capped), got %v", delay)
+	if delay > 200*time.Millisecond { // cap is strict, jitter included
+		t.Fatalf("expected delay <= 200ms (capped), got %v", delay)
 	}
 }
 
@@ -387,6 +387,32 @@ func TestBackoff_InvalidAttemptReturnsError(t *testing.T) {
 					tt.attempt, err, errorfamily.Classify(err))
 			}
 		})
+	}
+}
+
+// TestComputeDelay_NeverExceedsMaxDelay pins the documented contract that the
+// returned delay — jitter included — never exceeds maxDelay. The cap used to be
+// applied before jitter was added, letting sampled delays reach 1.5× maxDelay
+// (observed: ~300ms against a declared 200ms cap). Sampling attempt 10 forces
+// the exponential term far past the cap so every sample exercises the
+// cap-then-jitter path.
+func TestComputeDelay_NeverExceedsMaxDelay(t *testing.T) {
+	t.Parallel()
+
+	const (
+		initial  = 100 * time.Millisecond
+		maxDelay = 200 * time.Millisecond
+	)
+
+	for sample := range 20000 {
+		delay, err := retry.ComputeDelay(initial, maxDelay, 2.0, 10)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if delay > maxDelay {
+			t.Fatalf("delay %v exceeds MaxDelay cap %v (sample %d)", delay, maxDelay, sample)
+		}
 	}
 }
 
@@ -442,9 +468,9 @@ func TestComputeDelay_NeverPanicsOnExtremeInputs(t *testing.T) {
 			if effectiveCap <= 0 {
 				effectiveCap = tt.initial
 			}
-			// Jitter adds up to 50% of the capped delay, so bound is cap * 1.5.
-			if effectiveCap > 0 && delay > effectiveCap+effectiveCap/2 {
-				t.Fatalf("delay %v exceeds cap+50%% (%v)", delay, effectiveCap+effectiveCap/2)
+			// The cap applies after jitter, so the delay never exceeds it.
+			if effectiveCap > 0 && delay > effectiveCap {
+				t.Fatalf("delay %v exceeds cap %v", delay, effectiveCap)
 			}
 		})
 	}

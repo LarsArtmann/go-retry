@@ -102,13 +102,15 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 }
 
 // Backoff calculates the delay before the next attempt using exponential
-// backoff with optional jitter. The delay for attempt n is:
+// backoff with additive jitter. The delay for attempt n is:
 //
-//	InitialDelay * Multiplier^(n-1) + random jitter (up to 50% of the delay)
+//	min(InitialDelay * Multiplier^(n-1) + jitter, MaxDelay)
 //
-// The result is capped at MaxDelay. Exported so callers can preview or
-// log the planned delay without executing the retry loop. See [ComputeDelay]
-// for the raw-parameter variant.
+// where jitter is a random value of up to 50% of the capped exponential
+// delay. The cap applies to the jittered sum, so the returned value never
+// exceeds MaxDelay. Exported so callers can preview or log the planned delay
+// without executing the retry loop. See [ComputeDelay] for the
+// raw-parameter variant.
 //
 // attempt must be >= 1; passing a lower value returns a Rejection error.
 func Backoff(config Config, attempt int) (time.Duration, error) {
@@ -118,10 +120,12 @@ func Backoff(config Config, attempt int) (time.Duration, error) {
 // ComputeDelay calculates the exponential backoff delay with jitter from raw
 // parameters, without requiring a [Config]. The delay for attempt n is:
 //
-//	initial * multiplier^(n-1) + random jitter (up to 50% of the delay)
+//	min(initial * multiplier^(n-1) + jitter, maxDelay)
 //
-// The result is capped at max. attempt must be >= 1; passing a lower value
-// returns a Rejection error. See [Backoff] for the Config-based variant.
+// where jitter is a random value of up to 50% of the capped exponential
+// delay. The cap applies to the jittered sum, so the returned value never
+// exceeds maxDelay. attempt must be >= 1; passing a lower value returns a
+// Rejection error. See [Backoff] for the Config-based variant.
 func ComputeDelay(initial, maxDelay time.Duration, multiplier float64, attempt int) (time.Duration, error) {
 	if attempt < 1 {
 		return 0, errorfamily.NewRejection(
@@ -169,10 +173,16 @@ func computeDelay(initial, maxDelay time.Duration, multiplier float64, attempt i
 		return delay
 	}
 
+	// Jitter is added to the capped exponential delay and the sum is capped
+	// again: capping before jitter would let real sleeps reach 1.5x MaxDelay
+	// while the docs promise a hard cap.
 	jitter := time.Duration(rand.Int64N(half)) //nolint:gosec // jitter divisor; weak rand fine
-	if delay > math.MaxInt64-jitter {          // saturate rather than wrap
-		return math.MaxInt64
+
+	delayed := delay + jitter
+	if delayed < delay || delayed > maxDelay {
+		// Overflow wrap or cap exceeded: saturate at the cap.
+		return maxDelay
 	}
 
-	return delay + jitter
+	return delayed
 }
