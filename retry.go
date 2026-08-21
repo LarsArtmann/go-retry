@@ -130,6 +130,7 @@ func contextEnded(ctx context.Context, lastErr error) error {
 	return errorfamily.WrapInfrastructure(ErrCanceled, "retry.canceled",
 		"retry canceled during backoff delay").WithCause(chain)
 }
+
 // Backoff calculates the delay before the next attempt using exponential
 // backoff with additive jitter. The delay for attempt n is:
 //
