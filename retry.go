@@ -2,6 +2,7 @@ package retry
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"math/rand/v2"
@@ -19,10 +20,22 @@ var ErrExhausted = errorfamily.NewInfrastructure(
 )
 
 // ErrCanceled is returned by [Do] when the context is canceled during
-// a retry delay. It wraps context.Canceled as its cause.
+// a retry delay. Errors matching it also unwrap to [context.Canceled],
+// and the last attempt error remains in the chain.
 var ErrCanceled = errorfamily.NewInfrastructure(
 	"retry.canceled",
 	"retry canceled during backoff delay",
+)
+
+// ErrDeadlineExceeded is returned by [Do] when the context deadline is
+// exceeded during a retry delay. Errors matching it also unwrap to
+// [context.DeadlineExceeded], and the last attempt error remains in the
+// chain. The distinction from [ErrCanceled] matters operationally: a
+// deadline means the operation was too slow, a cancel means the caller
+// shut down — the two are debugged differently.
+var ErrDeadlineExceeded = errorfamily.NewInfrastructure(
+	"retry.deadline",
+	"retry deadline exceeded during backoff delay",
 )
 
 // AttemptFunc is the function retried by [Do]. The attempt argument
@@ -37,7 +50,10 @@ type AttemptFunc func(ctx context.Context, attempt int) error
 // immediately without further attempts.
 //
 // If the context is canceled during a backoff delay, Do returns an error
-// wrapping [ErrCanceled].
+// wrapping [ErrCanceled] that also unwraps to [context.Canceled]. If the
+// context deadline is exceeded instead, the returned error wraps
+// [ErrDeadlineExceeded] and unwraps to [context.DeadlineExceeded]. In both
+// cases the last attempt error stays in the chain.
 //
 // If all attempts fail, Do calls config.OnExhausted (if set) and returns
 // an error wrapping [ErrExhausted] with the last error as its cause.
@@ -83,14 +99,12 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 
 		select {
 		case <-timer.C:
+			timer.Stop()
 		case <-ctx.Done():
 			timer.Stop()
 
-			return errorfamily.WrapInfrastructure(ErrCanceled, "retry.canceled",
-				"retry canceled during backoff").WithCause(err)
+			return contextEnded(ctx, err)
 		}
-
-		timer.Stop()
 	}
 
 	if config.OnExhausted != nil {
@@ -101,6 +115,21 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 		"all attempts failed").WithCause(err)
 }
 
+// contextEnded classifies why the context ended — deadline exceeded or
+// explicit cancel — and builds the matching terminal error. The cause chain
+// carries both the context error and the last attempt error (Go 1.20 multi-%w),
+// so errors.Is reaches either one without losing the other.
+func contextEnded(ctx context.Context, lastErr error) error {
+	chain := fmt.Errorf("%w; last attempt: %w", ctx.Err(), lastErr)
+
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		return errorfamily.WrapInfrastructure(ErrDeadlineExceeded, "retry.deadline",
+			"retry deadline exceeded during backoff delay").WithCause(chain)
+	}
+
+	return errorfamily.WrapInfrastructure(ErrCanceled, "retry.canceled",
+		"retry canceled during backoff delay").WithCause(chain)
+}
 // Backoff calculates the delay before the next attempt using exponential
 // backoff with additive jitter. The delay for attempt n is:
 //

@@ -267,6 +267,50 @@ func TestDo_ContextCancellationDuringBackoff(t *testing.T) {
 	if !errors.Is(err, retry.ErrCanceled) {
 		t.Fatalf("expected ErrCanceled, got %v", err)
 	}
+
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context.Canceled in chain, got %v", err)
+	}
+
+	if errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("cancel must not match DeadlineExceeded, got %v", err)
+	}
+}
+
+func TestDo_DeadlineExceededDuringBackoff(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	transient := errorfamily.NewTransient("test.transient", "fail")
+
+	cfg := retry.Config{
+		MaxAttempts:  10,
+		InitialDelay: 5 * time.Second, // long delay so the deadline fires during it
+		MaxDelay:     10 * time.Second,
+		Multiplier:   2.0,
+	}
+
+	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
+		return transient
+	})
+
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("expected context.DeadlineExceeded in chain, got %v", err)
+	}
+
+	if !errors.Is(err, retry.ErrDeadlineExceeded) {
+		t.Fatalf("expected ErrDeadlineExceeded, got %v", err)
+	}
+
+	if errors.Is(err, retry.ErrCanceled) {
+		t.Fatalf("deadline must not match ErrCanceled, got %v", err)
+	}
+
+	if !errors.Is(err, transient) {
+		t.Fatalf("expected last attempt error in chain, got %v", err)
+	}
 }
 
 func TestDo_AttemptNumberStartsAt1(t *testing.T) {
