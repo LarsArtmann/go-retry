@@ -967,6 +967,63 @@ func ExampleDo_customIsRetryable() {
 	// error: <nil>
 }
 
+// ExampleDo_delayFunc honors a server-provided delay (e.g. an HTTP
+// "Retry-After" header carried by the attempt's error) instead of the
+// computed exponential backoff.
+func ExampleDo_delayFunc() {
+	cfg := retry.DefaultConfig()
+	cfg.MaxAttempts = 2
+	cfg.InitialDelay = time.Millisecond
+	cfg.MaxDelay = 5 * time.Millisecond
+	cfg.DelayFunc = func(attempt int, err error) time.Duration {
+		_ = err // in practice: parse Retry-After out of err here
+
+		return 2 * time.Millisecond // return 0 to fall back to exponential backoff
+	}
+
+	var delays []time.Duration
+
+	cfg.OnRetry = func(attempt int, delay time.Duration, err error) {
+		delays = append(delays, delay)
+	}
+
+	err := retry.Do(context.Background(), cfg, func(ctx context.Context, n int) error {
+		return errorfamily.NewTransient("example.rate_limited", "too many requests")
+	})
+
+	fmt.Println("delays:", delays)
+	fmt.Println("error:", err)
+	// Output:
+	// delays: [2ms]
+	// error: [infrastructure:retry.exhausted] all attempts failed: [transient:example.rate_limited] too many requests
+}
+
+// ExampleFromPolicy converts an error-family retry policy — the advisory
+// defaults for Transient errors — into a Config.
+func ExampleFromPolicy() {
+	policy := errorfamily.Transient.RetryPolicy()
+
+	cfg := retry.FromPolicy(policy)
+	cfg.InitialDelay = time.Millisecond // shrunk so the example runs instantly
+	cfg.MaxDelay = 2 * time.Millisecond
+
+	var attempt int
+
+	err := retry.Do(context.Background(), cfg, func(ctx context.Context, n int) error {
+		attempt = n
+
+		return errorfamily.NewTransient("example.transient", "still down")
+	})
+
+	fmt.Println("policy attempts:", policy.MaxAttempts)
+	fmt.Println("ran attempts:", attempt)
+	fmt.Println("exhausted:", errors.Is(err, retry.ErrExhausted))
+	// Output:
+	// policy attempts: 3
+	// ran attempts: 3
+	// exhausted: true
+}
+
 func BenchmarkComputeDelay(b *testing.B) {
 	const (
 		initial    = 100 * time.Millisecond
