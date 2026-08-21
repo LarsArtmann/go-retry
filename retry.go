@@ -83,27 +83,8 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 			break
 		}
 
-		delay := computeDelay(config.InitialDelay, config.MaxDelay, config.Multiplier, attempt)
-
-		if config.DelayFunc != nil {
-			if d := config.DelayFunc(attempt, err); d > 0 {
-				delay = d
-			}
-		}
-
-		if config.OnRetry != nil {
-			config.OnRetry(attempt, delay, err)
-		}
-
-		timer := time.NewTimer(delay)
-
-		select {
-		case <-timer.C:
-			timer.Stop()
-		case <-ctx.Done():
-			timer.Stop()
-
-			return contextEnded(ctx, err)
+		if waitErr := awaitBackoff(ctx, config, attempt, err); waitErr != nil {
+			return waitErr
 		}
 	}
 
@@ -113,6 +94,47 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 
 	return errorfamily.WrapInfrastructure(ErrExhausted, "retry.exhausted",
 		"all attempts failed").WithCause(err)
+}
+
+// awaitBackoff sleeps for the next backoff delay, notifying config.OnRetry
+// before sleeping. It returns nil once the delay has elapsed, or the terminal
+// context error ([ErrDeadlineExceeded] or [ErrCanceled], see [contextEnded])
+// if the context ends first.
+func awaitBackoff(ctx context.Context, config Config, attempt int, lastErr error) error {
+	delay := nextDelay(config, attempt, lastErr)
+
+	if config.OnRetry != nil {
+		config.OnRetry(attempt, delay, lastErr)
+	}
+
+	timer := time.NewTimer(delay)
+
+	select {
+	case <-timer.C:
+		timer.Stop()
+
+		return nil
+	case <-ctx.Done():
+		timer.Stop()
+
+		return contextEnded(ctx, lastErr)
+	}
+}
+
+// nextDelay computes the delay before the next attempt: exponential backoff
+// with jitter, unless config.DelayFunc returns a positive override (e.g. a
+// server-provided Retry-After). A DelayFunc return of 0 keeps the computed
+// backoff.
+func nextDelay(config Config, attempt int, err error) time.Duration {
+	delay := computeDelay(config.InitialDelay, config.MaxDelay, config.Multiplier, attempt)
+
+	if config.DelayFunc != nil {
+		if d := config.DelayFunc(attempt, err); d > 0 {
+			delay = d
+		}
+	}
+
+	return delay
 }
 
 // contextEnded classifies why the context ended — deadline exceeded or
