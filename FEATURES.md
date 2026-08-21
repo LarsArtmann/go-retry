@@ -18,10 +18,11 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
 - **Retry with configurable max attempts** — `Do` calls `AttemptFunc` up to
   `Config.MaxAttempts` times, returning immediately on the first `nil`.
   `retry.go` (`Do`, line 44).
-- **Exponential backoff with additive jitter** — delay for attempt `n` is
-  `InitialDelay * Multiplier^(n-1)`, capped at `MaxDelay`, plus random jitter
-  up to 50% of the capped delay. `retry.go` (`Backoff`, line 114;
-  `ComputeDelay`, line 125).
+- **Exponential backoff with additive jitter, hard-capped** — delay for
+  attempt `n` is `min(InitialDelay * Multiplier^(n-1) + jitter, MaxDelay)`
+  where jitter is up to 50% of the capped exponential delay; the returned
+  value never exceeds `MaxDelay` (20 000-sample regression test).
+  `retry.go` (`Backoff`, `ComputeDelay`).
 - **Backoff is previewable without running the loop** — `Backoff(config, n)` and
   the dependency-free `ComputeDelay(...)` are exported (both return
   `(time.Duration, error)`; an `attempt < 1` yields a `Rejection` error) so
@@ -43,10 +44,12 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   beyond initial", sub-2ns delays skip jitter, and `math.Pow` overflow
   saturates to `MaxDelay` instead of wrapping. Proven by a matrix property test
   and a fuzz target.
-- **Context cancellation during backoff** — if `ctx` is canceled while waiting,
-  `Do` returns an error wrapping `ErrCanceled` (with the last `fn` error as its
-  cause), using a `select` on `timer.C` vs `ctx.Done()`. `retry.go` (`Do`,
-  lines 82-93).
+- **Context endings distinguished during backoff** — if the context ends
+  while waiting, `Do` branches on `ctx.Err()`: an expired deadline returns
+  an error matching `ErrDeadlineExceeded` (also unwrapping to
+  `context.DeadlineExceeded`), an explicit cancel returns `ErrCanceled`
+  (unwrapping to `context.Canceled`). Both keep the last `fn` error in the
+  chain. `retry.go` (`awaitBackoff`, `contextEnded`).
 
 ### Configuration
 
@@ -73,19 +76,23 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
 
 ### Error model (`error-family` integration)
 
-- **Classified sentinel errors** — `ErrExhausted` and `ErrCanceled` are
-  `Infrastructure`-family (retry exhaustion / cancellation = downstream
-  concern); validation failures are `Rejection`-family (bad caller input).
-  `retry.go` (`ErrExhausted`, line 16; `ErrCanceled`, line 23), `config.go`
-  (`Validate`).
-- **Cause chaining** — exhaustion and cancellation errors wrap the last `fn`
-  error via `WithCause`, so `errors.Is(err, lastFnErr)` holds. `retry.go`
-  (`Do`, lines 89-91, 100-101).
+- **Classified sentinel errors** — `ErrExhausted`, `ErrCanceled`, and
+  `ErrDeadlineExceeded` are `Infrastructure`-family (retry exhaustion /
+  context endings = downstream concern); validation failures are
+  `Rejection`-family (bad caller input). `retry.go` (`ErrExhausted`,
+  `ErrCanceled`, `ErrDeadlineExceeded`), `config.go` (`Validate`).
+- **Cause chaining** — the exhaustion error wraps the last `fn` error via
+  `WithCause`, so `errors.Is(err, lastFnErr)` holds; cancel/deadline errors
+  wrap both the context error and the last `fn` error (Go 1.20 multi-`%w`).
+  Nested loops are fail-closed: `ErrExhausted` is `Infrastructure`, which
+  the default `IsRetryable` predicate does not retry, so an outer loop
+  treats an inner loop's exhaustion as terminal. `retry.go` (`Do`,
+  `contextEnded`).
 - **Stable error codes** — `retry.exhausted`, `retry.canceled`,
-  `retry.invalid_max_attempts`, `retry.invalid_initial_delay`,
-  `retry.invalid_max_delay`, `retry.invalid_multiplier`,
-  `retry.invalid_attempt`. `retry.go` (lines 17, 24, 128); `config.go`
-  (lines 88, 95, 102, 109).
+  `retry.deadline`, `retry.invalid_max_attempts`,
+  `retry.invalid_initial_delay`, `retry.invalid_max_delay`,
+  `retry.invalid_multiplier`, `retry.invalid_attempt`. `retry.go`;
+  `config.go` (`Validate`).
 
 ### Testing guarantees
 
@@ -100,15 +107,19 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
 - **Fuzz target** — `FuzzComputeDelayNeverPanics` with seeds for ordinary,
   zero-cap, overflow, and near-`MaxInt64` inputs. `retry_test.go`.
 - **Behavioral guarantees** — `OnRetry` not called after the final failure;
-  pre-canceled context yields `ErrCanceled`; `OnExhausted` receives the exact
-  last error by identity; `DelayFunc` receives the error and its delay
-  propagates to `OnRetry`. `retry_test.go`.
+  a pre-canceled context yields `ErrCanceled`; a deadline exceeded during
+  backoff yields `ErrDeadlineExceeded` matching `context.DeadlineExceeded`
+  and not `ErrCanceled`; `OnExhausted` receives the exact last error by
+  identity; `DelayFunc` receives the error and its delay propagates to
+  `OnRetry`. `retry_test.go`.
 
 ### Documentation & developer experience
 
-- **Runnable godoc examples** — `ExampleDo` (success path) and
-  `ExampleDo_customIsRetryable` (custom predicate) are deterministic, carry
-  `// Output:` comments, and render on `pkg.go.dev`. `retry_test.go`.
+- **Runnable godoc examples** — `ExampleDo` (success path),
+  `ExampleDo_customIsRetryable` (custom predicate), `ExampleDo_delayFunc`
+  (server-provided Retry-After), and `ExampleFromPolicy` (error-family
+  policy → `Config`) are deterministic, carry `// Output:` comments, and
+  render on `pkg.go.dev`. `retry_test.go`.
 - **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
   (~18 ns/op, 0 allocations; the jitter path allocates nothing).
   `retry_test.go`.

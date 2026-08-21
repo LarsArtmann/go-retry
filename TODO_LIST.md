@@ -12,43 +12,14 @@ Priority uses a simple Pareto ranking: **P1** = high impact, do first;
 
 ## P1 — Code quality (fix on sight)
 
-### T1. Reduce `Do` cyclomatic complexity below the lint threshold
-
-`Do` has cyclomatic complexity 13 (`golangci-lint` `cyclop` max is 12). Extract
-the delay-computation + `DelayFunc`-override + `OnRetry` block (retry.go lines
-70-80) into a helper. Mechanical, low-risk, silences the only lint warning.
-**Evidence:** `.golangci.yml` (`cyclop.max-complexity: 12`); `retry.go` (`Do`,
-line 44); LSP diagnostic on every file read.
-
 ### T2. Modernize benchmark to `b.Loop()`
 
 `BenchmarkComputeDelay` uses `for range b.N` (Go pre-1.24 idiom). gopls flags
-`retry_test.go:911` as modernizable to `b.Loop()`. One-line change.
-**Evidence:** `retry_test.go` (`BenchmarkComputeDelay`, line 911); gopls
-`bloop` diagnostic.
+`retry_test.go` as modernizable to `b.Loop()`. One-line change.
+**Evidence:** `retry_test.go` (`BenchmarkComputeDelay`); gopls `bloop`
+diagnostic.
 
 ## P2 — Developer experience
-
-### T3. Add `DelayFunc` to the README configuration table
-
-The README configuration table (7 rows) omits `DelayFunc`, which shipped in
-v0.3.0. Add a row documenting the field and its zero-return fallback semantics.
-**Evidence:** `README.md` (Configuration table); `config.go` (`DelayFunc`,
-line 48).
-
-### T4. Add godoc example for `DelayFunc`
-
-`ExampleDo` and `ExampleDo_customIsRetryable` exist but there is no example
-showing the `DelayFunc` escape hatch (e.g., honoring an HTTP `Retry-After`
-header). A runnable `ExampleDo_delayFunc` with `// Output:` would render on
-`pkg.go.dev`. **Evidence:** `retry_test.go` (existing examples, line 844);
-`config.go` (`DelayFunc`, line 48).
-
-### T5. Add godoc example for `FromPolicy`
-
-No example shows the `errorfamily.RetryPolicy` → `Config` conversion.
-**Evidence:** `config.go` (`FromPolicy`, line 75); `retry_test.go` (existing
-examples).
 
 ### T6. Add `go vet` to CI
 
@@ -68,4 +39,16 @@ below an agreed floor. **Evidence:** `.github/workflows/ci.yml`; `CONTRIBUTING.m
 The fuzz target exists with seed corpus but no sustained fuzz run has been
 executed. Run `go test -fuzz=FuzzComputeDelayNeverPanics -fuzztime=5m` and
 preserve any useful corpus entries. **Evidence:** `retry_test.go`
-(`FuzzComputeDelayNeverPanics`, line 522).
+(`FuzzComputeDelayNeverPanics`).
+
+---
+
+## Done (harvested into CHANGELOG `[0.4.0]`)
+
+- ~~T1. Reduce `Do` cyclomatic complexity below the lint threshold~~ —
+  `awaitBackoff`/`nextDelay` extraction, complexity 13 → below 12.
+- ~~T3. Add `DelayFunc` to the README configuration table~~ — already
+  present after the 2026-08-08 docs rebuild; verified during the v0.4.0
+  docs pass.
+- ~~T4. Add godoc example for `DelayFunc`~~ — `ExampleDo_delayFunc`.
+- ~~T5. Add godoc example for `FromPolicy`~~ — `ExampleFromPolicy`.

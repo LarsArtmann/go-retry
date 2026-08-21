@@ -7,14 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.4.0] - 2026-08-22
+
+### Fixed
+
+- **Backoff delay could exceed `MaxDelay` by up to 50%.** `computeDelay`
+  applied the cap *before* adding jitter, so real sleeps reached
+  1.5× `MaxDelay` (measured: ~300 ms against a declared 200 ms cap over a
+  20 000-sample probe) while `Backoff`/`ComputeDelay` documented a hard
+  cap. The jittered sum is now capped: `min(exponential + jitter,
+  MaxDelay)`. Migration: if you sized timeouts or SLAs around the old
+  (buggy) upper bound, re-check them — worst-case delays are now up to a
+  third shorter. Pinned by `TestComputeDelay_NeverExceedsMaxDelay`
+  (20 000 samples). `retry.go` (`computeDelay`).
+- **Deadline-exceeded was mislabeled as cancellation.** A context whose
+  deadline expired during a backoff delay returned `ErrCanceled`,
+  indistinguishable from an explicit shutdown cancel — yet operators debug
+  timeouts and shutdowns differently. The backoff wait now branches on
+  `ctx.Err()`: an expired deadline returns the new `ErrDeadlineExceeded`
+  sentinel (unwraps to `context.DeadlineExceeded`); an explicit cancel
+  keeps `ErrCanceled`. Migration: deadline errors no longer match
+  `ErrCanceled` — code branching on "canceled during backoff" as shutdown
+  should check `ErrDeadlineExceeded` first. `retry.go` (`contextEnded`,
+  `awaitBackoff`).
+
+### Added
+
+- **`ErrDeadlineExceeded`** — `Infrastructure` sentinel (`retry.deadline`)
+  returned when the context deadline ends the loop during a backoff delay.
+  Errors matching it also unwrap to `context.DeadlineExceeded`, and the
+  last attempt error stays in the chain. `retry.go`.
+- **Terminal errors chain the context error.** Cancel and deadline errors
+  now wrap both the context error and the last attempt error (Go 1.20
+  multi-`%w`), so `errors.Is(err, context.Canceled)` /
+  `errors.Is(err, context.DeadlineExceeded)` hold without losing the
+  attempt cause. Previously the `ErrCanceled` doc claimed it wrapped
+  `context.Canceled` while the code chained only the attempt error — the
+  chain now tells the truth. `retry.go` (`contextEnded`).
+- **Godoc examples** — `ExampleDo_delayFunc` (honoring a server-provided
+  Retry-After via `DelayFunc`) and `ExampleFromPolicy` (error-family
+  `RetryPolicy` → `Config`), both deterministic with `// Output:` blocks.
+  `retry_test.go`.
+- **README "Exhaustion and nesting" section** — documents that exhaustion
+  errors unwrap to the last attempt's error (`errors.Is` reaches it) and
+  that nested retry loops are fail-closed: an outer loop does not amplify
+  an inner loop's exhaustion because `Infrastructure` is not retryable by
+  default. `README.md`.
+
 ### Changed
 
-- **Configurable jitter deferred.** Decision recorded (2026-08-08): the hardcoded
-  additive jitter (up to 50% of the capped delay) remains the default.
-  `DelayFunc` already provides a full escape hatch for callers needing pure
-  exponential (zero jitter). Jitter configuration will land with the
-  options-pattern migration (`WithJitter(...)`) to avoid prematurely freezing
-  the `Config` struct shape. See `ROADMAP.md` for the full rationale.
+- **`Do` restructured into `awaitBackoff` + `nextDelay` helpers** —
+  cyclomatic complexity dropped from 13 (over the `cyclop` max of 12, the
+  repo's only lint warning) to well below it. Behavior is unchanged; the
+  suite passes with `-race -count=10`. `retry.go`.
+- **Configurable jitter remains deferred** (decision 2026-08-08). The cap
+  fix makes the current additive strategy contract-safe, so the deferral
+  stands unchanged. See `ROADMAP.md` (v1.0 section) for the rationale.
 
 ## [0.3.1] - 2026-08-08
 
@@ -170,7 +226,8 @@ Initial public release. Signed annotated tag `v0.1.0`.
 - **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
   links resolve against the public GitHub remote.
 
-[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/LarsArtmann/go-retry/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/LarsArtmann/go-retry/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/LarsArtmann/go-retry/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/LarsArtmann/go-retry/compare/v0.1.0...v0.2.0

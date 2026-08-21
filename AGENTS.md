@@ -34,17 +34,18 @@ go vet ./...
 
 Flat single-package layout — no internal subpackages:
 
-| File            | Responsibility                                                                         |
-| --------------- | -------------------------------------------------------------------------------------- |
-| `retry.go`      | `Do` (loop), `Backoff`, `ComputeDelay`, sentinel errors `ErrExhausted` / `ErrCanceled` |
-| `config.go`     | `Config` struct, `DefaultConfig()`, `Validate()`                                       |
-| `doc.go`        | Package doc stating the no-CQRS/no-OTel boundary                                       |
-| `retry_test.go` | External test package (`retry_test`)                                                   |
+| File            | Responsibility                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| `retry.go`      | `Do` (loop), `awaitBackoff`/`nextDelay` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded` |
+| `config.go`     | `Config` struct, `DefaultConfig()`, `Validate()`                                                       |
+| `doc.go`        | Package doc stating the no-CQRS/no-OTel boundary                                                       |
+| `retry_test.go` | External test package (`retry_test`)                                                                   |
 
 **Control flow of `Do`**: validate config → loop `attempt` from 1 to
 `MaxAttempts` → call `fn(ctx, attempt)` → on `nil` return immediately → if not
-retryable, return immediately → else compute delay, fire `OnRetry`, sleep in a
-`select` on `timer.C` vs `ctx.Done()` → on exhaustion call `OnExhausted` and
+retryable, return immediately → else `awaitBackoff` (compute delay via
+`nextDelay` = exponential + `DelayFunc` override, fire `OnRetry`, sleep in a
+`select` on `timer.C` vs `ctx.Done()`) → on exhaustion call `OnExhausted` and
 return `ErrExhausted` wrapping the last error via `.WithCause()`.
 
 ## The error-family Dependency
@@ -65,7 +66,8 @@ carry a **family** classification and a string **code**. This package uses:
   the invalid-config test)
 
 Error codes follow a `retry.<snake_case_event>` convention
-(`retry.exhausted`, `retry.canceled`, `retry.invalid_max_attempts`, etc.).
+(`retry.exhausted`, `retry.canceled`, `retry.deadline`,
+`retry.invalid_max_attempts`, etc.).
 
 ## Gotchas & Non-Obvious Conventions
 
@@ -78,11 +80,14 @@ Error codes follow a `retry.<snake_case_event>` convention
   `attempt < 1` yields a `Rejection` (`retry.invalid_attempt`). The internal
   `Do` loop calls the unexported `computeDelay` (no error tax on a
   loop-controlled value).
-- **Jitter is additive, not symmetric.** `computeDelay` adds `rand.Int64N(half)`
-  _on top of_ the computed delay, so the actual wait is in `[base, base * 1.5]`,
-  not centered on `base`. Tests that compare two sampled delays can be flaky;
-  the existing exponential-growth test verifies the **formula**, not sampled
-  values, for this reason. Follow that pattern.
+- **Jitter is additive, not symmetric, and hard-capped.** `computeDelay`
+  adds `rand.Int64N(half)` _on top of_ the capped exponential delay and then
+  caps the sum at `MaxDelay`, so the actual wait is in
+  `[base, min(base * 1.5, MaxDelay)]` — never above `MaxDelay` (v0.4.0;
+  before, the cap preceded jitter and real sleeps reached 1.5× `MaxDelay`).
+  Tests that compare two sampled delays can be flaky; the existing
+  exponential-growth test verifies the **formula**, not sampled values, for
+  this reason. Follow that pattern.
 - **`computeDelay` is panic-proof by design.** It sits on the failure path, so
   it must never crash: an unset/zero `MaxDelay` degrades to "no growth beyond
   `InitialDelay`", sub-2ns delays skip jitter, and `math.Pow` overflow saturates
@@ -94,9 +99,14 @@ Error codes follow a `retry.<snake_case_event>` convention
 - **`OnRetry` fires before the sleep**, after a failed attempt but only when more
   attempts remain. `OnExhausted` fires once after the final failure. Neither is
   called on success.
-- **Cancellation during backoff returns `ErrCanceled`** wrapping the _last fn
-  error_ as cause — not `context.Canceled` directly. Use `errors.Is(err,
-retry.ErrCanceled)` to detect it.
+- **Context endings during backoff are distinguished (v0.4.0).** A deadline
+  exceeded returns `ErrDeadlineExceeded` (unwraps to
+  `context.DeadlineExceeded`); an explicit cancel returns `ErrCanceled`
+  (unwraps to `context.Canceled`). Both also chain the last attempt error
+  via Go 1.20 multi-`%w`, and `Error.Is` matches by code+family — so
+  `errors.Is(err, retry.ErrCanceled)` is false for deadline errors. Do not
+  collapse the two branches; operators debug timeouts vs shutdowns
+  differently.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
 - **`//nolint:` directives are deliberate**, not leftover, and the referenced

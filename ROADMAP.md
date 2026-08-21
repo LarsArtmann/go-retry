@@ -20,7 +20,7 @@ boundary: if a feature needs CQRS or OTel types, it belongs in
 
 ## v1.0 — what is the bar?
 
-The current release is **v0.3.1** (tagged 2026-08-08). The path to v1.0 is an
+The current release is **v0.4.0** (tagged 2026-08-22). The path to v1.0 is an
 **API-stability promise**, not a feature list. Open questions to resolve before
 v1.0:
 
@@ -45,7 +45,7 @@ v1.0:
   deliberate decision, not an accident.
 - **Public API surface audit** — confirm every exported symbol
   (`Do`, `Config`, `DefaultConfig`, `FromPolicy`, `Backoff`, `ComputeDelay`,
-  `AttemptFunc`, `ErrExhausted`, `ErrCanceled`) and every exported `Config`
+  `AttemptFunc`, `ErrExhausted`, `ErrCanceled`, `ErrDeadlineExceeded`) and every exported `Config`
   field (`MaxAttempts`, `InitialDelay`, `MaxDelay`, `Multiplier`, `IsRetryable`,
   `DelayFunc`, `OnRetry`, `OnExhausted`) is one callers should depend on, and
   that nothing exported is leaking an implementation detail.
