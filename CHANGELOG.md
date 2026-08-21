@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`BenchmarkComputeDelay` uses `b.Loop()`** — the Go 1.24+ idiom; timer
   reset and allocation reporting are now framework-owned. `retry_test.go`.
+- **Fuzz seed corpus widened** — the original three `f.Add` seeds grew to
+  seven, distilling the four input classes the 5-minute campaign discovered
+  (see Added). `retry_test.go` (`FuzzComputeDelayNeverPanics`).
 
 ### Fixed
 

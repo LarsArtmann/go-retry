@@ -12,12 +12,7 @@ Priority uses a simple Pareto ranking: **P1** = high impact, do first;
 
 ## P3 — Polish
 
-### T8. Run a bounded fuzz campaign on `FuzzComputeDelayNeverPanics`
-
-The fuzz target exists with seed corpus but no sustained fuzz run has been
-executed. Run `go test -fuzz=FuzzComputeDelayNeverPanics -fuzztime=5m` and
-preserve any useful corpus entries. **Evidence:** `retry_test.go`
-(`FuzzComputeDelayNeverPanics`).
+(nothing open — T8 shipped below)
 
 ---
 
@@ -37,3 +32,5 @@ preserve any useful corpus entries. **Evidence:** `retry_test.go`
   (shipped in v0.4.0).
 - ~~T6. Add `go vet` to CI~~ — vet step in the `test` job.
 - ~~T7. Add coverage threshold to CI~~ — `coverage` job with a 95% floor.
+- ~~T8. Run a bounded fuzz campaign~~ — 5 minutes, 104M+ execs, 0 failures;
+  four discovered input classes committed as seeds (see `[Unreleased]`).

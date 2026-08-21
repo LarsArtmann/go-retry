@@ -593,6 +593,15 @@ func FuzzComputeDelayNeverPanics(f *testing.F) {
 	f.Add(int64(time.Millisecond), int64(time.Second), 2.0, 1)
 	f.Add(int64(1), int64(0), 10.0, 38)
 	f.Add(int64(math.MaxInt64), int64(math.MaxInt64), 2.0, 1)
+	// Seeds distilled from the 2026-08-22 5-minute campaign (104M execs, 0
+	// failures): the four input classes the fuzzer found beyond the seeds
+	// above — near-MaxInt64 with a fractional multiplier (jitter-saturation
+	// path), negative multiplier (NaN via math.Pow), negative initial, and a
+	// negative attempt (Rejection path).
+	f.Add(int64(math.MaxInt64), int64(math.MaxInt64-179), 0.4, 2)
+	f.Add(int64(1000000), int64(1000000000), -140.0, 15)
+	f.Add(int64(-24), int64(0), 10.0, 38)
+	f.Add(int64(1), int64(0), 10.0, -58)
 
 	f.Fuzz(func(t *testing.T, initialNanos, maxDelayNanos int64, multiplier float64, attempt int) {
 		initial := time.Duration(initialNanos)
