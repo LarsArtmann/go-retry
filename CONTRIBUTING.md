@@ -28,7 +28,10 @@ go test ./... -race -coverprofile=reports/coverage.out \
   && go tool cover -func=reports/coverage.out
 ```
 
-Current statement coverage is **100%**. New code should keep it there.
+Current statement coverage is **100%**. CI enforces a **95% floor**
+(`.github/workflows/ci.yml`, `coverage` job) — keep new code at or above
+100% where practical; the floor exists so a hard-to-test edge never blocks
+a fix.
 
 ## Lint policy
 
@@ -62,7 +65,7 @@ See [`AGENTS.md`](AGENTS.md) for the deeper architectural context (the
 1. Fork the repository and create a feature branch.
 2. Make your change with tests; keep coverage at 100%.
 3. Ensure `go test ./... -race`, `golangci-lint run ./...`, and `go vet ./...`
-   all pass.
+   all pass (CI runs all three plus the 95% coverage floor).
 4. Keep the [no-CQRS / no-OTel boundary](doc.go) — features needing CQRS message
    types or OpenTelemetry belong in `go-cqrs-lite/middleware/v4`, not here.
 5. Submit a pull request.

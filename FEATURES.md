@@ -128,8 +128,9 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   verified live. `.golangci.yml`.
 - **Domain glossary** — `docs/DOMAIN_LANGUAGE.md` defines the retry and
   `error-family` vocabulary and the `retry.<event>` code table.
-- **CI workflow** — `.github/workflows/ci.yml` runs `go test ./... -race` and
-  `golangci-lint` on every push and pull request.
+- **CI workflow** — `.github/workflows/ci.yml` runs `go vet` and
+  `go test ./... -race`, lints via golangci-lint, and enforces a 95%
+  coverage floor on every push and pull request.
 
 ## PARTIALLY_FUNCTIONAL
 

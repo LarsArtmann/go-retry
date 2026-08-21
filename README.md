@@ -168,6 +168,10 @@ go test ./... -race -coverprofile=reports/coverage.out \
   && go tool cover -func=reports/coverage.out   # coverage (currently 100%)
 ```
 
+CI (`.github/workflows/ci.yml`) runs `go vet` and the race-detector tests,
+lints, and enforces a **95% coverage floor** — local coverage sits at 100%,
+the floor leaves deliberate room for hard-to-test edges.
+
 There is no `justfile`, `Makefile`, or `flake.nix` — `go` and `golangci-lint`
 are the only tools. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 

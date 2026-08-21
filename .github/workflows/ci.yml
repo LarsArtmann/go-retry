@@ -16,8 +16,31 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
+      - name: Vet
+        run: go vet ./...
       - name: Test with race detector
         run: go test ./... -race
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Enforce coverage floor (95%)
+        run: |
+          go test ./... -race -coverprofile=coverage.out -covermode=atomic
+          go tool cover -func=coverage.out
+          percent="$(go tool cover -func=coverage.out | awk '/^total:/ {sub(/%/, "", $3); print $3}')"
+          awk -v p="$percent" 'BEGIN {
+            if (p + 0 < 95) {
+              printf "coverage %.1f%% is below the 95%% floor\n", p
+              exit 1
+            }
+            printf "coverage %.1f%% meets the 95%% floor\n", p
+          }'
 
   lint:
     runs-on: ubuntu-latest
