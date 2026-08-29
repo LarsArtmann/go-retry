@@ -108,6 +108,40 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 		"all attempts failed").WithCause(err)
 }
 
+// ResultFunc is the function retried by [DoWithValue]. The attempt
+// argument starts at 1 (the first attempt) and increments with each
+// retry. The result is only meaningful when the error is nil.
+type ResultFunc[T any] func(ctx context.Context, attempt int) (T, error)
+
+// DoWithValue executes fn with the same retry semantics as [Do] and
+// returns fn's result alongside the error. Use it whenever the retried
+// call produces a value — it removes the closure-plus-variable dance
+// callers otherwise write around [Do] to smuggle the result out.
+//
+// On success the value from the successful attempt is returned with a nil
+// error. On any failure (non-retryable error, exhaustion, or a context
+// end during backoff) the zero T is returned with the same error [Do]
+// would produce.
+func DoWithValue[T any](ctx context.Context, config Config, fn ResultFunc[T]) (T, error) {
+	var zero T
+
+	var out T
+
+	err := Do(ctx, config, func(ctx context.Context, attempt int) error {
+		v, attemptErr := fn(ctx, attempt)
+		if attemptErr == nil {
+			out = v
+		}
+
+		return attemptErr
+	})
+	if err != nil {
+		return zero, err
+	}
+
+	return out, nil
+}
+
 // awaitBackoff sleeps for the next backoff delay, notifying config.OnRetry
 // before sleeping. It returns nil once the delay has elapsed, or the terminal
 // context error ([ErrDeadlineExceeded] or [ErrCanceled], see [contextEnded])

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`DoWithValue[T]`** — generic companion to `Do` for retries that produce a
+  value: returns the successful attempt's result with a nil error, and the
+  zero value with the same error `Do` would produce on any failure
+  (non-retryable, exhaustion, context end). `retry.go`, `retry_test.go`.
 - **CI coverage floor** — a dedicated `coverage` job fails below 95% statement
   coverage (local coverage is 100%; the floor leaves room for a legitimately
   hard-to-test edge). `.github/workflows/ci.yml`.

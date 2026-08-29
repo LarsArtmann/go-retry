@@ -1045,3 +1045,105 @@ func BenchmarkComputeDelay(b *testing.B) {
 		_, _ = retry.ComputeDelay(initial, maxDelay, multiplier, attempt)
 	}
 }
+
+func TestDoWithValue_ReturnsValueOnSuccess(t *testing.T) {
+	t.Parallel()
+
+	var calls atomic.Int32
+
+	got, err := retry.DoWithValue(
+		context.Background(),
+		fastConfig(),
+		func(ctx context.Context, attempt int) (string, error) {
+			calls.Add(1)
+
+			if attempt < 2 {
+				return "", errorfamily.NewTransient("test.transient", "fail")
+			}
+
+			return "payload", nil
+		},
+	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got != "payload" {
+		t.Fatalf("expected %q, got %q", "payload", got)
+	}
+
+	if calls.Load() != 2 {
+		t.Fatalf("expected 2 calls, got %d", calls.Load())
+	}
+}
+
+func TestDoWithValue_ReturnsZeroValueOnExhaustion(t *testing.T) {
+	t.Parallel()
+
+	got, err := retry.DoWithValue(
+		context.Background(),
+		fastConfig(),
+		func(ctx context.Context, attempt int) (int, error) {
+			return 42, errorfamily.NewTransient("test.transient", "fail")
+		},
+	)
+	if !errors.Is(err, retry.ErrExhausted) {
+		t.Fatalf("expected ErrExhausted, got %v", err)
+	}
+
+	if got != 0 {
+		t.Fatalf("expected zero value on exhaustion, got %d", got)
+	}
+}
+
+func TestDoWithValue_ReturnsZeroValueOnNonRetryable(t *testing.T) {
+	t.Parallel()
+
+	rejection := errorfamily.NewRejection("test.rejection", "invalid input")
+
+	calls := 0
+
+	got, err := retry.DoWithValue(
+		context.Background(),
+		fastConfig(),
+		func(ctx context.Context, attempt int) (int, error) {
+			calls++
+
+			return 7, rejection
+		},
+	)
+	if !errors.Is(err, rejection) {
+		t.Fatalf("expected the rejection to pass through, got %v", err)
+	}
+
+	if got != 0 {
+		t.Fatalf("expected zero value on non-retryable error, got %d", got)
+	}
+
+	if calls != 1 {
+		t.Fatalf("expected exactly 1 call, got %d", calls)
+	}
+}
+
+func TestDoWithValue_DoesNotLeakPartialValueOnLaterFailure(t *testing.T) {
+	t.Parallel()
+
+	got, err := retry.DoWithValue(
+		context.Background(),
+		fastConfig(),
+		func(ctx context.Context, attempt int) (string, error) {
+			if attempt == 1 {
+				return "stale", errorfamily.NewTransient("test.transient", "fail")
+			}
+
+			return "", errorfamily.NewTransient("test.transient", "fail again")
+		},
+	)
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+
+	if got != "" {
+		t.Fatalf("expected no partial value from a failed attempt, got %q", got)
+	}
+}
