@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Nothing yet.
+
+## [0.5.0] - 2026-09-06
+
+### Added
+
 - **`DoWithValue[T]`** — generic companion to `Do` for retries that produce a
   value: returns the successful attempt's result with a nil error, and the
   zero value with the same error `Do` would produce on any failure
@@ -246,7 +252,8 @@ Initial public release. Signed annotated tag `v0.1.0`.
 - **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
   links resolve against the public GitHub remote.
 
-[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/LarsArtmann/go-retry/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/LarsArtmann/go-retry/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/LarsArtmann/go-retry/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/LarsArtmann/go-retry/compare/v0.2.0...v0.3.0
