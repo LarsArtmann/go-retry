@@ -113,9 +113,12 @@ Error codes follow a `retry.<snake_case_event>` convention
   an unguarded `rand.Int64N` call.
 - **Concurrent call counting in tests uses `atomic.Int32`** (`sync/atomic`), not
   mutexes. Follow the same style.
-- **`OnRetry` fires before the sleep**, after a failed attempt but only when more
-  attempts remain. `OnExhausted` fires once after the final failure. Neither is
-  called on success.
+- **Callback timing: `OnRetry` fires before the sleep**, after a failed
+  attempt but only when more attempts remain. `OnExhausted` fires once after
+  the final failure **and never on context end** (cancel or deadline
+  termination returns without it; pinned by
+  `TestDo_OnExhaustedNotCalledOnCancel` / `...OnDeadline`). Neither callback
+  is called on success.
 - **Context endings during backoff are distinguished.** A deadline
   exceeded returns `ErrDeadlineExceeded` (unwraps to
   `context.DeadlineExceeded`); an explicit cancel returns `ErrCanceled`
@@ -124,9 +127,6 @@ Error codes follow a `retry.<snake_case_event>` convention
   `errors.Is(err, retry.ErrCanceled)` is false for deadline errors. Do not
   collapse the two branches; operators debug timeouts vs shutdowns
   differently.
-- **`OnExhausted` fires only on exhaustion** — never when a context end
-  (cancel or deadline) terminates the loop. Pinned by
-  `TestDo_OnExhaustedNotCalledOnCancel` / `...OnDeadline`.
 - **Configurable jitter is deliberately deferred.** Do not re-propose a
   `Jitter` config field: `DelayFunc` is the escape hatch (compute pure
   exponential in the callback for zero jitter), and jitter strategy lands
