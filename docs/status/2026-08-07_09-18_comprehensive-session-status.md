@@ -299,9 +299,9 @@ Ranked by impact, then effort.
 
 ## g) Questions I cannot determine from the repository
 
-1. Should the local `v0.2.0` release be pushed to `origin` now, or remain local until a separate release approval?
-2. Should this library promise support for Go versions other than the currently pinned Go 1.26.5?
-3. Should `FromPolicy` remain a minimal field mapper, or should the public API eventually accept family context and derive retryability too?
+1. ~~Should the local `v0.2.0` release be pushed to `origin` now, or remain local until a separate release approval?~~ resolved — published (tag + release on origin)
+2. ~~Should this library promise support for Go versions other than the currently pinned Go 1.26.5?~~ resolved — single pinned toolchain, bumps via dependabot
+3. ~~Should `FromPolicy` remain a minimal field mapper, or should the public API eventually accept family context and derive retryability too?~~ resolved — minimal mapper by design, documented in the `FromPolicy` godoc
 
 ## Current handoff
 

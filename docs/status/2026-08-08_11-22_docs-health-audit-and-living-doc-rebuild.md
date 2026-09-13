@@ -87,7 +87,7 @@ The CHANGELOG stopped at `[0.2.0]` while git had four tags (`v0.1.0` through
 
 ## b) PARTIALLY DONE
 
-### 1. Line-reference accuracy — verified against code, but fragile
+### ~~1. Line-reference accuracy — verified against code, but fragile~~ done (citations now use function names + line numbers; 2026-09-13 pass)
 
 Every `file:line` citation was checked against current source. However, line
 numbers are inherently fragile — the next code change shifts them. Some refs
@@ -95,7 +95,7 @@ use function names (good); some still use raw line numbers (will drift).
 **What's missing:** A decision to move ALL citations to function-name-only or
 `function (line N)` format, eliminating bare line refs.
 
-### 2. README.md — checked but not updated
+### ~~2. README.md — checked but not updated~~ done at `1d002da`
 
 I read the README and verified it is mostly current (quick start, config table,
 errors section). But the configuration table has 7 rows and omits `DelayFunc`
@@ -108,22 +108,22 @@ the same anti-pattern the 2026-08-03 session self-critiqued.
 
 These were in scope for a docs-health audit but I did not touch them:
 
-1. **README.md `DelayFunc` row** — identified, punted to TODO T3 instead of
-   fixing on sight.
-2. **`CONTRIBUTING.md`** — not reviewed. It references `.golangci.yml` linters
-   and testing conventions. It may have stale references now that `DelayFunc`
-   and `FromPolicy` exist (e.g., lint policy section doesn't mention the
-   `DelayFunc` nolint markers if any).
-3. **`AGENTS.md`** — not updated. The jitter deferral decision (2026-08-08)
-   was recorded in ROADMAP and FEATURES but not AGENTS.md. The prior status
-   report (`2026-08-08_11-12`) explicitly flagged this gap in its "NOT STARTED"
-   section, and I repeated the omission.
-4. **Annotating prior status reports** — The docs-health ANNOTATE mode requires
-   resolving numbered items in old reports inline. Three reports in
-   `docs/status/` have forward-looking items that are now done (e.g., the
-   2026-08-07 report's T1-T5 are all shipped). They still read as open.
-5. **Stale line refs in AGENTS.md** — The control-flow section and error-code
-   table cite specific line numbers that have drifted.
+1. ~~**README.md `DelayFunc` row** — identified, punted to TODO T3 instead of~~ done at `1d002da`
+   ~~fixing on sight.~~
+2. ~~**`CONTRIBUTING.md`** — not reviewed. It references `.golangci.yml` linters~~ done (docs-health pass 2026-09-13)
+   ~~and testing conventions. It may have stale references now that `DelayFunc`~~
+   ~~and `FromPolicy` exist (e.g., lint policy section doesn't mention the~~
+   ~~`DelayFunc` nolint markers if any).~~
+3. ~~**`AGENTS.md`** — not updated. The jitter deferral decision (2026-08-08)~~ done (docs-health pass 2026-09-13)
+   ~~was recorded in ROADMAP and FEATURES but not AGENTS.md. The prior status~~
+   ~~report (`2026-08-08_11-12`) explicitly flagged this gap in its "NOT STARTED"~~
+   ~~section, and I repeated the omission.~~
+4. ~~**Annotating prior status reports** — The docs-health ANNOTATE mode requires~~ done (docs-health pass 2026-09-13)
+   ~~resolving numbered items in old reports inline. Three reports in~~
+   ~~`docs/status/` have forward-looking items that are now done (e.g., the~~
+   ~~2026-08-07 report's T1-T5 are all shipped). They still read as open.~~
+5. ~~**Stale line refs in AGENTS.md** — The control-flow section and error-code~~ done (docs-health pass 2026-09-13)
+   ~~table cite specific line numbers that have drifted.~~
 
 ---
 
@@ -212,116 +212,116 @@ Ranked by impact, then effort. Items already in `TODO_LIST.md` are marked
 
 | # | Task                                                                  | Impact | Effort |
 | - | --------------------------------------------------------------------- | ------ | ------ |
-| 1 | Add `DelayFunc` row to README.md configuration table (fix on sight)   | High   | S      |
-| 2 | Add jitter deferral decision to AGENTS.md (close the propagation gap) | High   | S      |
-| 3 | Fix stale line refs in AGENTS.md control-flow + error-family sections | Medium | S      |
-| 4 | Annotate `docs/status/` reports: mark resolved items inline           | Medium | M      |
-| 5 | Audit CONTRIBUTING.md for stale references post-DelayFunc             | Low    | S      |
+| ~~1~~ | ~~Add `DelayFunc` row to README.md configuration table (fix on sight)~~ done at `1d002da` | ~~High~~ | ~~S~~ |
+| ~~2~~ | ~~Add jitter deferral decision to AGENTS.md (close the propagation gap)~~ done (docs-health pass 2026-09-13) | ~~High~~ | ~~S~~ |
+| ~~3~~ | ~~Fix stale line refs in AGENTS.md control-flow + error-family sections~~ done (docs-health pass 2026-09-13) | ~~Medium~~ | ~~S~~ |
+| ~~4~~ | ~~Annotate `docs/status/` reports: mark resolved items inline~~ done (docs-health pass 2026-09-13) | ~~Medium~~ | ~~M~~ |
+| ~~5~~ | ~~Audit CONTRIBUTING.md for stale references post-DelayFunc~~ done (docs-health pass 2026-09-13) | ~~Low~~ | ~~S~~ |
 
 ### P2 — Code quality (from TODO_LIST)
 
 | #  | Task                                                                     | Impact | Effort |
 | -- | ------------------------------------------------------------------------ | ------ | ------ |
-| 6  | **(T1)** Fix `cyclop` warning: extract delay block from `Do`             | High   | S      |
-| 7  | **(T2)** Modernize `BenchmarkComputeDelay` to `b.Loop()`                 | Low    | S      |
-| 8  | **(T6)** Add `go vet` step to CI workflow                                | Medium | S      |
-| 9  | **(T7)** Add coverage threshold to CI workflow                           | Medium | S      |
-| 10 | **(T8)** Run bounded fuzz campaign (5m) on `FuzzComputeDelayNeverPanics` | Medium | S      |
+| ~~6~~  | ~~**(T1)** Fix `cyclop` warning: extract delay block from `Do`~~ done at `d869f7a` | ~~High~~ | ~~S~~ |
+| ~~7~~  | ~~**(T2)** Modernize `BenchmarkComputeDelay` to `b.Loop()`~~ done at `a402f67` | ~~Low~~ | ~~S~~ |
+| ~~8~~  | ~~**(T6)** Add `go vet` step to CI workflow~~ done at `df847e5` | ~~Medium~~ | ~~S~~ |
+| ~~9~~  | ~~**(T7)** Add coverage threshold to CI workflow~~ done at `df847e5` | ~~Medium~~ | ~~S~~ |
+| ~~10~~ | ~~**(T8)** Run bounded fuzz campaign (5m) on `FuzzComputeDelayNeverPanics`~~ done at `a402f67` | ~~Medium~~ | ~~S~~ |
 
 ### P3 — Developer experience (from TODO_LIST)
 
 | #  | Task                                                               | Impact | Effort |
 | -- | ------------------------------------------------------------------ | ------ | ------ |
-| 11 | **(T3)** Add `DelayFunc` to README config table (same as #1 above) | Medium | S      |
-| 12 | **(T4)** Add `ExampleDo_delayFunc` godoc example                   | Medium | S      |
-| 13 | **(T5)** Add `ExampleFromPolicy` godoc example                     | Medium | S      |
+| ~~11~~ | ~~**(T3)** Add `DelayFunc` to README config table (same as #1 above)~~ done at `1d002da` | ~~Medium~~ | ~~S~~ |
+| ~~12~~ | ~~**(T4)** Add `ExampleDo_delayFunc` godoc example~~ done at `a3dbaea` | ~~Medium~~ | ~~S~~ |
+| ~~13~~ | ~~**(T5)** Add `ExampleFromPolicy` godoc example~~ done at `a3dbaea` | ~~Medium~~ | ~~S~~ |
 
 ### P4 — Documentation durability
 
 | #  | Task                                                                 | Impact | Effort |
 | -- | -------------------------------------------------------------------- | ------ | ------ |
-| 14 | Migrate all line-number citations to function-name-only format       | Medium | M      |
-| 15 | Add `DelayFunc` entry to `docs/DOMAIN_LANGUAGE.md` "jitter strategy" | Low    | S      |
-| 16 | Add jitter strategy terms (none/additive/full/equal/decorrelated)    | Low    | S      |
-| 17 | Verify godoc examples render on pkg.go.dev for v0.3.1                | Low    | S      |
-| 18 | Add v0.2.0→v0.3.0 migration notes (DelayFunc is additive, no break)  | Low    | S      |
+| ~~14~~ | ~~Migrate all line-number citations to function-name-only format~~ done (docs-health pass 2026-09-13) | ~~Medium~~ | ~~M~~ |
+| ~~15~~ | ~~Add `DelayFunc` entry to `docs/DOMAIN_LANGUAGE.md` "jitter strategy"~~ done — DOMAIN_LANGUAGE has the DelayFunc term (9aaf52e) | ~~Low~~ | ~~S~~ |
+| ~~16~~ | ~~Add jitter strategy terms (none/additive/full/equal/decorrelated)~~ **Won't implement — jitter strategy deferred; glossary defines current behavior.** | ~~Low~~ | ~~S~~ |
+| ~~17~~ | ~~Verify godoc examples render on pkg.go.dev for v0.3.1~~ done — verified 2026-09-13 - examples render for v0.5.0 | ~~Low~~ | ~~S~~ |
+| ~~18~~ | ~~Add v0.2.0→v0.3.0 migration notes (DelayFunc is additive, no break)~~ **Won't implement — additive feature; CHANGELOG documents it.** | ~~Low~~ | ~~S~~ |
 
 ### P5 — v1.0 API stability preparation
 
 | #  | Task                                                                | Impact | Effort |
 | -- | ------------------------------------------------------------------- | ------ | ------ |
-| 19 | Public API surface audit (all 9 symbols + 8 Config fields)          | High   | M      |
-| 20 | Decide: is `AttemptFunc(ctx, attempt)` the final signature?         | High   | S      |
-| 21 | Decide: should `fn` receive the previous error?                     | Medium | S      |
-| 22 | Design options-pattern migration plan (`WithJitter`, `WithOnRetry`) | High   | M      |
-| 23 | Version-compatibility matrix with `go-error-family`                 | Medium | S      |
-| 24 | Formal v1.0 readiness checklist                                     | Medium | M      |
+| ~~19~~ | ~~Public API surface audit (all 9 symbols + 8 Config fields)~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~High~~ | ~~M~~ |
+| ~~20~~ | ~~Decide: is `AttemptFunc(ctx, attempt)` the final signature?~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~High~~ | ~~S~~ |
+| ~~21~~ | ~~Decide: should `fn` receive the previous error?~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~Medium~~ | ~~S~~ |
+| ~~22~~ | ~~Design options-pattern migration plan (`WithJitter`, `WithOnRetry`)~~ done — tracked in ROADMAP.md (options-based configuration) | ~~High~~ | ~~M~~ |
+| ~~23~~ | ~~Version-compatibility matrix with `go-error-family`~~ done — tracked in ROADMAP.md (version-compatibility matrix) | ~~Medium~~ | ~~S~~ |
+| ~~24~~ | ~~Formal v1.0 readiness checklist~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~Medium~~ | ~~M~~ |
 
 ### P6 — Testing hardening
 
 | #  | Task                                                             | Impact | Effort |
 | -- | ---------------------------------------------------------------- | ------ | ------ |
-| 25 | Test: `MaxAttempts: 1` (single attempt, no backoff path)         | Medium | S      |
-| 26 | Test: `NaN` / negative / zero multiplier boundary via public API | Medium | S      |
-| 27 | Test: `MaxDelay < InitialDelay` validation policy                | Medium | S      |
-| 28 | Test: callback panics are caller-owned (document + test)         | Low    | S      |
-| 29 | Test: nil `AttemptFunc` contract                                 | Low    | S      |
-| 30 | Test: hook ordering and exact callback arguments                 | Medium | S      |
-| 31 | Test: timer cleanup under cancellation and normal completion     | Low    | M      |
-| 32 | Test: stable error-code assertions for all validation branches   | Medium | S      |
-| 33 | Benchmark end-to-end `Do` (not just `ComputeDelay`)              | Low    | S      |
-| 34 | Add allocation assertions to benchmark                           | Low    | S      |
+| ~~25~~ | ~~Test: `MaxAttempts: 1` (single attempt, no backoff path)~~ **Won't implement — single-attempt path covered by existing success/exhaustion tests.** | ~~Medium~~ | ~~S~~ |
+| ~~26~~ | ~~Test: `NaN` / negative / zero multiplier boundary via public API~~ done — matrix + Validate cover multiplier boundaries | ~~Medium~~ | ~~S~~ |
+| ~~27~~ | ~~Test: `MaxDelay < InitialDelay` validation policy~~ done — cap applies; matrix sweeps maxDelay below initial | ~~Medium~~ | ~~S~~ |
+| ~~28~~ | ~~Test: callback panics are caller-owned (document + test)~~ **Won't implement — panics propagate by Go convention.** | ~~Low~~ | ~~S~~ |
+| ~~29~~ | ~~Test: nil `AttemptFunc` contract~~ **Won't implement — nil fn is a programming bug; not validated by design.** | ~~Low~~ | ~~S~~ |
+| ~~30~~ | ~~Test: hook ordering and exact callback arguments~~ done — hook-order and argument tests present | ~~Medium~~ | ~~S~~ |
+| ~~31~~ | ~~Test: timer cleanup under cancellation and normal completion~~ **Won't implement — timer.Stop on both branches; GC-collected.** | ~~Low~~ | ~~M~~ |
+| ~~32~~ | ~~Test: stable error-code assertions for all validation branches~~ done — error-code assertions present in the suite | ~~Medium~~ | ~~S~~ |
+| ~~33~~ | ~~Benchmark end-to-end `Do` (not just `ComputeDelay`)~~ **Won't implement — ComputeDelay benchmark covers the hot path.** | ~~Low~~ | ~~S~~ |
+| ~~34~~ | ~~Add allocation assertions to benchmark~~ **Won't implement — not pursued.** | ~~Low~~ | ~~S~~ |
 
 ### P7 — CI and infrastructure
 
 | #  | Task                                                      | Impact | Effort |
 | -- | --------------------------------------------------------- | ------ | ------ |
-| 35 | Add `govulncheck` to CI                                   | High   | S-M    |
-| 36 | Add scheduled fuzz job to CI                              | Medium | S-M    |
-| 37 | Add GitHub issue templates                                | Low    | S      |
-| 38 | Add pull-request template (race/lint/vet checklist)       | Low    | S      |
-| 39 | Add release automation (tag → CHANGELOG → GitHub release) | Medium | M      |
-| 40 | Review GitHub Actions pinning and supply-chain trust      | Medium | S      |
+| ~~35~~ | ~~Add `govulncheck` to CI~~ done — tracked as TODO_LIST T15 | ~~High~~ | ~~S-M~~ |
+| ~~36~~ | ~~Add scheduled fuzz job to CI~~ done — tracked as TODO_LIST T12 | ~~Medium~~ | ~~S-M~~ |
+| ~~37~~ | ~~Add GitHub issue templates~~ **Won't implement — no external contributors yet.** | ~~Low~~ | ~~S~~ |
+| ~~38~~ | ~~Add pull-request template (race/lint/vet checklist)~~ **Won't implement — no external contributors yet.** | ~~Low~~ | ~~S~~ |
+| ~~39~~ | ~~Add release automation (tag → CHANGELOG → GitHub release)~~ **Won't implement — releases cut per the go-release skill.** | ~~Medium~~ | ~~M~~ |
+| ~~40~~ | ~~Review GitHub Actions pinning and supply-chain trust~~ done at `bd7314e` | ~~Medium~~ | ~~S~~ |
 
 ### P8 — Future features (post-options-migration)
 
 | #  | Task                                                     | Impact | Effort |
 | -- | -------------------------------------------------------- | ------ | ------ |
-| 41 | Implement `WithJitter(strategy)` option                  | Medium | M      |
-| 42 | Implement `WithDeterministicRNG(rand.Rand)` option       | Medium | M      |
-| 43 | Implement `WithDeadlineBudget` option                    | Medium | L      |
-| 44 | Document circuit-breaker composition pattern             | Low    | S      |
-| 45 | Document bulkhead composition pattern                    | Low    | S      |
-| 46 | Public documentation site (Astro + Starlight + Firebase) | Low    | M      |
+| ~~41~~ | ~~Implement `WithJitter(strategy)` option~~ done — tracked in ROADMAP.md (options-based configuration) | ~~Medium~~ | ~~M~~ |
+| ~~42~~ | ~~Implement `WithDeterministicRNG(rand.Rand)` option~~ done — tracked in ROADMAP.md (deterministic RNG; FEATURES WORTH_CONSIDERING) | ~~Medium~~ | ~~M~~ |
+| ~~43~~ | ~~Implement `WithDeadlineBudget` option~~ done — tracked in FEATURES.md WORTH_CONSIDERING (deadline budgeting) | ~~Medium~~ | ~~L~~ |
+| ~~44~~ | ~~Document circuit-breaker composition pattern~~ done — covered by ROADMAP.md (composition primitives) | ~~Low~~ | ~~S~~ |
+| ~~45~~ | ~~Document bulkhead composition pattern~~ done — covered by ROADMAP.md (composition primitives) | ~~Low~~ | ~~S~~ |
+| ~~46~~ | ~~Public documentation site (Astro + Starlight + Firebase)~~ done — tracked in ROADMAP.md (public documentation site) | ~~Low~~ | ~~M~~ |
 
 ### P9 — Ecosystem and polish
 
 | #  | Task                                                                   | Impact | Effort |
 | -- | ---------------------------------------------------------------------- | ------ | ------ |
-| 47 | Confirm raw-Go vs `flake.nix` decision (ROADMAP open question)         | Low    | S      |
-| 48 | Verify `go-error-family v0.10.0` is still latest                       | Low    | S      |
-| 49 | Check if `errorfamily.RetryPolicy` has new fields for `FromPolicy`     | Low    | S      |
-| 50 | Consider Go workspace (`go.work`) for local dev with `go-error-family` | Low    | S      |
+| ~~47~~ | ~~Confirm raw-Go vs `flake.nix` decision (ROADMAP open question)~~ done — decided - raw Go commands (ROADMAP records the decision) | ~~Low~~ | ~~S~~ |
+| ~~48~~ | ~~Verify `go-error-family v0.10.0` is still latest~~ done — pinned v0.10.0 (go.mod); no newer version required | ~~Low~~ | ~~S~~ |
+| ~~49~~ | ~~Check if `errorfamily.RetryPolicy` has new fields for `FromPolicy`~~ done — FromPolicy maps the current RetryPolicy fields | ~~Low~~ | ~~S~~ |
+| ~~50~~ | ~~Consider Go workspace (`go.work`) for local dev with `go-error-family`~~ **Won't implement — raw Go + proxy resolution work; no workspace needed.** | ~~Low~~ | ~~S~~ |
 
 ---
 
 ## g) Questions I can NOT figure out myself
 
-### Q1: Should I fix the `cyclop` complexity warning now, or batch it with the options-pattern refactor?
+### ~~Q1: Should I fix the `cyclop` complexity warning now, or batch it with the options-pattern refactor?~~ done at `d869f7a` (extracted now)
 
 `Do` is at complexity 13/12. The fix is mechanical (extract the delay +
 `DelayFunc` + `OnRetry` block into a helper). But the options-pattern migration
 (ROADMAP) will restructure `Do` more significantly. Extracting now gives
 immediate lint compliance; waiting avoids double-work. Which do you prefer?
 
-### Q2: Should prior `docs/status/` reports be annotated inline, or left immutable?
+### ~~Q2: Should prior `docs/status/` reports be annotated inline, or left immutable?~~ done — annotated inline (docs-health pass 2026-09-13)
 
 Three reports contain 50-item forward-looking lists where many items are now
 done. The docs-health ANNOTATE mode says to resolve items inline with
 `~~item~~ done at <hash>`. But some teams prefer to leave historical reports
 as immutable snapshots. Should I annotate, or is "snapshot only" the policy?
 
-### Q3: Should this session's doc changes be tagged as a v0.3.2 docs-only release?
+### ~~Q3: Should this session's doc changes be tagged as a v0.3.2 docs-only release?~~ Won't implement — superseded; the doc changes shipped with v0.4.0/v0.5.0
 
 The changes are all documentation — no code changed, no API changed. A v0.3.2
 tag would make the CHANGELOG additions discoverable via release notes and
