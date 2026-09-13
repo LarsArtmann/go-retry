@@ -66,7 +66,7 @@
 
 3. **My `.golangci.yml` was immediately overwritten by the daemon.** I designed a minimal, well-reasoned config for this small library (3 linters: `gosec`, `mnd`, `exhaustruct`, plus test exclusions). The daemon replaced it with the full 90+-linter LarsArtmann standard. This then caused NEW lint failures (`err113` on test sentinels, stale `mnd` in the nolint directive since `2` is now in `ignored-numbers`). I had to fix issues that my own config would never have raised. **This isn't exactly my fault** (the daemon overwrote my work), but I was slow to recognize what had happened — I spent a confused moment wondering why new lint issues appeared before checking the config file.
 
-4. **TODO_LIST P3 items and ROADMAP Open questions are now stale.** I wrote them saying "blocked on a git remote" and "git remote -v is empty" — and then I _created the remote_ in the same session without going back to update these. The TODO and ROADMAP now contain lies about the repo state. This is the exact "report it and move on" anti-pattern the previous session self-criticized — I documented the blocker, resolved the blocker, and then didn't update the documentation. **Fix needed immediately.**
+4. ~~**TODO_LIST P3 items and ROADMAP Open questions are now stale.** I wrote them saying "blocked on a git remote" and "git remote -v is empty" — and then I _created the remote_ in the same session without going back to update these. The TODO and ROADMAP now contain lies about the repo state. This is the exact "report it and move on" anti-pattern the previous session self-criticized — I documented the blocker, resolved the blocker, and then didn't update the documentation. **Fix needed immediately.**~~ done (purged in the 22:09 session, A4)
 
 ---
 

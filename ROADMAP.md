@@ -103,7 +103,8 @@ status report.
   releases, following the owner's demonstrated preference). Confirm full
   releases for 0.x going forward so the skill default stops fighting
   practice. (Raised in
-  `docs/status/2026-08-22_01-20_go-retry-v0.4.0-hardening-executed.md`, Q3.)
+  `docs/status/archived/2026-08-22_01-20_go-retry-v0.4.0-hardening-executed.md`,
+  Q3.)
 
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —

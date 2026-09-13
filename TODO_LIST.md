@@ -9,10 +9,10 @@ Priority: **P1** = high impact, do first; **P2** = valuable, not blocking;
 **P3** = polish.
 
 Harvested from
-`docs/status/2026-08-22_01-20_go-retry-v0.4.0-hardening-executed.md` (§f) and
-verified against the current code on 2026-09-13. T1–T8 (complexity, benchmark,
-README `DelayFunc`, godoc examples, CI vet + coverage floor, fuzz campaign)
-shipped in v0.4.0/v0.5.0 — see `CHANGELOG.md`.
+`docs/status/archived/2026-08-22_01-20_go-retry-v0.4.0-hardening-executed.md`
+(§f) and verified against the current code on 2026-09-13. T1–T8 (complexity,
+benchmark, README `DelayFunc`, godoc examples, CI vet + coverage floor, fuzz
+campaign) shipped in v0.4.0/v0.5.0 — see `CHANGELOG.md`.
 
 ---
 
@@ -42,7 +42,7 @@ already v6; the v4 action runs on deprecated Node. Effort: S.
 
 ### T12. Scheduled fuzz job in CI
 
-`FuzzComputeDelayNeverPanics` exists (`retry_test.go:592`) and a 5-minute
+`FuzzComputeDelayNeverPanics` exists (`retry_test.go:694`) and a 5-minute
 local campaign ran clean (104M+ execs, 0 failures). A scheduled workflow
 would keep exploring the input domain without a human remembering to run it.
 Graduated from `ROADMAP.md` → Raw ideas. Effort: S-M.
