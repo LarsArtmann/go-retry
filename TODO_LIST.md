@@ -12,18 +12,21 @@ Priority: **P1** = high impact, do first; **P2** = valuable, not blocking;
 
 ## P1
 
-### T16 — Verify the latest CI changes + first fuzz workflow run on real runners
+### T16 — First fuzz workflow run on a real runner (ci.yml half DONE)
 
-`ci.yml` gained the `exhaustruct_v5` migration, a golangci-lint bump
-v2.12.2 → v2.13.2, per-job `timeout-minutes: 10`, and a concurrency group —
-all locally verified (lint 0 issues, no deprecation warning, YAML parses) but
-**never executed on a runner**. The _previous_ CI batch (checkout v6,
-govulncheck action, coverage floor) is verified green for `691744b`
-(run 34755167105, 2026-09-13, 3/3 jobs). `fuzz.yml` has **zero runs so far**:
-confirm the first scheduled run (daily 03:17 UTC) or a `workflow_dispatch`
-run goes green, loads the committed corpus (expect 14 entries in the log:
-7 seeds + 7 corpus files), and only exercises the crash-artifact step logic
-on failure. Evidence: `.github/workflows/ci.yml`, `.github/workflows/fuzz.yml`.
+**DONE (2026-09-13 18:40 CEST):** the `ci.yml` batch — `exhaustruct_v5`
+migration, golangci-lint v2.12.2 → v2.13.2, per-job `timeout-minutes: 10`,
+concurrency group, and the config-verify fix — is **verified green on real
+runners** for `cf3cd40` (run 34766471885), `b356f63` (run 34766604503), and
+`9d6700a` (run 34766960403), each 3/3 jobs (test ✅ coverage ✅ lint ✅).
+The previous batch (checkout v6, govulncheck action, coverage floor) was
+already green for `691744b` (run 34755167105).
+
+**Remaining:** `fuzz.yml` has **zero runs so far**: trigger a
+`workflow_dispatch` run, confirm it goes green, loads the committed corpus
+(expect 14 entries in the log: 7 seeds + 7 corpus files), and only exercises
+the crash-artifact step logic on failure.
+Evidence: `.github/workflows/ci.yml`, `.github/workflows/fuzz.yml`.
 Source: `docs/status/archived/2026-09-13_12-57_t9-t15-execution-status.md` §f.1–3.
 
 ### T21 — Cut the next release (v0.5.1 or v0.6.0) — owner-gated

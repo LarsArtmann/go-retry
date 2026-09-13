@@ -15,6 +15,9 @@ commits); all gates green; both status reports annotated and archived;
 `docs/status/` holds only `README.md` + `archived/`.
 **Amended 14:58 CEST:** the daemon pushed the session's commits and CI went
 **red on master** (lint job): the action runs `golangci-lint config verify`,which rejects what plain `run` tolerated — the migrated `exhaustruct_v5`settings block used v4's `exclude` key, which v5's schema does not allow.Fixed at ~14:55 (block dropped — the `_test.go` exclusion rule is independent),`config verify` now passes locally (see d.6, e.8). Same hour, Dependabotopened its first-ever PR (#1, actions group) — invalidating the morning's"zero PRs ever" finding (see a.9 amendment, g.2).
+**Amended 18:40 CEST:** master is green again — runs `34766471885` (`cf3cd40`),
+`34766604503` (`b356f63`), `34766960403` (`9d6700a`), each 3/3 jobs incl. the
+`config verify` gate. See §f.1 annotation.
 
 ---
 
@@ -152,18 +155,24 @@ commits); all gates green; both status reports annotated and archived;
 > verification · `[RELEASE]` release flow · `[CI]` · `[CODE]` · `[DOC]` ·
 > `[ROADMAP]` · `[WISEGO]` other repo · `[OWNER]` needs you · `[PROCESS]`.
 
-1. `[VERIFY]` T16: verify the config-verify fix lands green on the runner
+1. ~~`[VERIFY]` T16: verify the config-verify fix lands green on the runner
    (next push), then watch all three `ci.yml` jobs (exhaustruct_v5 + golangci
-   v2.13.2 + timeouts + concurrency).
+   v2.13.2 + timeouts + concurrency).~~ done (2026-09-13 18:40 CEST — runs
+   `34766471885`/`cf3cd40`, `34766604503`/`b356f63`, `34766960403`/`9d6700a`,
+   each 3/3 jobs: test ✅ coverage ✅ lint ✅ incl. `config verify`).
 2. `[VERIFY]` T16: trigger `fuzz.yml` once via `workflow_dispatch` instead of
    waiting for tomorrow 03:17 UTC; confirm the committed corpus loads
-   (14 entries in the log).
+   (14 entries in the log). — still open, tracked as TODO_LIST T16 (fuzz half).
 3. `[VERIFY]` T16: confirm govulncheck action's `go-version-file` +
-   `check-latest` interaction on the runner (run-log read).
+   `check-latest` interaction on the runner (run-log read). — still open,
+   rides the fuzz-dispatch verification (TODO_LIST T16).
 4. `[VERIFY]` T16: confirm `upload-artifact` v7 + `if-no-files-found: ignore`
-   behaves (skips cleanly on green).
+   behaves (skips cleanly on green). — still open, rides the fuzz-dispatch
+   verification (TODO_LIST T16).
 5. `[VERIFY]` T16: watch for exhaustruct_v5 findings drift vs the old linter
-   (v5 may flag structs v4 didn't).
+   (v5 may flag structs v4 didn't). — no drift observed on the three green
+   master runs so far; ongoing observation, no action needed unless a finding
+   appears.
 6. `[RELEASE]` T21: decide v0.5.1 vs v0.6.0 — the exhaustion-message wording
    is user-visible → minor-leaning.
 7. `[RELEASE]` T21: move ALL `[Unreleased]` entries together (incl. the two
