@@ -24,6 +24,14 @@ The workflow schema check also runs in CI (first step of the `lint` job,
 pinned to the same actionlint version), so invalid workflow YAML fails fast
 on the runner instead of surfacing as mysterious job failures.
 
+### Session ritual (maintainers)
+
+`AGENTS.md` ends with a **Session Ritual** checklist — the self-checks every
+change set should pass before claiming done (gate order incl.
+`golangci-lint config verify`, proving new guard tests fail on their drift,
+hash verification for cited evidence, raw test summaries over filtered
+tails). Read it once; run it always.
+
 ### Coverage
 
 `reports/` is gitignored (`.gitignore`). Regenerate coverage locally:
@@ -103,3 +111,10 @@ See [`AGENTS.md`](AGENTS.md) for the deeper architectural context (the
 
 Please use [GitHub Issues](https://github.com/larsartmann/go-retry/issues) to
 report bugs or request features.
+
+## CHANGELOG entries
+
+User-visible changes (API, behavior, error messages, guarantees, CI-visible
+tooling) get a `[Unreleased]` entry. Pure docs fixes (typos, reformatting)
+and internal status/planning files do not. Doc changes that alter documented
+behavior or guarantees (README snippets, godoc examples) **do** get an entry.

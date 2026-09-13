@@ -191,11 +191,15 @@ graduation into `TODO_LIST.md` once scoped.
   (`retry.go` imports); a pluggable `rand` source would make delay sequences
   reproducible in tests without sampling-based assertions (the existing
   `TestBackoff_IncreasesExponentially` works around this by testing the formula,
-  not sampled values).
+  not sampled values). **Decided (2026-09-13):** lands as `WithRandomSource`
+  with the options-pattern migration — see the `ROADMAP.md` v1.0 section.
 - **Deadline-aware attempt budgeting** — currently `MaxAttempts` is the only
   budget; a caller with a hard deadline cannot ask `Do` to stop retrying when
   the remaining context budget is too small for another attempt. Possibly out of
   scope (callers can cancel the context), but worth a decision.
+  **Decided (2026-09-13): stay count-based** — deadline budgeting is
+  documented as a `MaxDelay`-setting recipe, not new semantics; see the
+  `ROADMAP.md` composition-primitives section.
 - **Composable neighbors in this package?** — circuit-breaker / bulkhead
   primitives are intentionally NOT here (they belong closer to the caller or in
   `go-cqrs-lite/middleware`). Document the boundary explicitly in `doc.go` if

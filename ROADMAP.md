@@ -43,13 +43,52 @@ v1.0:
 - **Is `AttemptFunc(ctx, attempt)` the signature callers want?** Some retry
   libraries pass the previous error back into `fn`; this one does not. Worth a
   deliberate decision, not an accident.
-- **Public API surface audit** — confirm every exported symbol
-  (`Do`, `DoWithValue`, `Config`, `DefaultConfig`, `FromPolicy`, `Backoff`,
-  `ComputeDelay`, `AttemptFunc`, `ResultFunc`, `ErrExhausted`, `ErrCanceled`,
-  `ErrDeadlineExceeded`) and every exported `Config`
-  field (`MaxAttempts`, `InitialDelay`, `MaxDelay`, `Multiplier`, `IsRetryable`,
-  `DelayFunc`, `OnRetry`, `OnExhausted`) is one callers should depend on, and
-  that nothing exported is leaking an implementation detail.
+
+  **Decision (2026-09-13): keep `AttemptFunc(ctx, attempt) error`.** Survey of
+  the mainstream Go retry APIs (verified against source): avast/retry-go v5
+  uses `RetryableFunc func()` (bare); cenkalti/backoff v5 uses `Operation[T]`
+  and its own docs warn "the operation receives no context — capture ctx
+  inside the operation if you want cancellation to abort an in-flight
+  attempt"; sethvargo/go-retry uses `RetryFunc func(ctx) error`. Against that
+  field, this package's signature is a deliberate small superset: passing
+  `ctx` avoids cenkalti's documented gotcha entirely, and passing `attempt`
+  (1-based) powers the common gate-on-try pattern (`if attempt == 1 { fast
+  path }`, attempt-aware logging) without forcing every caller through
+  closure counters. Passing the previous `err` into `fn` was considered and
+  **rejected**: retryability is `Config.IsRetryable`'s job (single decision
+  point), and `OnRetry`/`DelayFunc` already observe the error where it
+  belongs. Revisit only if a concrete consumer demonstrates a need that
+  `IsRetryable` + callbacks cannot express.
+- **Public API surface audit — DONE (2026-09-13, v1.0 track).** Every exported
+  symbol walked for purpose, leak-check, doc quality, and need (`go doc -all`
+  matched the listed surface exactly — no undocumented exports):
+
+  - [x] `Do` — core loop; doc covers attempt count, retryable semantics,
+        context endings, exhaustion. Freeze.
+  - [x] `DoWithValue[T]` — value wrapper; zero-value-on-failure guarantee
+        documented and pinned. Freeze.
+  - [x] `Config` — 8 fields, all domain-meaningful; no clock/rand/logger
+        leaks. Struct-literal compat is the v1 promise. Freeze.
+  - [x] `Config.Validate` — Rejection-family errors, codes glossary-synced.
+        Freeze.
+  - [x] `DefaultConfig` — value receiver, valid by construction. Freeze.
+  - [x] `FromPolicy` — **flagged, accepted:** signature exposes
+        `errorfamily.RetryPolicy` (the one intentional dependency-type leak,
+        consistent with `doc.go`'s integration stance); v1 compat tracking
+        must follow `RetryPolicy`'s shape. Freeze with note.
+  - [x] `Backoff` — config-facing delay incl. `DelayFunc`; `(duration, error)`
+        contract. Freeze.
+  - [x] `ComputeDelay` — dependency-free pure function; deliberate export.
+        Freeze.
+  - [x] `AttemptFunc` — signature decision tracked separately (below). Freeze
+        pending that record.
+  - [x] `ResultFunc[T]` — generic counterpart to `AttemptFunc`. Freeze.
+  - [x] `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded` —
+        Infrastructure sentinels; code+family identity, unwrap semantics
+        documented. Freeze.
+
+  Verdict: **no symbol to remove, rename, or deprecate before v1.0**; the
+  only tracked coupling is `FromPolicy`'s `RetryPolicy` parameter.
 
 ## Raw ideas (unscoped)
 
@@ -65,28 +104,118 @@ v1.0:
   (`OnRetry`, `OnExhausted`, a future jitter config) to functional options
   (`WithOnRetry(...)`) so new capabilities don't break the struct literal
   callers already have. Large change; needs a concrete migration story.
+
+  **Design (2026-09-13, v1.0 track).** Goals: grow behavior (jitter strategy,
+  RNG source, future hooks) without ever breaking `Config` struct literals;
+  keep zero-config usage idiomatic. Non-goals: replacing `Config`, runtime
+  reconfiguration, builder chaining as the primary style. **Compat contract:
+  the entry points grow a variadic tail — `Do(ctx, config, fn, opts ...Option)`
+  and `DoWithValue(ctx, config, fn, opts ...Option)` — which is a purely
+  additive, source-compatible change.** Options override the matching
+  `Config` field for that call when set; the fields keep working forever, so
+  nothing forces migration. Planned `With*` inventory: `WithIsRetryable`,
+  `WithDelayFunc`, `WithOnRetry`, `WithExhausted` (mirrors of the four
+  callbacks), plus options-only capabilities that never become fields:
+  `WithJitter(strategy)` (none / additive / full / equal / decorrelated —
+  closes the twice-deferred jitter question) and `WithRandomSource`
+  (deterministic RNG seam, see below). New behavior lands options-only so
+  `Config`'s 8-field shape survives v1.0 unchanged.
+
+  **Deterministic RNG decision (2026-09-13).** Resolves the
+  `WORTH_CONSIDERING` item: a pluggable randomness source lands as
+  `WithRandomSource(rand.Source)` **with the options migration**, not as a
+  `Config` field and not as a package-level test seam. A test seam (mutable
+  package var) is rejected — it is shared mutable state under `-race` and
+  parallel tests; "never" is rejected because jitter is the package's only
+  nondeterminism and delay-comparison tests already paid for it (see
+  `TestBackoff_IncreasesExponentially`'s formula-not-samples pattern).
 - **Composition primitives (documented, not coded here).** Circuit-breaker,
   bulkhead, and deadline-budgeting are intentionally absent. The roadmap
   question is whether `go-retry` should ship thin **adapters** that compose
   with a caller-chosen breaker, or stay purely a loop and leave composition
   entirely to the caller / to `go-cqrs-lite`. Lean: stay pure, document the
   pattern.
+
+  **Deadline-aware budgeting decision (2026-09-13).** Resolves the
+  `WORTH_CONSIDERING` item: stay **count-based**, no time-budget semantics.
+  Today a deadline only terminates the loop (`ErrDeadlineExceeded`, wait
+  interrupted); attempts are not sized against the remaining ctx budget.
+  Auto-fitting delays to the deadline would make the number of attempts
+  environment- and clock-dependent, breaking the `MaxAttempts` contract
+  ("exactly N calls" is documented and pinned by tests). Callers with a
+  deadline budget should set `MaxDelay` below their remaining time — that
+  recipe goes in the README instead of new semantics.
 - **Version-compatibility matrix with `go-error-family`.** This package
   depends on `go-error-family v0.10.0` (`go.mod`) and leans on
   `errorfamily.IsRetryable` as its default retry predicate. As that library
   evolves, document which `go-retry` versions support which `go-error-family`
   majors.
+
+  **Matrix (2026-09-13).** The `go-error-family` API surface `go-retry`
+  compiles against (extracted from `go.mod`-pinned v0.10.0; grep-verified):
+  `NewInfrastructure`, `NewRejection`, `NewTransient` (tests),
+  `WrapInfrastructure`, `IsRetryable`, `Classify` (tests), the
+  `Transient`/`Rejection` family constants (tests), and the `RetryPolicy`
+  type consumed by `FromPolicy`.
+
+  | go-retry      | go-error-family | Notes                                                                         |
+  | ------------- | --------------- | ----------------------------------------------------------------------------- |
+  | v0.1.0–v0.3.1 | v0.9.x          | pre-audit; unverified                                                         |
+  | v0.4.0        | v0.10.0         | family/code contract settled                                                  |
+  | v0.5.0        | v0.10.0         | —                                                                             |
+  | v0.6.0        | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc |
+
+  Rule: a go-error-family **major** (post-v1) or any change to the surface
+  above requires a go-retry minor bump and a new matrix row; the `RetryPolicy`
+  shape is the riskiest coupling (see the API-audit `FromPolicy` note).
 - **CI hardening ideas (unscoped).** A periodic `-race` fuzz short-run
   (throughput vs concurrency-bug tradeoff); pinning the govulncheck action's
   internal `go install …@latest` posture; an auto-PR loop that lands fuzz
   crashers into `testdata/fuzz/` automatically; `go test -shuffle=on` as a
   cheap order-dependency detector.
+
+  **Decisions (2026-09-13).**
+  - `-shuffle=on`: **adopted** on the CI test job (`go test -shuffle=on
+    ./... -race`); a local trial (5 shuffled runs + 4 fixed seeds) found no
+    order dependency.
+  - `-race` fuzz: **rejected for the daily campaign** — measured throughput
+    locally is ~19k execs/s with `-race` vs ~400k/s without (~20×), and the
+    loop is single-goroutine; caller-side races are covered by the
+    always-on `-race` test job. Revisit only if a concurrency bug class
+    appears that tests miss.
+  - govulncheck `@latest`: **accepted, consciously.** Verified from the
+    pinned action source (`action.yml` at our SHA): the install step is
+    `go install golang.org/x/vuln/cmd/govulncheck@latest`. The scanner
+    binary does not ship in the artifact, the vulnerability DB is live
+    regardless, and the action is the official Go-team one at a SHA we pin.
+    Self-pinning would trade automatic scanner freshness for a stale-scanner
+    failure mode.
+  - Auto-PR crash-corpus loop: **design now, build when the first crasher
+    appears.** Sketch: the fuzz job already uploads `testdata/fuzz/` as the
+    `fuzz-crash-corpus-<sha>` artifact on failure; an auto-PR workflow
+    (triggered on that failure) would extract new corpus entries, commit
+    them plus a distilled seed to a branch, and open a PR. Cost that keeps
+    it deferred: it needs `contents: write` + `pull-requests: write`
+    permissions (today the workflows are `contents: read`), and crasher
+    triage is inherently human — the corpus-seeds test keeps the manual
+    path cheap.
 - **Public documentation site.** Other LarsArtmann libraries use the Astro +
   Starlight + Firebase Hosting pattern (see the `website-launch` skill). A
   rendered docs site is plausible once the API is stable. Godoc examples now
   exist (`ExampleDo`, `ExampleDo_customIsRetryable` — see `CHANGELOG.md`
   `[0.1.0]`); the remaining precondition is API stability (see v1.0 bar
   above). Not before.
+
+  **Preconditions checklist (2026-09-13), tied to the v1.0 freeze:**
+  1. v1.0.0 tag cut (API-stability promise in force) — hard gate.
+  2. Public-API audit verdicts all "freeze" (done 2026-09-13, see the v1.0
+     bar above).
+  3. Godoc examples cover every entry point (`Do`, `DoWithValue` done;
+     `Backoff`/`ComputeDelay` nice-to-have).
+  4. Launch content decision: demo video per the `website-launch` pattern
+     (owner call).
+  5. Docs-site content source chosen (README-derived vs dedicated pages) —
+     decide at launch time, not before.
 
 ## Explicit non-goals
 
