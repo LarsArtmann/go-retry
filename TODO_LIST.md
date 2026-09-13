@@ -80,20 +80,35 @@ both drift directions. Gate green: `-race -count=10`, lint 0 issues,
 `config verify`, coverage 100.0%. AGENTS gotcha updated to "enforced by a
 test"; CHANGELOG `[Unreleased]` entry added.
 
-### T18 — Workflow schema gate before push
+### T18 — Workflow schema gate — RESOLVED (2026-09-13)
 
-Add `actionlint` (or an equivalent workflow schema check) as a pre-push gate
+~~Add `actionlint` (or an equivalent workflow schema check) as a pre-push gate
 so workflow YAML errors die locally instead of on the runner. Note: this repo
 deliberately keeps its tool surface at `go` + `golangci-lint`, so the gate
 must either justify a third tool or reuse an existing one. Evidence:
-`.github/workflows/*.yml`. Source: 12-57 report §f.10.
+`.github/workflows/*.yml`. Source: 12-57 report §f.10.~~
+
+**DONE (2026-09-13 ~19:15 CEST):** surface decided — **CI gate, not a third
+local tool**. The `lint` job now installs actionlint `v1.7.12` from the Go
+module proxy (fits the Go-only tool surface; no download script, version
+pinned) and runs it over both workflows before `golangci-lint`. Local
+surface is the same one-liner via `go run` (documented in CONTRIBUTING +
+AGENTS commands); a persistent local binary/pre-push hook was rejected —
+`go install` of new tools is blocked in the AI environment and the repo
+keeps its two-tool convention. Local `go run` validation + a deliberate
+break test on a throwaway branch prove the gate bites.
 
 ## P3
 
-### T19 — Fuzz job polish
+### T19 — Fuzz job polish — RESOLVED (2026-09-13)
 
-Name the crash artifact with the commit SHA
+~~Name the crash artifact with the commit SHA
 (`fuzz-crash-corpus-${{ github.sha }}`) for multi-crash archaeology, and
 consider `-fuzzminimizetime` tuning so crash minimization cannot eat the
 45-minute job timeout on a hit. Evidence: `.github/workflows/fuzz.yml:28-34`.
-Source: 12-57 report §f.40–41.
+Source: 12-57 report §f.40–41.~~
+
+**DONE (2026-09-13 ~19:10 CEST):** artifact renamed to
+`fuzz-crash-corpus-${{ github.sha }}`; `-fuzzminimizetime 5m` added
+(30 m fuzz + 5 m minimization = 35 m, inside the 45-minute timeout).
+CHANGELOG `[Unreleased]` entry added.

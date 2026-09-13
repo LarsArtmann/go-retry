@@ -23,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   failing runs cannot shadow each other, and crash minimization is bounded
   with `-fuzzminimizetime 5m` so it cannot consume the job's 45-minute
   timeout on a hit. `.github/workflows/fuzz.yml`.
+- **Workflow schema gate.** The CI `lint` job now runs
+  [actionlint](https://github.com/rhysd/actionlint) (pinned `v1.7.12`,
+  installed from the Go module proxy) over every workflow before
+  `golangci-lint`, so invalid workflow YAML fails in seconds with a named
+  error instead of surfacing as mysterious job failures. Locally:
+  `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12`.
+  `.github/workflows/ci.yml`, `CONTRIBUTING.md`.
 
 ## [0.6.0] - 2026-09-13
 

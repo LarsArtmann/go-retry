@@ -27,6 +27,7 @@ golangci-lint run ./...         # lint (committed .golangci.yml: standard defaul
 go vet ./...
 go test -run '^$' -fuzz '^FuzzComputeDelayNeverPanics$' -fuzztime 5m .   # fuzz campaign
 go test -run '^FuzzComputeDelayNeverPanics$' .                          # seeded corpus run (no fuzzing)
+go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12               # workflow schema gate (also first step of CI lint job)
 ```
 
 `go test` is the only verification gate. There is no build step beyond `go build`

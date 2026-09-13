@@ -17,7 +17,12 @@ are the only tools required.
 go test ./... -race        # tests (always with -race; backoff uses math/rand/v2)
 golangci-lint run ./...    # lint (uses the committed .golangci.yml)
 go vet ./...               # vet
+go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12  # workflow schema check
 ```
+
+The workflow schema check also runs in CI (first step of the `lint` job,
+pinned to the same actionlint version), so invalid workflow YAML fails fast
+on the runner instead of surfacing as mysterious job failures.
 
 ### Coverage
 
