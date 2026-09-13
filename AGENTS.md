@@ -190,3 +190,32 @@ Error codes follow a `retry.<snake_case_event>` convention
 - Assertions use `t.Fatalf` with a descriptive message including the actual value.
 - Validate error identity with `errors.Is`, and family with
   `errorfamily.Classify(err) == errorfamily.<Family>`.
+
+## Session Ritual (self-checks before claiming done)
+
+- **Gate order:** `gofmt -l .` → `go vet ./...` → `go test ./... -race
+  -count=10` → `golangci-lint run ./...` → `golangci-lint config verify`
+  (mandatory after any `.golangci.yml` touch — plain `run` tolerates schema
+  violations the CI action rejects) → coverage if tests changed.
+- **Test-failure proof:** a new guard test must be shown to FAIL on the drift
+  it guards (temporarily break the fixture, observe the named failure,
+  restore). A test that was never seen failing is unverified.
+- **Hash verification:** every commit hash cited as evidence is verified with
+  `git show`/`git log` before writing it into a report; status-report claims
+  are re-verified against fresh CLI runs, never trusted (reports are
+  point-in-time).
+- **Pipeline masking:** never judge a gate by a filtered tail (`| rg ... |
+  head`); read the raw `ok`/`FAIL` summary lines — filters match test names
+  and hide failing summaries.
+- **Delete-then-build:** after deleting any file/package/symbol, run
+  `go build ./...` immediately, before editing dependents — LSP caches lie,
+  builds don't.
+- **Marker coverage:** when linters are added/renamed, sweep the `//nolint:`
+  markers; a renamed linter marker silences nothing and re-produces findings.
+
+## `.config/metadata.yaml`
+
+Machine-written metadata (`tags: [lib]`, `importance`, timestamps) produced
+by Lars's external repo tooling — nothing in this repo reads or writes it,
+and its `updated_at` changes without repo activity. Do not edit or delete it
+by hand; an external writer owns the file and its timestamps.
