@@ -243,7 +243,8 @@ most P2/P3 tail items are ROADMAP fuel, not commitments.
 7. ~~Validate the annotated HTML renders (parse or headless open) (d.5).~~ →
    done (parse-validated: all tags balanced).
 8. ~~Execute TODO T9 — strengthen the non-retryable assert to `err != rejection`
-   identity.~~ → done at `a89ad17` (`//nolint:errorlint` with reason).
+   identity.~~ → done at `258c1fd` (`//nolint:errorlint` with reason; hash
+   corrected from a stat-level `a89ad17` attribution during report writing).
 9. ~~Execute TODO T10 — dedupe `contextEnded`'s code/message pairs.~~ → done at
    `a89ad17` (const block; wrapper message unified on the sentinel wording).
 10. ~~Migrate `exhaustruct` → `exhaustruct_v5` in `.golangci.yml` (kills the
