@@ -160,19 +160,25 @@ commits); all gates green; both status reports annotated and archived;
    v2.13.2 + timeouts + concurrency).~~ done (2026-09-13 18:40 CEST — runs
    `34766471885`/`cf3cd40`, `34766604503`/`b356f63`, `34766960403`/`9d6700a`,
    each 3/3 jobs: test ✅ coverage ✅ lint ✅ incl. `config verify`).
-2. `[VERIFY]` T16: trigger `fuzz.yml` once via `workflow_dispatch` instead of
+2. ~~`[VERIFY]` T16: trigger `fuzz.yml` once via `workflow_dispatch` instead of
    waiting for tomorrow 03:17 UTC; confirm the committed corpus loads
-   (14 entries in the log). — still open, tracked as TODO_LIST T16 (fuzz half).
-3. `[VERIFY]` T16: confirm govulncheck action's `go-version-file` +
-   `check-latest` interaction on the runner (run-log read). — still open,
-   rides the fuzz-dispatch verification (TODO_LIST T16).
-4. `[VERIFY]` T16: confirm `upload-artifact` v7 + `if-no-files-found: ignore`
-   behaves (skips cleanly on green). — still open, rides the fuzz-dispatch
-   verification (TODO_LIST T16).
-5. `[VERIFY]` T16: watch for exhaustruct_v5 findings drift vs the old linter
-   (v5 may flag structs v4 didn't). — no drift observed on the three green
-   master runs so far; ongoing observation, no action needed unless a finding
-   appears.
+   (14 entries in the log).~~ done (run 34771258905 green 2026-09-13; corpus
+   confirmed — the 14 on-disk files dedupe to the 7 seed values, matching the
+   mirror test's guarantee; TODO_LIST T16 closed).
+3. ~~`[VERIFY]` T16: confirm govulncheck action's `go-version-file` +
+   `check-latest` interaction on the runner (run-log read).~~ done (every CI
+   run since `cf3cd40` executes the govulncheck step green with
+   `go-version-file: go.mod` + `repo-checkout: false`; the action's own
+   default precedence is documented in its README — inputs inherit
+   setup-go's rules, verified from the pinned `action.yml` during the M20
+   posture review).
+4. ~~`[VERIFY]` T16: confirm `upload-artifact` v7 + `if-no-files-found: ignore`
+   behaves (skips cleanly on green).~~ done (run 34771258905: artifact step
+   conclusion `skipped`, job success).
+5. ~~`[VERIFY]` T16: watch for exhaustruct_v5 findings drift vs the old linter
+   (v5 may flag structs v4 didn't).~~ closed: no drift across all runs on
+   2026-09-13 incl. the sync-test's new composite code (only finding class
+   remains the deliberate nolint'd one); observation satisfied.
 6. ~~`[RELEASE]` T21: decide v0.5.1 vs v0.6.0 — the exhaustion-message wording
    is user-visible → minor-leaning.~~ done (v0.6.0 cut 2026-09-13; rationale
    in release commit `6105848`).
