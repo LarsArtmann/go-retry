@@ -24,7 +24,7 @@ jobs:
       - name: Vet
         run: go vet ./...
       - name: Test with race detector
-        run: go test ./... -race
+        run: go test -shuffle=on ./... -race
       - name: Vulnerability scan
         uses: golang/govulncheck-action@032d45514ae346b1db93c04b0c90b841c370344f # v1
         with:

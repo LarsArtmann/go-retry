@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   failing runs cannot shadow each other, and crash minimization is bounded
   with `-fuzzminimizetime 5m` so it cannot consume the job's 45-minute
   timeout on a hit. `.github/workflows/fuzz.yml`.
+- **CI tests run with `-shuffle=on`.** Go shuffles test order with a logged
+  seed on every CI run, catching order dependencies early; a trial of 5
+  shuffled runs plus 4 fixed-seed runs found none. `.github/workflows/ci.yml`.
 - **Workflow schema gate.** The CI `lint` job now runs
   [actionlint](https://github.com/rhysd/actionlint) (pinned `v1.7.12`,
   installed from the Go module proxy) over every workflow before
