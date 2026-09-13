@@ -210,98 +210,98 @@ Ranked by impact, then effort. Items already in `TODO_LIST.md` are marked
 
 ### P1 — Fix what this session left broken
 
-| # | Task                                                                  | Impact | Effort |
-| - | --------------------------------------------------------------------- | ------ | ------ |
-| ~~1~~ | ~~Add `DelayFunc` row to README.md configuration table (fix on sight)~~ done at `1d002da` | ~~High~~ | ~~S~~ |
-| ~~2~~ | ~~Add jitter deferral decision to AGENTS.md (close the propagation gap)~~ done (docs-health pass 2026-09-13) | ~~High~~ | ~~S~~ |
-| ~~3~~ | ~~Fix stale line refs in AGENTS.md control-flow + error-family sections~~ done (docs-health pass 2026-09-13) | ~~Medium~~ | ~~S~~ |
-| ~~4~~ | ~~Annotate `docs/status/` reports: mark resolved items inline~~ done (docs-health pass 2026-09-13) | ~~Medium~~ | ~~M~~ |
-| ~~5~~ | ~~Audit CONTRIBUTING.md for stale references post-DelayFunc~~ done (docs-health pass 2026-09-13) | ~~Low~~ | ~~S~~ |
+| #     | Task                                                                                                         | Impact     | Effort |
+| ----- | ------------------------------------------------------------------------------------------------------------ | ---------- | ------ |
+| ~~1~~ | ~~Add `DelayFunc` row to README.md configuration table (fix on sight)~~ done at `1d002da`                    | ~~High~~   | ~~S~~  |
+| ~~2~~ | ~~Add jitter deferral decision to AGENTS.md (close the propagation gap)~~ done (docs-health pass 2026-09-13) | ~~High~~   | ~~S~~  |
+| ~~3~~ | ~~Fix stale line refs in AGENTS.md control-flow + error-family sections~~ done (docs-health pass 2026-09-13) | ~~Medium~~ | ~~S~~  |
+| ~~4~~ | ~~Annotate `docs/status/` reports: mark resolved items inline~~ done (docs-health pass 2026-09-13)           | ~~Medium~~ | ~~M~~  |
+| ~~5~~ | ~~Audit CONTRIBUTING.md for stale references post-DelayFunc~~ done (docs-health pass 2026-09-13)             | ~~Low~~    | ~~S~~  |
 
 ### P2 — Code quality (from TODO_LIST)
 
-| #  | Task                                                                     | Impact | Effort |
-| -- | ------------------------------------------------------------------------ | ------ | ------ |
-| ~~6~~  | ~~**(T1)** Fix `cyclop` warning: extract delay block from `Do`~~ done at `d869f7a` | ~~High~~ | ~~S~~ |
-| ~~7~~  | ~~**(T2)** Modernize `BenchmarkComputeDelay` to `b.Loop()`~~ done at `a402f67` | ~~Low~~ | ~~S~~ |
-| ~~8~~  | ~~**(T6)** Add `go vet` step to CI workflow~~ done at `df847e5` | ~~Medium~~ | ~~S~~ |
-| ~~9~~  | ~~**(T7)** Add coverage threshold to CI workflow~~ done at `df847e5` | ~~Medium~~ | ~~S~~ |
-| ~~10~~ | ~~**(T8)** Run bounded fuzz campaign (5m) on `FuzzComputeDelayNeverPanics`~~ done at `a402f67` | ~~Medium~~ | ~~S~~ |
+| #      | Task                                                                                           | Impact     | Effort |
+| ------ | ---------------------------------------------------------------------------------------------- | ---------- | ------ |
+| ~~6~~  | ~~**(T1)** Fix `cyclop` warning: extract delay block from `Do`~~ done at `d869f7a`             | ~~High~~   | ~~S~~  |
+| ~~7~~  | ~~**(T2)** Modernize `BenchmarkComputeDelay` to `b.Loop()`~~ done at `a402f67`                 | ~~Low~~    | ~~S~~  |
+| ~~8~~  | ~~**(T6)** Add `go vet` step to CI workflow~~ done at `df847e5`                                | ~~Medium~~ | ~~S~~  |
+| ~~9~~  | ~~**(T7)** Add coverage threshold to CI workflow~~ done at `df847e5`                           | ~~Medium~~ | ~~S~~  |
+| ~~10~~ | ~~**(T8)** Run bounded fuzz campaign (5m) on `FuzzComputeDelayNeverPanics`~~ done at `a402f67` | ~~Medium~~ | ~~S~~  |
 
 ### P3 — Developer experience (from TODO_LIST)
 
-| #  | Task                                                               | Impact | Effort |
-| -- | ------------------------------------------------------------------ | ------ | ------ |
-| ~~11~~ | ~~**(T3)** Add `DelayFunc` to README config table (same as #1 above)~~ done at `1d002da` | ~~Medium~~ | ~~S~~ |
-| ~~12~~ | ~~**(T4)** Add `ExampleDo_delayFunc` godoc example~~ done at `a3dbaea` | ~~Medium~~ | ~~S~~ |
-| ~~13~~ | ~~**(T5)** Add `ExampleFromPolicy` godoc example~~ done at `a3dbaea` | ~~Medium~~ | ~~S~~ |
+| #      | Task                                                                                     | Impact     | Effort |
+| ------ | ---------------------------------------------------------------------------------------- | ---------- | ------ |
+| ~~11~~ | ~~**(T3)** Add `DelayFunc` to README config table (same as #1 above)~~ done at `1d002da` | ~~Medium~~ | ~~S~~  |
+| ~~12~~ | ~~**(T4)** Add `ExampleDo_delayFunc` godoc example~~ done at `a3dbaea`                   | ~~Medium~~ | ~~S~~  |
+| ~~13~~ | ~~**(T5)** Add `ExampleFromPolicy` godoc example~~ done at `a3dbaea`                     | ~~Medium~~ | ~~S~~  |
 
 ### P4 — Documentation durability
 
-| #  | Task                                                                 | Impact | Effort |
-| -- | -------------------------------------------------------------------- | ------ | ------ |
-| ~~14~~ | ~~Migrate all line-number citations to function-name-only format~~ done (docs-health pass 2026-09-13) | ~~Medium~~ | ~~M~~ |
-| ~~15~~ | ~~Add `DelayFunc` entry to `docs/DOMAIN_LANGUAGE.md` "jitter strategy"~~ done — DOMAIN_LANGUAGE has the DelayFunc term (9aaf52e) | ~~Low~~ | ~~S~~ |
-| ~~16~~ | ~~Add jitter strategy terms (none/additive/full/equal/decorrelated)~~ **Won't implement — jitter strategy deferred; glossary defines current behavior.** | ~~Low~~ | ~~S~~ |
-| ~~17~~ | ~~Verify godoc examples render on pkg.go.dev for v0.3.1~~ done — verified 2026-09-13 - examples render for v0.5.0 | ~~Low~~ | ~~S~~ |
-| ~~18~~ | ~~Add v0.2.0→v0.3.0 migration notes (DelayFunc is additive, no break)~~ **Won't implement — additive feature; CHANGELOG documents it.** | ~~Low~~ | ~~S~~ |
+| #      | Task                                                                                                                                                     | Impact     | Effort |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------ |
+| ~~14~~ | ~~Migrate all line-number citations to function-name-only format~~ done (docs-health pass 2026-09-13)                                                    | ~~Medium~~ | ~~M~~  |
+| ~~15~~ | ~~Add `DelayFunc` entry to `docs/DOMAIN_LANGUAGE.md` "jitter strategy"~~ done — DOMAIN_LANGUAGE has the DelayFunc term (9aaf52e)                         | ~~Low~~    | ~~S~~  |
+| ~~16~~ | ~~Add jitter strategy terms (none/additive/full/equal/decorrelated)~~ **Won't implement — jitter strategy deferred; glossary defines current behavior.** | ~~Low~~    | ~~S~~  |
+| ~~17~~ | ~~Verify godoc examples render on pkg.go.dev for v0.3.1~~ done — verified 2026-09-13 - examples render for v0.5.0                                        | ~~Low~~    | ~~S~~  |
+| ~~18~~ | ~~Add v0.2.0→v0.3.0 migration notes (DelayFunc is additive, no break)~~ **Won't implement — additive feature; CHANGELOG documents it.**                  | ~~Low~~    | ~~S~~  |
 
 ### P5 — v1.0 API stability preparation
 
-| #  | Task                                                                | Impact | Effort |
-| -- | ------------------------------------------------------------------- | ------ | ------ |
-| ~~19~~ | ~~Public API surface audit (all 9 symbols + 8 Config fields)~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~High~~ | ~~M~~ |
-| ~~20~~ | ~~Decide: is `AttemptFunc(ctx, attempt)` the final signature?~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~High~~ | ~~S~~ |
-| ~~21~~ | ~~Decide: should `fn` receive the previous error?~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~Medium~~ | ~~S~~ |
-| ~~22~~ | ~~Design options-pattern migration plan (`WithJitter`, `WithOnRetry`)~~ done — tracked in ROADMAP.md (options-based configuration) | ~~High~~ | ~~M~~ |
-| ~~23~~ | ~~Version-compatibility matrix with `go-error-family`~~ done — tracked in ROADMAP.md (version-compatibility matrix) | ~~Medium~~ | ~~S~~ |
-| ~~24~~ | ~~Formal v1.0 readiness checklist~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~Medium~~ | ~~M~~ |
+| #      | Task                                                                                                                               | Impact     | Effort |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------ |
+| ~~19~~ | ~~Public API surface audit (all 9 symbols + 8 Config fields)~~ done — tracked in ROADMAP.md (v1.0 bar)                             | ~~High~~   | ~~M~~  |
+| ~~20~~ | ~~Decide: is `AttemptFunc(ctx, attempt)` the final signature?~~ done — tracked in ROADMAP.md (v1.0 bar)                            | ~~High~~   | ~~S~~  |
+| ~~21~~ | ~~Decide: should `fn` receive the previous error?~~ done — tracked in ROADMAP.md (v1.0 bar)                                        | ~~Medium~~ | ~~S~~  |
+| ~~22~~ | ~~Design options-pattern migration plan (`WithJitter`, `WithOnRetry`)~~ done — tracked in ROADMAP.md (options-based configuration) | ~~High~~   | ~~M~~  |
+| ~~23~~ | ~~Version-compatibility matrix with `go-error-family`~~ done — tracked in ROADMAP.md (version-compatibility matrix)                | ~~Medium~~ | ~~S~~  |
+| ~~24~~ | ~~Formal v1.0 readiness checklist~~ done — tracked in ROADMAP.md (v1.0 bar)                                                        | ~~Medium~~ | ~~M~~  |
 
 ### P6 — Testing hardening
 
-| #  | Task                                                             | Impact | Effort |
-| -- | ---------------------------------------------------------------- | ------ | ------ |
-| ~~25~~ | ~~Test: `MaxAttempts: 1` (single attempt, no backoff path)~~ **Won't implement — single-attempt path covered by existing success/exhaustion tests.** | ~~Medium~~ | ~~S~~ |
-| ~~26~~ | ~~Test: `NaN` / negative / zero multiplier boundary via public API~~ done — matrix + Validate cover multiplier boundaries | ~~Medium~~ | ~~S~~ |
-| ~~27~~ | ~~Test: `MaxDelay < InitialDelay` validation policy~~ done — cap applies; matrix sweeps maxDelay below initial | ~~Medium~~ | ~~S~~ |
-| ~~28~~ | ~~Test: callback panics are caller-owned (document + test)~~ **Won't implement — panics propagate by Go convention.** | ~~Low~~ | ~~S~~ |
-| ~~29~~ | ~~Test: nil `AttemptFunc` contract~~ **Won't implement — nil fn is a programming bug; not validated by design.** | ~~Low~~ | ~~S~~ |
-| ~~30~~ | ~~Test: hook ordering and exact callback arguments~~ done — hook-order and argument tests present | ~~Medium~~ | ~~S~~ |
-| ~~31~~ | ~~Test: timer cleanup under cancellation and normal completion~~ **Won't implement — timer.Stop on both branches; GC-collected.** | ~~Low~~ | ~~M~~ |
-| ~~32~~ | ~~Test: stable error-code assertions for all validation branches~~ done — error-code assertions present in the suite | ~~Medium~~ | ~~S~~ |
-| ~~33~~ | ~~Benchmark end-to-end `Do` (not just `ComputeDelay`)~~ **Won't implement — ComputeDelay benchmark covers the hot path.** | ~~Low~~ | ~~S~~ |
-| ~~34~~ | ~~Add allocation assertions to benchmark~~ **Won't implement — not pursued.** | ~~Low~~ | ~~S~~ |
+| #      | Task                                                                                                                                                 | Impact     | Effort |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------ |
+| ~~25~~ | ~~Test: `MaxAttempts: 1` (single attempt, no backoff path)~~ **Won't implement — single-attempt path covered by existing success/exhaustion tests.** | ~~Medium~~ | ~~S~~  |
+| ~~26~~ | ~~Test: `NaN` / negative / zero multiplier boundary via public API~~ done — matrix + Validate cover multiplier boundaries                            | ~~Medium~~ | ~~S~~  |
+| ~~27~~ | ~~Test: `MaxDelay < InitialDelay` validation policy~~ done — cap applies; matrix sweeps maxDelay below initial                                       | ~~Medium~~ | ~~S~~  |
+| ~~28~~ | ~~Test: callback panics are caller-owned (document + test)~~ **Won't implement — panics propagate by Go convention.**                                | ~~Low~~    | ~~S~~  |
+| ~~29~~ | ~~Test: nil `AttemptFunc` contract~~ **Won't implement — nil fn is a programming bug; not validated by design.**                                     | ~~Low~~    | ~~S~~  |
+| ~~30~~ | ~~Test: hook ordering and exact callback arguments~~ done — hook-order and argument tests present                                                    | ~~Medium~~ | ~~S~~  |
+| ~~31~~ | ~~Test: timer cleanup under cancellation and normal completion~~ **Won't implement — timer.Stop on both branches; GC-collected.**                    | ~~Low~~    | ~~M~~  |
+| ~~32~~ | ~~Test: stable error-code assertions for all validation branches~~ done — error-code assertions present in the suite                                 | ~~Medium~~ | ~~S~~  |
+| ~~33~~ | ~~Benchmark end-to-end `Do` (not just `ComputeDelay`)~~ **Won't implement — ComputeDelay benchmark covers the hot path.**                            | ~~Low~~    | ~~S~~  |
+| ~~34~~ | ~~Add allocation assertions to benchmark~~ **Won't implement — not pursued.**                                                                        | ~~Low~~    | ~~S~~  |
 
 ### P7 — CI and infrastructure
 
-| #  | Task                                                      | Impact | Effort |
-| -- | --------------------------------------------------------- | ------ | ------ |
-| ~~35~~ | ~~Add `govulncheck` to CI~~ done — tracked as TODO_LIST T15 | ~~High~~ | ~~S-M~~ |
-| ~~36~~ | ~~Add scheduled fuzz job to CI~~ done — tracked as TODO_LIST T12 | ~~Medium~~ | ~~S-M~~ |
-| ~~37~~ | ~~Add GitHub issue templates~~ **Won't implement — no external contributors yet.** | ~~Low~~ | ~~S~~ |
-| ~~38~~ | ~~Add pull-request template (race/lint/vet checklist)~~ **Won't implement — no external contributors yet.** | ~~Low~~ | ~~S~~ |
-| ~~39~~ | ~~Add release automation (tag → CHANGELOG → GitHub release)~~ **Won't implement — releases cut per the go-release skill.** | ~~Medium~~ | ~~M~~ |
-| ~~40~~ | ~~Review GitHub Actions pinning and supply-chain trust~~ done at `bd7314e` | ~~Medium~~ | ~~S~~ |
+| #      | Task                                                                                                                       | Impact     | Effort  |
+| ------ | -------------------------------------------------------------------------------------------------------------------------- | ---------- | ------- |
+| ~~35~~ | ~~Add `govulncheck` to CI~~ done — tracked as TODO_LIST T15                                                                | ~~High~~   | ~~S-M~~ |
+| ~~36~~ | ~~Add scheduled fuzz job to CI~~ done — tracked as TODO_LIST T12                                                           | ~~Medium~~ | ~~S-M~~ |
+| ~~37~~ | ~~Add GitHub issue templates~~ **Won't implement — no external contributors yet.**                                         | ~~Low~~    | ~~S~~   |
+| ~~38~~ | ~~Add pull-request template (race/lint/vet checklist)~~ **Won't implement — no external contributors yet.**                | ~~Low~~    | ~~S~~   |
+| ~~39~~ | ~~Add release automation (tag → CHANGELOG → GitHub release)~~ **Won't implement — releases cut per the go-release skill.** | ~~Medium~~ | ~~M~~   |
+| ~~40~~ | ~~Review GitHub Actions pinning and supply-chain trust~~ done at `bd7314e`                                                 | ~~Medium~~ | ~~S~~   |
 
 ### P8 — Future features (post-options-migration)
 
-| #  | Task                                                     | Impact | Effort |
-| -- | -------------------------------------------------------- | ------ | ------ |
-| ~~41~~ | ~~Implement `WithJitter(strategy)` option~~ done — tracked in ROADMAP.md (options-based configuration) | ~~Medium~~ | ~~M~~ |
-| ~~42~~ | ~~Implement `WithDeterministicRNG(rand.Rand)` option~~ done — tracked in ROADMAP.md (deterministic RNG; FEATURES WORTH_CONSIDERING) | ~~Medium~~ | ~~M~~ |
-| ~~43~~ | ~~Implement `WithDeadlineBudget` option~~ done — tracked in FEATURES.md WORTH_CONSIDERING (deadline budgeting) | ~~Medium~~ | ~~L~~ |
-| ~~44~~ | ~~Document circuit-breaker composition pattern~~ done — covered by ROADMAP.md (composition primitives) | ~~Low~~ | ~~S~~ |
-| ~~45~~ | ~~Document bulkhead composition pattern~~ done — covered by ROADMAP.md (composition primitives) | ~~Low~~ | ~~S~~ |
-| ~~46~~ | ~~Public documentation site (Astro + Starlight + Firebase)~~ done — tracked in ROADMAP.md (public documentation site) | ~~Low~~ | ~~M~~ |
+| #      | Task                                                                                                                                | Impact     | Effort |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------ |
+| ~~41~~ | ~~Implement `WithJitter(strategy)` option~~ done — tracked in ROADMAP.md (options-based configuration)                              | ~~Medium~~ | ~~M~~  |
+| ~~42~~ | ~~Implement `WithDeterministicRNG(rand.Rand)` option~~ done — tracked in ROADMAP.md (deterministic RNG; FEATURES WORTH_CONSIDERING) | ~~Medium~~ | ~~M~~  |
+| ~~43~~ | ~~Implement `WithDeadlineBudget` option~~ done — tracked in FEATURES.md WORTH_CONSIDERING (deadline budgeting)                      | ~~Medium~~ | ~~L~~  |
+| ~~44~~ | ~~Document circuit-breaker composition pattern~~ done — covered by ROADMAP.md (composition primitives)                              | ~~Low~~    | ~~S~~  |
+| ~~45~~ | ~~Document bulkhead composition pattern~~ done — covered by ROADMAP.md (composition primitives)                                     | ~~Low~~    | ~~S~~  |
+| ~~46~~ | ~~Public documentation site (Astro + Starlight + Firebase)~~ done — tracked in ROADMAP.md (public documentation site)               | ~~Low~~    | ~~M~~  |
 
 ### P9 — Ecosystem and polish
 
-| #  | Task                                                                   | Impact | Effort |
-| -- | ---------------------------------------------------------------------- | ------ | ------ |
-| ~~47~~ | ~~Confirm raw-Go vs `flake.nix` decision (ROADMAP open question)~~ done — decided - raw Go commands (ROADMAP records the decision) | ~~Low~~ | ~~S~~ |
-| ~~48~~ | ~~Verify `go-error-family v0.10.0` is still latest~~ done — pinned v0.10.0 (go.mod); no newer version required | ~~Low~~ | ~~S~~ |
-| ~~49~~ | ~~Check if `errorfamily.RetryPolicy` has new fields for `FromPolicy`~~ done — FromPolicy maps the current RetryPolicy fields | ~~Low~~ | ~~S~~ |
-| ~~50~~ | ~~Consider Go workspace (`go.work`) for local dev with `go-error-family`~~ **Won't implement — raw Go + proxy resolution work; no workspace needed.** | ~~Low~~ | ~~S~~ |
+| #      | Task                                                                                                                                                  | Impact  | Effort |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------ |
+| ~~47~~ | ~~Confirm raw-Go vs `flake.nix` decision (ROADMAP open question)~~ done — decided - raw Go commands (ROADMAP records the decision)                    | ~~Low~~ | ~~S~~  |
+| ~~48~~ | ~~Verify `go-error-family v0.10.0` is still latest~~ done — pinned v0.10.0 (go.mod); no newer version required                                        | ~~Low~~ | ~~S~~  |
+| ~~49~~ | ~~Check if `errorfamily.RetryPolicy` has new fields for `FromPolicy`~~ done — FromPolicy maps the current RetryPolicy fields                          | ~~Low~~ | ~~S~~  |
+| ~~50~~ | ~~Consider Go workspace (`go.work`) for local dev with `go-error-family`~~ **Won't implement — raw Go + proxy resolution work; no workspace needed.** | ~~Low~~ | ~~S~~  |
 
 ---
 

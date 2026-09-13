@@ -52,10 +52,10 @@ Every error carries a behavioral **Family** and a stable string **code**.
   retry?" and "whose fault is it?". Defined as `errorfamily.Family` (an `int`
   enum). `go-retry` uses three of the six families:
 
-  | Family             | Meaning in `go-retry`                             | Retryable? | Used for                                  |
-  | ------------------ | ------------------------------------------------- | ---------- | ----------------------------------------- |
-  | **Transient**      | Temporary failure; system's fault.                | **Yes**    | The default retryable error (tests, ops). |
-  | **Rejection**      | Bad caller input; user's fault. No state changed. | No         | `Config.Validate()` failures.             |
+  | Family             | Meaning in `go-retry`                             | Retryable? | Used for                                                       |
+  | ------------------ | ------------------------------------------------- | ---------- | -------------------------------------------------------------- |
+  | **Transient**      | Temporary failure; system's fault.                | **Yes**    | The default retryable error (tests, ops).                      |
+  | **Rejection**      | Bad caller input; user's fault. No state changed. | No         | `Config.Validate()` failures.                                  |
   | **Infrastructure** | The system cannot serve / downstream problem.     | No         | `ErrExhausted`, `ErrCanceled`, `ErrDeadlineExceeded` outcomes. |
 
 - **`IsRetryable(err) bool`** — the default retry predicate. Returns `true` iff
@@ -78,16 +78,16 @@ Every error carries a behavioral **Family** and a stable string **code**.
 Every error carries a machine-readable string code. `go-retry`'s codes follow
 `retry.<snake_case_event>`:
 
-| Code                          | Family         | Message                                  | Source                          |
-| ----------------------------- | -------------- | ---------------------------------------- | ------------------------------- |
-| `retry.exhausted`             | Infrastructure | `all retry attempts failed`              | `retry.go` (`ErrExhausted`)     |
-| `retry.canceled`              | Infrastructure | `retry canceled during backoff delay`    | `retry.go` (`ErrCanceled`)      |
+| Code                          | Family         | Message                                        | Source                             |
+| ----------------------------- | -------------- | ---------------------------------------------- | ---------------------------------- |
+| `retry.exhausted`             | Infrastructure | `all retry attempts failed`                    | `retry.go` (`ErrExhausted`)        |
+| `retry.canceled`              | Infrastructure | `retry canceled during backoff delay`          | `retry.go` (`ErrCanceled`)         |
 | `retry.deadline`              | Infrastructure | `retry deadline exceeded during backoff delay` | `retry.go` (`ErrDeadlineExceeded`) |
-| `retry.invalid_max_attempts`  | Rejection      | `MaxAttempts must be >= 1, got <n>`      | `config.go` (`Validate`)        |
-| `retry.invalid_initial_delay` | Rejection      | `InitialDelay must be positive, got <d>` | `config.go` (`Validate`)        |
-| `retry.invalid_max_delay`     | Rejection      | `MaxDelay must be positive, got <d>`     | `config.go` (`Validate`)        |
-| `retry.invalid_multiplier`    | Rejection      | `Multiplier must be > 1, got <f>`        | `config.go` (`Validate`)        |
-| `retry.invalid_attempt`       | Rejection      | `attempt must be >= 1, got <n>`          | `retry.go` (`ComputeDelay`)     |
+| `retry.invalid_max_attempts`  | Rejection      | `MaxAttempts must be >= 1, got <n>`            | `config.go` (`Validate`)           |
+| `retry.invalid_initial_delay` | Rejection      | `InitialDelay must be positive, got <d>`       | `config.go` (`Validate`)           |
+| `retry.invalid_max_delay`     | Rejection      | `MaxDelay must be positive, got <d>`           | `config.go` (`Validate`)           |
+| `retry.invalid_multiplier`    | Rejection      | `Multiplier must be > 1, got <f>`              | `config.go` (`Validate`)           |
+| `retry.invalid_attempt`       | Rejection      | `attempt must be >= 1, got <n>`                | `retry.go` (`ComputeDelay`)        |
 
 Messages are single-sourced constants for the three terminal sentinels
 (`retry.go` const block) and formatted strings in `Validate`/`ComputeDelay`;

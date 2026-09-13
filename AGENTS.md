@@ -37,17 +37,17 @@ go test -run '^FuzzComputeDelayNeverPanics$' .                          # seeded
 
 Flat single-package layout — no internal subpackages:
 
-| File            | Responsibility                                                                                                                               |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `retry.go`      | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded |
-| `config.go`     | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                             |
-| `doc.go`        | Package doc stating the no-CQRS/no-OTel boundary                                                                                             |
-| `retry_test.go` | External test package (`retry_test`)                                                                                                         |
-| `.golangci.yml` | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                              |
-| `.github/workflows/ci.yml` | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, golangci-lint (pinned v2.13.2)                                       |
-| `.github/workflows/fuzz.yml` | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                          |
-| `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                              |
-| `docs/status/`  | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)      |
+| File                                         | Responsibility                                                                                                                                                                      |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `retry.go`                                   | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded |
+| `config.go`                                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                    |
+| `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                    |
+| `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                |
+| `.golangci.yml`                              | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                    |
+| `.github/workflows/ci.yml`                   | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, golangci-lint (pinned v2.13.2)                                                                                        |
+| `.github/workflows/fuzz.yml`                 | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                              |
+| `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                   |
+| `docs/status/`                               | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)                                             |
 
 **Control flow of `Do`**: validate config → loop `attempt` from 1 to
 `MaxAttempts` → call `fn(ctx, attempt)` → on `nil` return immediately → if not

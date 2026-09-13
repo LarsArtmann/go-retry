@@ -109,7 +109,7 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   (`TestDo_ConcurrentInvocationsShareNoMutableState`).
 - **No-panic property test** — sweeps `initial x maxDelay x multiplier x
 attempt` to prove `computeDelay` cannot panic or return negative for any
-reachable input. `retry_test.go` (`TestComputeDelay_NeverPanicsAcrossMatrix`).
+  reachable input. `retry_test.go` (`TestComputeDelay_NeverPanicsAcrossMatrix`).
 - **Nested loops are fail-closed (pinned, both directions)** — an outer `Do`
   makes exactly one attempt when an inner loop returns `ErrExhausted`, because
   `Infrastructure` is not retryable by default
@@ -117,9 +117,9 @@ reachable input. `retry_test.go` (`TestComputeDelay_NeverPanicsAcrossMatrix`).
   re-enables amplification, pinned as `outer(3) × inner(3) = 9` attempts
   (`TestDo_NestedRetriesAmplifyWhenOverridden`). `retry_test.go`.
 - **`OnExhausted` never fires on context end (pinned)** — cancellation and
-deadline termination return without the exhaustion callback. `retry_test.go`
-(`TestDo_OnExhaustedNotCalledOnCancel`,
-`TestDo_OnExhaustedNotCalledOnDeadline`).
+  deadline termination return without the exhaustion callback. `retry_test.go`
+  (`TestDo_OnExhaustedNotCalledOnCancel`,
+  `TestDo_OnExhaustedNotCalledOnDeadline`).
 - **Fuzz target** — `FuzzComputeDelayNeverPanics` with seeds for ordinary,
   zero-cap, overflow, and near-`MaxInt64` inputs. The seed corpus is also
   committed in `testdata/fuzz/FuzzComputeDelayNeverPanics/`, and a scheduled

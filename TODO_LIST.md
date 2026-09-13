@@ -17,7 +17,7 @@ Priority: **P1** = high impact, do first; **P2** = valuable, not blocking;
 `ci.yml` gained the `exhaustruct_v5` migration, a golangci-lint bump
 v2.12.2 → v2.13.2, per-job `timeout-minutes: 10`, and a concurrency group —
 all locally verified (lint 0 issues, no deprecation warning, YAML parses) but
-**never executed on a runner**. The *previous* CI batch (checkout v6,
+**never executed on a runner**. The _previous_ CI batch (checkout v6,
 govulncheck action, coverage floor) is verified green for `691744b`
 (run 34755167105, 2026-09-13, 3/3 jobs). `fuzz.yml` has **zero runs so far**:
 confirm the first scheduled run (daily 03:17 UTC) or a `workflow_dispatch`
@@ -44,7 +44,7 @@ Evidence: `CHANGELOG.md` `[Unreleased]`. Source: 12-57 report §f.19–20, §f.4
 Verified 2026-09-13: `dependabot.yml` configures weekly gomod +
 github-actions watchers, but **zero PRs have ever been opened** in this repo
 (`gh pr list --state all` is empty) even while checkout sat stale on v4 —
-GitHub docs confirm SHA+`# vX` comment pins *are* supported, so version
+GitHub docs confirm SHA+`# vX` comment pins _are_ supported, so version
 updates are simply not running (repo-settings-side; cause unknown). The
 update policy is already decided and documented (manual SHA bumps,
 `AGENTS.md` gotcha). Remaining: either find the settings-side cause or delete

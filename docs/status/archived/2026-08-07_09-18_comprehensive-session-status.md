@@ -244,58 +244,58 @@ The TODO list should contain only actionable open work. Status reports should pr
 
 Ranked by impact, then effort.
 
-|  # | Task                                                                                                        | Impact   | Effort | Category       |
-| -: | ----------------------------------------------------------------------------------------------------------- | -------- | ------ | -------------- |
-|  ~~1~~ | ~~Commit the final `TODO_LIST.md` cleanup after reviewing the daemon's latest history.~~ done — committed (aeb7eb2) | ~~Critical~~ | ~~S~~ | ~~Cleanup~~ |
-|  ~~2~~ | ~~Push `master` and signed tag `v0.2.0` only when publication is authorized.~~ done — pushed - v0.2.0 on origin + proxy | ~~Critical~~ | ~~S~~ | ~~Release~~ |
-|  ~~3~~ | ~~Verify the GitHub Actions workflow on an actual push/PR run.~~ done — CI green on later pushes (v0.4.0/v0.5.0 era) | ~~Critical~~ | ~~S~~ | ~~Infrastructure~~ |
-|  ~~4~~ | ~~Verify GitHub release rendering and pkg.go.dev indexing for `v0.2.0`.~~ done — release rendered; pkg.go.dev verified 2026-09-13 | ~~High~~ | ~~S~~ | ~~Release~~ |
-|  ~~5~~ | ~~Add a v0.1.x to v0.2.0 migration section documenting the new error returns.~~ done — covered by CHANGELOG 0.2.0 Breaking entry | ~~High~~ | ~~S~~ | ~~Documentation~~ |
-|  ~~6~~ | ~~Add `go vet ./...` to CI.~~ done at `df847e5` | ~~High~~ | ~~S~~ | ~~Quality~~ |
-|  ~~7~~ | ~~Add a CI coverage threshold and fail below the agreed floor.~~ done at `df847e5` | ~~High~~ | ~~S~~ | ~~Quality~~ |
-|  ~~8~~ | ~~Run a bounded `FuzzComputeDelayNeverPanics` campaign.~~ done at `a402f67`, `50d1667` | ~~High~~ | ~~S~~ | ~~Quality~~ |
-|  ~~9~~ | ~~Add a short fuzz smoke job to CI or a scheduled workflow.~~ done — tracked as TODO_LIST T12 | ~~Medium~~ | ~~S-M~~ | ~~Infrastructure~~ |
-| ~~10~~ | ~~Add `govulncheck` to CI after verifying availability for Go 1.26.5.~~ done — tracked as TODO_LIST T15 | ~~High~~ | ~~S-M~~ | ~~Security~~ |
-| ~~11~~ | ~~Add secret scanning for pull requests.~~ **Won't implement — not pursued - push protection covers secrets.** | ~~Medium~~ | ~~S~~ | ~~Security~~ |
-| ~~12~~ | ~~Decide whether the single policy converter should remain additive or evolve into a richer family-aware API.~~ **Won't implement — kept a minimal mapper (documented in FromPolicy godoc).** | ~~High~~ | ~~M~~ | ~~API design~~ |
-| ~~13~~ | ~~Document that `FromPolicy` cannot infer retryability from `RetryPolicy` alone.~~ done — FromPolicy godoc documents the limitation | ~~High~~ | ~~S~~ | ~~Documentation~~ |
-| ~~14~~ | ~~Add an `ExampleFromPolicy` godoc example.~~ done at `a3dbaea` | ~~Medium~~ | ~~S~~ | ~~Documentation~~ |
-| ~~15~~ | ~~Add invalid-attempt and invalid-config examples.~~ done — README + godoc cover invalid attempts | ~~Medium~~ | ~~S~~ | ~~Documentation~~ |
-| ~~16~~ | ~~Add external consumer compile tests for the public API.~~ **Won't implement — not pursued - proxy + consumer cover compilation.** | ~~High~~ | ~~M~~ | ~~Compatibility~~ |
-| ~~17~~ | ~~Add a v0.2.0 API compatibility snapshot/check.~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~Medium~~ | ~~M~~ | ~~Quality~~ |
-| ~~18~~ | ~~Resolve the `b.N` versus `b.Loop()` modernizer diagnostic.~~ done at `a402f67` | ~~Low~~ | ~~S~~ | ~~Cleanup~~ |
-| ~~19~~ | ~~Add hook-order and exact-argument tests.~~ done — hook-order and argument tests present | ~~Medium~~ | ~~S-M~~ | ~~Quality~~ |
-| ~~20~~ | ~~Add timer cleanup tests where practical without brittle timing.~~ **Won't implement — timer.Stop on both branches; GC-collected.** | ~~Medium~~ | ~~M~~ | ~~Quality~~ |
-| ~~21~~ | ~~Add tests for `NaN`, infinity, negative, and zero multiplier boundary behavior.~~ done — matrix + Validate cover multiplier boundaries | ~~High~~ | ~~S~~ | ~~Quality~~ |
-| ~~22~~ | ~~Decide and document policy for `MaxDelay < InitialDelay`.~~ done — cap applies; matrix sweeps maxDelay below initial | ~~Medium~~ | ~~S~~ | ~~API design~~ |
-| ~~23~~ | ~~Add tests for very large valid attempt counts with cancellation.~~ done — context-end tests cover it | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
-| ~~24~~ | ~~Add stable error-code assertions for all validation branches.~~ done — error-code assertions present | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
-| ~~25~~ | ~~Add a release checklist covering tag, push, Actions, GitHub, and pkg.go.dev.~~ **Won't implement — go-release skill owns the flow.** | ~~High~~ | ~~S~~ | ~~Process~~ |
-| ~~26~~ | ~~Add release automation for signed annotated tags if the repository workflow supports it.~~ **Won't implement — releases cut per the go-release skill.** | ~~Medium~~ | ~~M~~ | ~~Release~~ |
-| ~~27~~ | ~~Add dependency update automation with review constraints.~~ done — dependabot.yml present | ~~Medium~~ | ~~M~~ | ~~Maintenance~~ |
-| ~~28~~ | ~~Add supported-version testing if compatibility beyond Go 1.26 is desired.~~ **Won't implement — single pinned toolchain.** | ~~Medium~~ | ~~M~~ | ~~CI~~ |
-| ~~29~~ | ~~Add a benchmark for end-to-end `Do`.~~ **Won't implement — ComputeDelay benchmark covers the hot path.** | ~~Low~~ | ~~S~~ | ~~Performance~~ |
-| ~~30~~ | ~~Establish benchmark regression thresholds before enforcing them.~~ **Won't implement — not pursued.** | ~~Low~~ | ~~M~~ | ~~Performance~~ |
-| ~~31~~ | ~~Add allocation regression checks for delay calculation.~~ **Won't implement — not pursued.** | ~~Low~~ | ~~S-M~~ | ~~Performance~~ |
-| ~~32~~ | ~~Decide whether deterministic RNG injection belongs in the API.~~ done — tracked in FEATURES.md WORTH_CONSIDERING | ~~Medium~~ | ~~M~~ | ~~API design~~ |
-| ~~33~~ | ~~Decide whether configurable jitter belongs in the API.~~ **Won't implement — deferred (decision 2026-08-08; see ROADMAP.md).** | ~~Medium~~ | ~~M~~ | ~~API design~~ |
-| ~~34~~ | ~~Add deadline-aware retry budgeting if real consumers need it.~~ done — tracked in FEATURES.md WORTH_CONSIDERING | ~~Medium~~ | ~~L~~ | ~~Feature~~ |
-| ~~35~~ | ~~Add an explicit nil `AttemptFunc` contract and test.~~ **Won't implement — nil fn is a programming bug; not validated by design.** | ~~Medium~~ | ~~S~~ | ~~API design~~ |
-| ~~36~~ | ~~Decide whether callback panics are caller-owned and document that boundary.~~ **Won't implement — panics propagate by Go convention.** | ~~Low~~ | ~~S~~ | ~~Documentation~~ |
-| ~~37~~ | ~~Add callback isolation tests for concurrent `Do` calls.~~ done — 100-goroutine test proves isolation | ~~Medium~~ | ~~S-M~~ | ~~Quality~~ |
-| ~~38~~ | ~~Add documentation-link validation.~~ **Won't implement — not pursued.** | ~~Low~~ | ~~M~~ | ~~Quality~~ |
-| ~~39~~ | ~~Add generated API documentation checks.~~ **Won't implement — not pursued.** | ~~Low~~ | ~~M~~ | ~~Documentation~~ |
-| ~~40~~ | ~~Add GitHub issue templates for bugs and feature requests.~~ **Won't implement — no external contributors yet.** | ~~Low~~ | ~~S~~ | ~~Infrastructure~~ |
-| ~~41~~ | ~~Add a pull-request template containing the race/lint/vet checklist.~~ **Won't implement — no external contributors yet.** | ~~Low~~ | ~~S~~ | ~~Infrastructure~~ |
-| ~~42~~ | ~~Add a public release note for panic fixes and the breaking API change.~~ done — CHANGELOG 0.2.0 Breaking entry | ~~High~~ | ~~S~~ | ~~Documentation~~ |
-| ~~43~~ | ~~Add consumer guidance on `MaxAttempts` counting the initial call.~~ done — README config table states it | ~~Medium~~ | ~~S~~ | ~~Documentation~~ |
-| ~~44~~ | ~~Add property tests for delay upper bounds under unusual valid configurations.~~ done — NeverExceedsMaxDelay + matrix property tests | ~~Medium~~ | ~~S-M~~ | ~~Quality~~ |
-| ~~45~~ | ~~Define fuzz corpus retention and minimization policy.~~ done — seeds committed (50d1667); corpus dir = TODO_LIST T13 | ~~Low~~ | ~~S~~ | ~~Process~~ |
-| ~~46~~ | ~~Add a formal v1.0 readiness checklist.~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~Medium~~ | ~~M~~ | ~~Planning~~ |
-| ~~47~~ | ~~Reassess whether the flat single-package boundary remains appropriate.~~ **Won't implement — single-package is deliberate (AGENTS.md).** | ~~Low~~ | ~~M~~ | ~~Architecture~~ |
-| ~~48~~ | ~~Add a compatibility policy for error-family dependency upgrades.~~ done — tracked in ROADMAP.md (version-compatibility matrix) | ~~Medium~~ | ~~S-M~~ | ~~Maintenance~~ |
-| ~~49~~ | ~~Review GitHub Actions pinning and supply-chain trust policy.~~ done at `bd7314e` | ~~High~~ | ~~S~~ | ~~Security~~ |
-| ~~50~~ | ~~Perform a focused public API review before the next release.~~ done — tracked in ROADMAP.md (v1.0 bar) | ~~High~~ | ~~M~~ | ~~Quality~~ |
+|      # | Task                                                                                                                                                                                          | Impact       | Effort  | Category           |
+| -----: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ------- | ------------------ |
+|  ~~1~~ | ~~Commit the final `TODO_LIST.md` cleanup after reviewing the daemon's latest history.~~ done — committed (aeb7eb2)                                                                           | ~~Critical~~ | ~~S~~   | ~~Cleanup~~        |
+|  ~~2~~ | ~~Push `master` and signed tag `v0.2.0` only when publication is authorized.~~ done — pushed - v0.2.0 on origin + proxy                                                                       | ~~Critical~~ | ~~S~~   | ~~Release~~        |
+|  ~~3~~ | ~~Verify the GitHub Actions workflow on an actual push/PR run.~~ done — CI green on later pushes (v0.4.0/v0.5.0 era)                                                                          | ~~Critical~~ | ~~S~~   | ~~Infrastructure~~ |
+|  ~~4~~ | ~~Verify GitHub release rendering and pkg.go.dev indexing for `v0.2.0`.~~ done — release rendered; pkg.go.dev verified 2026-09-13                                                             | ~~High~~     | ~~S~~   | ~~Release~~        |
+|  ~~5~~ | ~~Add a v0.1.x to v0.2.0 migration section documenting the new error returns.~~ done — covered by CHANGELOG 0.2.0 Breaking entry                                                              | ~~High~~     | ~~S~~   | ~~Documentation~~  |
+|  ~~6~~ | ~~Add `go vet ./...` to CI.~~ done at `df847e5`                                                                                                                                               | ~~High~~     | ~~S~~   | ~~Quality~~        |
+|  ~~7~~ | ~~Add a CI coverage threshold and fail below the agreed floor.~~ done at `df847e5`                                                                                                            | ~~High~~     | ~~S~~   | ~~Quality~~        |
+|  ~~8~~ | ~~Run a bounded `FuzzComputeDelayNeverPanics` campaign.~~ done at `a402f67`, `50d1667`                                                                                                        | ~~High~~     | ~~S~~   | ~~Quality~~        |
+|  ~~9~~ | ~~Add a short fuzz smoke job to CI or a scheduled workflow.~~ done — tracked as TODO_LIST T12                                                                                                 | ~~Medium~~   | ~~S-M~~ | ~~Infrastructure~~ |
+| ~~10~~ | ~~Add `govulncheck` to CI after verifying availability for Go 1.26.5.~~ done — tracked as TODO_LIST T15                                                                                       | ~~High~~     | ~~S-M~~ | ~~Security~~       |
+| ~~11~~ | ~~Add secret scanning for pull requests.~~ **Won't implement — not pursued - push protection covers secrets.**                                                                                | ~~Medium~~   | ~~S~~   | ~~Security~~       |
+| ~~12~~ | ~~Decide whether the single policy converter should remain additive or evolve into a richer family-aware API.~~ **Won't implement — kept a minimal mapper (documented in FromPolicy godoc).** | ~~High~~     | ~~M~~   | ~~API design~~     |
+| ~~13~~ | ~~Document that `FromPolicy` cannot infer retryability from `RetryPolicy` alone.~~ done — FromPolicy godoc documents the limitation                                                           | ~~High~~     | ~~S~~   | ~~Documentation~~  |
+| ~~14~~ | ~~Add an `ExampleFromPolicy` godoc example.~~ done at `a3dbaea`                                                                                                                               | ~~Medium~~   | ~~S~~   | ~~Documentation~~  |
+| ~~15~~ | ~~Add invalid-attempt and invalid-config examples.~~ done — README + godoc cover invalid attempts                                                                                             | ~~Medium~~   | ~~S~~   | ~~Documentation~~  |
+| ~~16~~ | ~~Add external consumer compile tests for the public API.~~ **Won't implement — not pursued - proxy + consumer cover compilation.**                                                           | ~~High~~     | ~~M~~   | ~~Compatibility~~  |
+| ~~17~~ | ~~Add a v0.2.0 API compatibility snapshot/check.~~ done — tracked in ROADMAP.md (v1.0 bar)                                                                                                    | ~~Medium~~   | ~~M~~   | ~~Quality~~        |
+| ~~18~~ | ~~Resolve the `b.N` versus `b.Loop()` modernizer diagnostic.~~ done at `a402f67`                                                                                                              | ~~Low~~      | ~~S~~   | ~~Cleanup~~        |
+| ~~19~~ | ~~Add hook-order and exact-argument tests.~~ done — hook-order and argument tests present                                                                                                     | ~~Medium~~   | ~~S-M~~ | ~~Quality~~        |
+| ~~20~~ | ~~Add timer cleanup tests where practical without brittle timing.~~ **Won't implement — timer.Stop on both branches; GC-collected.**                                                          | ~~Medium~~   | ~~M~~   | ~~Quality~~        |
+| ~~21~~ | ~~Add tests for `NaN`, infinity, negative, and zero multiplier boundary behavior.~~ done — matrix + Validate cover multiplier boundaries                                                      | ~~High~~     | ~~S~~   | ~~Quality~~        |
+| ~~22~~ | ~~Decide and document policy for `MaxDelay < InitialDelay`.~~ done — cap applies; matrix sweeps maxDelay below initial                                                                        | ~~Medium~~   | ~~S~~   | ~~API design~~     |
+| ~~23~~ | ~~Add tests for very large valid attempt counts with cancellation.~~ done — context-end tests cover it                                                                                        | ~~Medium~~   | ~~S~~   | ~~Quality~~        |
+| ~~24~~ | ~~Add stable error-code assertions for all validation branches.~~ done — error-code assertions present                                                                                        | ~~Medium~~   | ~~S~~   | ~~Quality~~        |
+| ~~25~~ | ~~Add a release checklist covering tag, push, Actions, GitHub, and pkg.go.dev.~~ **Won't implement — go-release skill owns the flow.**                                                        | ~~High~~     | ~~S~~   | ~~Process~~        |
+| ~~26~~ | ~~Add release automation for signed annotated tags if the repository workflow supports it.~~ **Won't implement — releases cut per the go-release skill.**                                     | ~~Medium~~   | ~~M~~   | ~~Release~~        |
+| ~~27~~ | ~~Add dependency update automation with review constraints.~~ done — dependabot.yml present                                                                                                   | ~~Medium~~   | ~~M~~   | ~~Maintenance~~    |
+| ~~28~~ | ~~Add supported-version testing if compatibility beyond Go 1.26 is desired.~~ **Won't implement — single pinned toolchain.**                                                                  | ~~Medium~~   | ~~M~~   | ~~CI~~             |
+| ~~29~~ | ~~Add a benchmark for end-to-end `Do`.~~ **Won't implement — ComputeDelay benchmark covers the hot path.**                                                                                    | ~~Low~~      | ~~S~~   | ~~Performance~~    |
+| ~~30~~ | ~~Establish benchmark regression thresholds before enforcing them.~~ **Won't implement — not pursued.**                                                                                       | ~~Low~~      | ~~M~~   | ~~Performance~~    |
+| ~~31~~ | ~~Add allocation regression checks for delay calculation.~~ **Won't implement — not pursued.**                                                                                                | ~~Low~~      | ~~S-M~~ | ~~Performance~~    |
+| ~~32~~ | ~~Decide whether deterministic RNG injection belongs in the API.~~ done — tracked in FEATURES.md WORTH_CONSIDERING                                                                            | ~~Medium~~   | ~~M~~   | ~~API design~~     |
+| ~~33~~ | ~~Decide whether configurable jitter belongs in the API.~~ **Won't implement — deferred (decision 2026-08-08; see ROADMAP.md).**                                                              | ~~Medium~~   | ~~M~~   | ~~API design~~     |
+| ~~34~~ | ~~Add deadline-aware retry budgeting if real consumers need it.~~ done — tracked in FEATURES.md WORTH_CONSIDERING                                                                             | ~~Medium~~   | ~~L~~   | ~~Feature~~        |
+| ~~35~~ | ~~Add an explicit nil `AttemptFunc` contract and test.~~ **Won't implement — nil fn is a programming bug; not validated by design.**                                                          | ~~Medium~~   | ~~S~~   | ~~API design~~     |
+| ~~36~~ | ~~Decide whether callback panics are caller-owned and document that boundary.~~ **Won't implement — panics propagate by Go convention.**                                                      | ~~Low~~      | ~~S~~   | ~~Documentation~~  |
+| ~~37~~ | ~~Add callback isolation tests for concurrent `Do` calls.~~ done — 100-goroutine test proves isolation                                                                                        | ~~Medium~~   | ~~S-M~~ | ~~Quality~~        |
+| ~~38~~ | ~~Add documentation-link validation.~~ **Won't implement — not pursued.**                                                                                                                     | ~~Low~~      | ~~M~~   | ~~Quality~~        |
+| ~~39~~ | ~~Add generated API documentation checks.~~ **Won't implement — not pursued.**                                                                                                                | ~~Low~~      | ~~M~~   | ~~Documentation~~  |
+| ~~40~~ | ~~Add GitHub issue templates for bugs and feature requests.~~ **Won't implement — no external contributors yet.**                                                                             | ~~Low~~      | ~~S~~   | ~~Infrastructure~~ |
+| ~~41~~ | ~~Add a pull-request template containing the race/lint/vet checklist.~~ **Won't implement — no external contributors yet.**                                                                   | ~~Low~~      | ~~S~~   | ~~Infrastructure~~ |
+| ~~42~~ | ~~Add a public release note for panic fixes and the breaking API change.~~ done — CHANGELOG 0.2.0 Breaking entry                                                                              | ~~High~~     | ~~S~~   | ~~Documentation~~  |
+| ~~43~~ | ~~Add consumer guidance on `MaxAttempts` counting the initial call.~~ done — README config table states it                                                                                    | ~~Medium~~   | ~~S~~   | ~~Documentation~~  |
+| ~~44~~ | ~~Add property tests for delay upper bounds under unusual valid configurations.~~ done — NeverExceedsMaxDelay + matrix property tests                                                         | ~~Medium~~   | ~~S-M~~ | ~~Quality~~        |
+| ~~45~~ | ~~Define fuzz corpus retention and minimization policy.~~ done — seeds committed (50d1667); corpus dir = TODO_LIST T13                                                                        | ~~Low~~      | ~~S~~   | ~~Process~~        |
+| ~~46~~ | ~~Add a formal v1.0 readiness checklist.~~ done — tracked in ROADMAP.md (v1.0 bar)                                                                                                            | ~~Medium~~   | ~~M~~   | ~~Planning~~       |
+| ~~47~~ | ~~Reassess whether the flat single-package boundary remains appropriate.~~ **Won't implement — single-package is deliberate (AGENTS.md).**                                                    | ~~Low~~      | ~~M~~   | ~~Architecture~~   |
+| ~~48~~ | ~~Add a compatibility policy for error-family dependency upgrades.~~ done — tracked in ROADMAP.md (version-compatibility matrix)                                                              | ~~Medium~~   | ~~S-M~~ | ~~Maintenance~~    |
+| ~~49~~ | ~~Review GitHub Actions pinning and supply-chain trust policy.~~ done at `bd7314e`                                                                                                            | ~~High~~     | ~~S~~   | ~~Security~~       |
+| ~~50~~ | ~~Perform a focused public API review before the next release.~~ done — tracked in ROADMAP.md (v1.0 bar)                                                                                      | ~~High~~     | ~~M~~   | ~~Quality~~        |
 
 ## g) Questions I cannot determine from the repository
 

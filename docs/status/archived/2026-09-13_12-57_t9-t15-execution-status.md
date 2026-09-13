@@ -15,15 +15,15 @@ pushed and CI ran **green on real runners** for the tip `691744b` — run
 
 ## a) FULLY DONE
 
-| Item | What | Evidence | Verification |
-| --- | --- | --- | --- |
-| **T9** — non-retryable error pinned by identity | `TestDo_DoesNotRetryNonRetryableError` now asserts `err != rejection`, not just `errors.Is`, so `Do` can never silently start re-wrapping a typed non-retryable error. Added a deliberate `//nolint:errorlint` with reason (repo convention: explained, enabled linter). | `retry_test.go:156-158` | Test passes with `-race`; lint 0 issues |
-| **T10** — terminal-error codes/messages single-sourced | New const block (`codeExhausted`/`msgExhausted`, `codeCanceled`/`msgCanceled`, `codeDeadline`/`msgDeadline`) at `retry.go:14-24`; used by all three sentinels AND their `WrapInfrastructure` call sites (`retry.go:118-119`, `retry.go:205-211`). | `retry.go` | Build/vet/tests/lint pass |
-| **T10+ (found beyond the TODO)** — pre-existing message drift | The exhaustion wrapper said `"all attempts failed"` while the `ErrExhausted` sentinel says `"all retry attempts failed"` — the exact drift class T10 targets, at a third site the TODO didn't cite. Unified on the sentinel wording; updated the `ExampleDo_delayFunc` `// Output:` pin accordingly. | `retry.go:16`, `retry_test.go:1109` | Example passes |
-| **T13** — committed fuzz corpus | 7 `go test fuzz v1` files in `testdata/fuzz/FuzzComputeDelayNeverPanics/`, one per `f.Add` seed, descriptively named (`exponential-basic`, `maxint64-saturation`, `near-max-fractional-multiplier`, `negative-multiplier`, `negative-initial`, `negative-attempt`, `uncapped-maxdelay`). | `testdata/fuzz/` | `go test -run '^FuzzComputeDelayNeverPanics$' -v` → all 14 entries (7 seeds + 7 corpus) parse and pass |
-| **T14** — release-notes decision | **GitHub-only.** Bodies composed at release time from the CHANGELOG section (matches the `go-release` skill Phase 2.4/7 flow). No `docs/releases/` mirror — CHANGELOG stays the single in-repo copy. Recorded in ROADMAP (decided, kept for record), AGENTS.md gotcha, CHANGELOG. | `ROADMAP.md` → Open questions, `AGENTS.md` | n/a (decision) |
-| **Docs maintenance** | CHANGELOG `[Unreleased]` gained 5 Added + 2 Changed entries; TODO_LIST emptied per its own convention (done items live in CHANGELOG only); FEATURES CI/fuzz rows updated; AGENTS.md gotchas extended (single-sourced constants, corpus↔seeds sync rule, fuzz workflow, GitHub-only notes, nolint inventory now includes the new errorlint marker). | 5 doc files, auto-committed as `3ec60b0` | Docs-health ownership model respected (no fact in two places) |
-| **Drift fix found during self-review** | `docs/DOMAIN_LANGUAGE.md` code table cited `retry.go:28/36/47/230`; my const block shifted the file — refs corrected to `39/47/58/241`. | `docs/DOMAIN_LANGUAGE.md:84-91` | Verified against live `retry.go` |
+| Item                                                          | What                                                                                                                                                                                                                                                                                                                                               | Evidence                                   | Verification                                                                                           |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| **T9** — non-retryable error pinned by identity               | `TestDo_DoesNotRetryNonRetryableError` now asserts `err != rejection`, not just `errors.Is`, so `Do` can never silently start re-wrapping a typed non-retryable error. Added a deliberate `//nolint:errorlint` with reason (repo convention: explained, enabled linter).                                                                           | `retry_test.go:156-158`                    | Test passes with `-race`; lint 0 issues                                                                |
+| **T10** — terminal-error codes/messages single-sourced        | New const block (`codeExhausted`/`msgExhausted`, `codeCanceled`/`msgCanceled`, `codeDeadline`/`msgDeadline`) at `retry.go:14-24`; used by all three sentinels AND their `WrapInfrastructure` call sites (`retry.go:118-119`, `retry.go:205-211`).                                                                                                  | `retry.go`                                 | Build/vet/tests/lint pass                                                                              |
+| **T10+ (found beyond the TODO)** — pre-existing message drift | The exhaustion wrapper said `"all attempts failed"` while the `ErrExhausted` sentinel says `"all retry attempts failed"` — the exact drift class T10 targets, at a third site the TODO didn't cite. Unified on the sentinel wording; updated the `ExampleDo_delayFunc` `// Output:` pin accordingly.                                               | `retry.go:16`, `retry_test.go:1109`        | Example passes                                                                                         |
+| **T13** — committed fuzz corpus                               | 7 `go test fuzz v1` files in `testdata/fuzz/FuzzComputeDelayNeverPanics/`, one per `f.Add` seed, descriptively named (`exponential-basic`, `maxint64-saturation`, `near-max-fractional-multiplier`, `negative-multiplier`, `negative-initial`, `negative-attempt`, `uncapped-maxdelay`).                                                           | `testdata/fuzz/`                           | `go test -run '^FuzzComputeDelayNeverPanics$' -v` → all 14 entries (7 seeds + 7 corpus) parse and pass |
+| **T14** — release-notes decision                              | **GitHub-only.** Bodies composed at release time from the CHANGELOG section (matches the `go-release` skill Phase 2.4/7 flow). No `docs/releases/` mirror — CHANGELOG stays the single in-repo copy. Recorded in ROADMAP (decided, kept for record), AGENTS.md gotcha, CHANGELOG.                                                                  | `ROADMAP.md` → Open questions, `AGENTS.md` | n/a (decision)                                                                                         |
+| **Docs maintenance**                                          | CHANGELOG `[Unreleased]` gained 5 Added + 2 Changed entries; TODO_LIST emptied per its own convention (done items live in CHANGELOG only); FEATURES CI/fuzz rows updated; AGENTS.md gotchas extended (single-sourced constants, corpus↔seeds sync rule, fuzz workflow, GitHub-only notes, nolint inventory now includes the new errorlint marker). | 5 doc files, auto-committed as `3ec60b0`   | Docs-health ownership model respected (no fact in two places)                                          |
+| **Drift fix found during self-review**                        | `docs/DOMAIN_LANGUAGE.md` code table cited `retry.go:28/36/47/230`; my const block shifted the file — refs corrected to `39/47/58/241`.                                                                                                                                                                                                            | `docs/DOMAIN_LANGUAGE.md:84-91`            | Verified against live `retry.go`                                                                       |
 
 **Verification gate (whole session):** `go build ./...` ✅ · `go vet ./...` ✅ ·
 `go test ./... -race` ✅ · `go test ./... -race -count=10` ✅ (final summary
@@ -116,7 +116,7 @@ self-inflicted near-misses, owned here:
 1. **My drift sweep had a hole.** After T10 I grepped `--type go` for the
    message strings — which **cannot** see README.md, docs/, or examples
    outside Go files. The post-hoc full-repo sweep found nothing drifted in
-   README (good luck, not good process), but the review pass *did* find
+   README (good luck, not good process), but the review pass _did_ find
    `DOMAIN_LANGUAGE.md` carrying stale `retry.go` line refs my const block
    created — a drift **I introduced and missed in-session**. Lesson recorded:
    drift sweeps must cover all file types, and any line-number citation is
@@ -134,16 +134,18 @@ self-inflicted near-misses, owned here:
 ## e) WHAT WE SHOULD IMPROVE
 
 **Process (mine):**
-- Drift sweeps: always repo-wide, all file types; grep for *identifiers and
-  line numbers*, not just strings.
+
+- Drift sweeps: always repo-wide, all file types; grep for _identifiers and
+  line numbers_, not just strings.
 - Before touching `.github/`, inventory the whole `.github/` tree
   (workflows + dependabot + templates) first.
 - Read a tool's `action.yml` before using it — the `repo-checkout: false`
   and `go-version-file` inputs were only discovered that way, and both matter.
-- Verify by *running* what CI will run, locally, before writing the workflow
+- Verify by _running_ what CI will run, locally, before writing the workflow
   (done for fuzz + govulncheck — this worked well; keep it).
 
 **Codebase (small, observed):**
+
 - `AGENTS.md:26` / `FEATURES.md:143` lint-config description → say what the
   config actually enables.
 - Corpus mirrors `f.Add` seeds by hand — a deliberate duplication with a
@@ -155,7 +157,7 @@ self-inflicted near-misses, owned here:
 **Docs model (working well — keep):** single-ownership docs (ROADMAP for
 decisions, AGENTS for operational rules, CHANGELOG for history, TODO_LIST for
 open work) held up; the T14 decision landed in four files with zero overlap of
-*content*, only of *reference*.
+_content_, only of _reference_.
 
 ## f) Up to 50 things to get done next
 
@@ -220,7 +222,7 @@ open work) held up; the T14 decision landed in four files with zero overlap of
 17. ~~`[DOC]` CONTRIBUTING.md: mention the fuzz workflow, corpus convention, and
     `go test -run '^Fuzz…$'` seeded-run command (not checked this session).~~ →
     done (2026-09-13 pass: corpus + workflow + seeded-run all in CONTRIBUTING).
-18. ~~`[DOC]` DOMAIN_LANGUAGE.md: consider adding the terminal *messages* next
+18. ~~`[DOC]` DOMAIN_LANGUAGE.md: consider adding the terminal _messages_ next
     to codes, now that messages are part of the single-sourced contract.~~ →
     done (2026-09-13 pass: Message column added to the code table).
 19. ~~`[CODE]` Cut v0.5.1 or v0.6.0: `[Unreleased]` holds a user-visible change
@@ -310,7 +312,7 @@ open work) held up; the T14 decision landed in four files with zero overlap of
     `TestDoWithValue_DoesNotLeakPartialValueOnLaterFailure`, `retry_test.go`).
 44. ~~`[DOC]` README: verify the "Exhaustion and nesting" section still matches
     post-T10 error strings (sweep found no message quote in README — verified;
-    this item is to *keep* it that way in the release-notes template).~~ →
+    this item is to _keep_ it that way in the release-notes template).~~ →
     done (re-verified 2026-09-13: README quotes no error message; the keep-it-
     that-way note lives in `TODO_LIST.md` T21's release-notes step).
 45. ~~`[CI]` Set `permissions: contents: read` top-level in fuzz.yml — done;
@@ -363,6 +365,6 @@ open work) held up; the T14 decision landed in four files with zero overlap of
 
 ---
 
-*Point-in-time snapshot — will go stale. Route section (f) items via
+_Point-in-time snapshot — will go stale. Route section (f) items via
 docs-health HARVEST into `TODO_LIST.md` / `ROADMAP.md` rather than reading
-this file as a backlog.*
+this file as a backlog._

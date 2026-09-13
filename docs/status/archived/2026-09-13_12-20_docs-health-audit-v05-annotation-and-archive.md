@@ -340,7 +340,7 @@ most P2/P3 tail items are ROADMAP fuel, not commitments.
 40. ~~Confirm archive retention policy (keep forever vs prune — g.2 below).~~ →
     default decided: keep forever (files are small and fully annotated);
     index at `docs/status/README.md`. Owner may still override.
-41. ~~/mnt/buildcache` verified alive; drop any remaining `/tmp` cache
+41. ~~/mnt/buildcache`verified alive; drop any remaining`/tmp` cache
     workarounds in shells.~~ → done (verified in this session itself).
 42. ~~Confirm annotation-variant policy for future passes (g.3 below).~~ →
     decided 2026-09-13: explicit hand-written variants (`done at`, `routed
