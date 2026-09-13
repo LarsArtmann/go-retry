@@ -39,9 +39,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   deadline termination return without the exhaustion callback.
   `TestDo_OnExhaustedNotCalledOnCancel` /
   `TestDo_OnExhaustedNotCalledOnDeadline`. `retry_test.go`.
+- **`ExampleDoWithValue` godoc example.** The value-returning API — v0.5.0's
+  headline — now has a runnable, output-pinned example rendering on
+  `pkg.go.dev`; the README snippet is its verified form. `retry_test.go`.
+- **Nested amplification is pinned in the override direction.** A deliberate
+  `IsRetryable` override re-enables nested retries exactly as documented:
+  `outer(3) × inner(3) = 9` attempts
+  (`TestDo_NestedRetriesAmplifyWhenOverridden`), completing the fail-closed
+  pin from the default-predicate side. `retry_test.go`.
 
 ### Changed
 
+- **Lint config migrated `exhaustruct` → `exhaustruct_v5`** (the old linter is
+  deprecated since golangci-lint v2.13.0 and printed a warning on every run);
+  the `DefaultConfig` `//nolint:` marker moved with it, and CI's pinned
+  golangci-lint was bumped v2.12.2 → v2.13.2 to match the version the repo
+  develops against. `.golangci.yml`, `config.go`, `.github/workflows/ci.yml`.
+- **CI jobs carry `timeout-minutes: 10` and a concurrency group** (superseded
+  pushes to the same ref cancel in-flight runs), mirroring the fuzz workflow.
+  `.github/workflows/ci.yml`.
 - **Terminal-error codes and messages are single-sourced.** `contextEnded`
   and the exhaustion wrapper now derive their code/message from the same
   constants as the `ErrCanceled`, `ErrDeadlineExceeded`, and `ErrExhausted`

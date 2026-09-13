@@ -66,14 +66,24 @@ closure-plus-variable dance — the successful attempt's result comes straight
 back:
 
 ```go
+cfg := retry.DefaultConfig()
+cfg.MaxAttempts = 3
+cfg.InitialDelay = time.Millisecond
+
 user, err := retry.DoWithValue(ctx, cfg,
-	func(ctx context.Context, attempt int) (*User, error) {
-		return fetchUser(ctx, id)
+	func(ctx context.Context, attempt int) (string, error) {
+		if attempt < 3 {
+			return "", errorfamily.NewTransient("db.timeout", "lookup failed")
+		}
+		return "ada", nil
 	},
 )
-// success: user is set, err is nil
+// success (attempt 3): user == "ada", err == nil
 // failure: user is the zero value, err is what Do would have returned
 ```
+
+A runnable, output-pinned version lives in `ExampleDoWithValue`
+(`retry_test.go`).
 
 ## Configuration
 
@@ -185,8 +195,11 @@ go test ./... -race -coverprofile=reports/coverage.out \
 ```
 
 CI (`.github/workflows/ci.yml`) runs `go vet` and the race-detector tests,
-lints, and enforces a **95% coverage floor** — local coverage sits at 100%,
-the floor leaves deliberate room for hard-to-test edges.
+lints, runs a `govulncheck` vulnerability scan, and enforces a **95% coverage
+floor** — local coverage sits at 100%, the floor leaves deliberate room for
+hard-to-test edges. A separate daily workflow (`.github/workflows/fuzz.yml`)
+fuzzes `FuzzComputeDelayNeverPanics` for 30 minutes and uploads any crash
+corpus it finds.
 
 There is no `justfile`, `Makefile`, or `flake.nix` — `go` and `golangci-lint`
 are the only tools. See [`CONTRIBUTING.md`](CONTRIBUTING.md).

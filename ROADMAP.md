@@ -72,10 +72,15 @@ v1.0:
   entirely to the caller / to `go-cqrs-lite`. Lean: stay pure, document the
   pattern.
 - **Version-compatibility matrix with `go-error-family`.** This package
-  depends on `go-error-family v0.10.0` (`go.mod:5`) and leans on
+  depends on `go-error-family v0.10.0` (`go.mod`) and leans on
   `errorfamily.IsRetryable` as its default retry predicate. As that library
   evolves, document which `go-retry` versions support which `go-error-family`
   majors.
+- **CI hardening ideas (unscoped).** A periodic `-race` fuzz short-run
+  (throughput vs concurrency-bug tradeoff); pinning the govulncheck action's
+  internal `go install …@latest` posture; an auto-PR loop that lands fuzz
+  crashers into `testdata/fuzz/` automatically; `go test -shuffle=on` as a
+  cheap order-dependency detector.
 - **Public documentation site.** Other LarsArtmann libraries use the Astro +
   Starlight + Firebase Hosting pattern (see the `website-launch` skill). A
   rendered docs site is plausible once the API is stable. Godoc examples now
@@ -116,3 +121,8 @@ status report.
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —
 see `AGENTS.md` → Commands. Do not invent nix targets._
+
+_Decided (kept for the record, 2026-09-13): no delay-sequence table in the
+README. Proposed repeatedly, never demanded; the formula is already documented
+in three places, and a static table would be a fourth number to keep in sync
+with `computeDelay`. Reopen only if a consumer actually asks._

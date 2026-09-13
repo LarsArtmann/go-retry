@@ -42,24 +42,34 @@ and negative durations. Run a bounded campaign locally:
 go test -run '^$' -fuzz=FuzzComputeDelayNeverPanics -fuzztime=5m ./...
 ```
 
-Interesting inputs become permanent seeds via `f.Add` in `retry_test.go` —
-commit new discoveries as seeds so the next campaign starts from them.
+The seven `f.Add` seeds are mirrored in
+`testdata/fuzz/FuzzComputeDelayNeverPanics/` — keep seeds and corpus files in
+sync (a plain `go test -run '^FuzzComputeDelayNeverPanics$'` exercises the
+committed corpus without fuzzing). A daily scheduled workflow
+(`.github/workflows/fuzz.yml`) runs a 30-minute campaign in CI; new crashers
+land in the committed corpus, not just in seeds.
 
 ## Lint policy
 
-The committed [`.golangci.yml`](.golangci.yml) enables the default linters plus
-`gosec`, `mnd`, and `exhaustruct`. The following in-source `//nolint:` markers
-are **deliberate** — do not "fix" them by removing the marker or restructuring
-the code:
+The committed [`.golangci.yml`](.golangci.yml) enables the standard default
+linters plus ~100 extra ones (`gosec`, `mnd`, `exhaustruct_v5`, `errorlint`,
+and many more — see the `enable` list). CI pins the same golangci-lint version
+the repo develops against (v2.13.2). The following in-source `//nolint:`
+markers are **deliberate** — do not "fix" them by removing the marker or
+restructuring the code:
 
-- `config.go` (`DefaultConfig`) — `//nolint:exhaustruct`: `OnRetry` and
+- `config.go` (`DefaultConfig`) — `//nolint:exhaustruct_v5`: `OnRetry` and
   `OnExhausted` are intentionally omitted (they are optional callbacks).
 - `retry.go` (`computeDelay`) — `//nolint:gosec`: the jitter source uses a
   weak RNG on purpose; this is jitter, not security-sensitive randomness
   (`mnd` does not fire — the divisor `2` is in its ignored-numbers).
+- `retry_test.go` (`TestDo_DoesNotRetryNonRetryableError`) —
+  `//nolint:errorlint`: the whole point of the assertion is the identity
+  comparison `err != rejection`, which `errorlint` would otherwise flag.
 
-`mnd` and `exhaustruct` are excluded from `*_test.go` (see `.golangci.yml`),
-where partial struct literals and bare scalars are legitimate.
+`mnd` and `exhaustruct_v5` are excluded from `*_test.go` (see
+`.golangci.yml`), where partial struct literals and bare scalars are
+legitimate.
 
 ## Testing conventions
 
