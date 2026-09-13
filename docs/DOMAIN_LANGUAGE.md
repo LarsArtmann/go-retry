@@ -81,14 +81,14 @@ Every error carries a machine-readable string code. `go-retry`'s codes follow
 
 | Code                          | Family         | Source                          |
 | ----------------------------- | -------------- | ------------------------------- |
-| `retry.exhausted`             | Infrastructure | `retry.go:28` (`ErrExhausted`)  |
-| `retry.canceled`              | Infrastructure | `retry.go:36` (`ErrCanceled`)   |
-| `retry.deadline`              | Infrastructure | `retry.go:47` (`ErrDeadlineExceeded`) |
+| `retry.exhausted`             | Infrastructure | `retry.go:39` (`ErrExhausted`)  |
+| `retry.canceled`              | Infrastructure | `retry.go:47` (`ErrCanceled`)   |
+| `retry.deadline`              | Infrastructure | `retry.go:58` (`ErrDeadlineExceeded`) |
 | `retry.invalid_max_attempts`  | Rejection      | `config.go:88` (`Validate`)     |
 | `retry.invalid_initial_delay` | Rejection      | `config.go:95` (`Validate`)     |
 | `retry.invalid_max_delay`     | Rejection      | `config.go:102` (`Validate`)    |
 | `retry.invalid_multiplier`    | Rejection      | `config.go:109` (`Validate`)    |
-| `retry.invalid_attempt`       | Rejection      | `retry.go:230` (`ComputeDelay`) |
+| `retry.invalid_attempt`       | Rejection      | `retry.go:241` (`ComputeDelay`) |
 
 These codes are part of the public contract — callers may switch on them. New
 codes must follow the `retry.<event>` pattern.
