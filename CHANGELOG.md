@@ -54,7 +54,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   deprecated since golangci-lint v2.13.0 and printed a warning on every run);
   the `DefaultConfig` `//nolint:` marker moved with it, and CI's pinned
   golangci-lint was bumped v2.12.2 → v2.13.2 to match the version the repo
-  develops against. `.golangci.yml`, `config.go`, `.github/workflows/ci.yml`.
+  develops against. The v4 stdlib `exclude` settings block was dropped — v5's
+  schema rejects that key (strict `config verify`, which CI runs, caught it
+  after a plain local `run` did not); the `_test.go` exclusion rule is
+  unaffected. `.golangci.yml`, `config.go`, `.github/workflows/ci.yml`.
 - **CI jobs carry `timeout-minutes: 10` and a concurrency group** (superseded
   pushes to the same ref cancel in-flight runs), mirroring the fuzz workflow.
   `.github/workflows/ci.yml`.

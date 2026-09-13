@@ -147,13 +147,18 @@ Error codes follow a `retry.<snake_case_event>` convention
   function/type name only (`retry.go` (`Do`)); function names are unique in
   this package, so nothing is lost.
 - **Dependency, action, and toolchain bumps are manual.** Dependabot is
-  configured (`dependabot.yml`: weekly gomod + github-actions) but has never
-  opened a single PR in this repo (verified 2026-09-13 via `gh pr list --state
-  all` — empty; GitHub docs confirm SHA+comment pins ARE supported, so the
-  updates are simply not running — settings-side, cause unknown). The gomod
-  watcher would not touch the `go` directive anyway. Action bumps are manual
+  configured (`dependabot.yml`: weekly gomod + github-actions) but stayed
+  silent for the repo's whole history until 2026-09-13, when it suddenly
+  opened its first PR (actions group). Treat Dependabot PRs as unexpected but
+  real now — review them like any external PR. The gomod watcher will not
+  touch the `go` directive regardless. Action bumps otherwise stay manual
   SHA re-pins, verified via `git ls-remote` + the tag's `action.yml` before
   encoding.
+- **After touching `.golangci.yml`, run `golangci-lint config verify`.** Plain
+  `golangci-lint run` tolerates settings that strict schema validation (what
+  the CI action executes first) rejects. This bit once: `exhaustruct_v5`
+  accepts no `exclude` settings key (unlike v4), local `run` stayed green,
+  and the CI lint job went red on push.
 - **Terminal-error codes/messages are single-sourced constants** at the top of
   `retry.go` (`codeExhausted`/`msgExhausted`, `codeCanceled`/`msgCanceled`,
   `codeDeadline`/`msgDeadline`). The sentinels and their

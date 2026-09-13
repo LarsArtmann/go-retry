@@ -13,6 +13,8 @@ run 34755167105), v0.5.0 released 2026-09-06.
 code/doc commits (`23192cd`, `28fe7e4`, `6e7a469`, `91d02a6`, + daemon
 commits); all gates green; both status reports annotated and archived;
 `docs/status/` holds only `README.md` + `archived/`.
+**Amended 14:58 CEST:** the daemon pushed the session's commits and CI went
+**red on master** (lint job): the action runs `golangci-lint config verify`,which rejects what plain `run` tolerated — the migrated `exhaustruct_v5`settings block used v4's `exclude` key, which v5's schema does not allow.Fixed at ~14:55 (block dropped — the `_test.go` exclusion rule is independent),`config verify` now passes locally (see d.6, e.8). Same hour, Dependabotopened its first-ever PR (#1, actions group) — invalidating the morning's"zero PRs ever" finding (see a.9 amendment, g.2).
 
 ---
 
@@ -28,7 +30,7 @@ commits); all gates green; both status reports annotated and archived;
 | 6 | **CI hardening** | `timeout-minutes: 10` on all three `ci.yml` jobs + `concurrency` group (mirrors fuzz.yml) | `23192cd`, `28fe7e4` (concurrency hunk verified via `git show`) | YAML locally; runner verification = TODO T16 |
 | 7 | **Citation-rot root-caused** | Every `retry.go` line-number citation in FEATURES/DOMAIN_LANGUAGE had drifted (claimed `Do, line 72`; actual 83). Living docs now cite **function names only**; new AGENTS.md gotcha bans line-number citations in prose docs | grep sweep: zero `retry.go:N`/`config.go:N` left in living docs | Sweep run post-edit |
 | 8 | **Lint-config truth** | AGENTS.md Commands, FEATURES lint row, CONTRIBUTING lint policy now say "~100 extra linters" (was "defaults + gosec/mnd/exhaustruct"); marker inventory complete (gosec, exhaustruct_v5, errorlint) | 3 files | Cross-checked against `.golangci.yml` enable list |
-| 9 | **Dependabot mystery solved** | `gh pr list --state all` → **zero PRs ever opened**; GitHub docs confirm SHA+comment pins ARE supported → version updates simply never run (settings-side, cause unknown). Policy decided: manual SHA bumps, documented in AGENTS.md gotcha | live `gh` query 2026-09-13 + docs.github.com | Authenticated query; docs cross-checked |
+| 9 | **Dependabot mystery solved** | `gh pr list --state all` → **zero PRs ever opened** (as of that morning); GitHub docs confirm SHA+comment pins ARE supported → version updates appeared not to run (settings-side, cause unknown). Policy decided: manual SHA bumps, documented in AGENTS.md gotcha. **Amendment 14:58 CEST:** Dependabot opened its first-ever PR (#1, "bump the actions group with 3 updates") the same afternoon — updates DO run; the earlier silence stays unexplained. AGENTS gotcha + TODO T17 updated | live `gh` query 2026-09-13 + docs.github.com; PR #1 observed 14:51 | Authenticated query; docs cross-checked; amendment live-verified |
 | 10 | **CI verified green on real runners for tip `691744b`** | run 34755167105: test ✅ coverage ✅ lint ✅ — resolves the "runner-unverified" caveat for checkout v6, govulncheck action, coverage floor | `gh run view` (headSha matched `691744b`) | Live API check |
 | 11 | **Both 2026-09-13 reports ANNOTATED inline** | 12:57 report: header + §b (5) + §c (6) + §f (50/50) + §g (3). 12:20 report: §b (7) + §c (9) + §d (8) + §e (9) + §f (42; items 43–50 pre-closed, SKIP rule) + §g (3). Strikethrough + hashes/verdicts, zero appendix-only | both files in `docs/status/archived/` | Marker-coverage checker (written this session): ALL MARKED |
 | 12 | **Both reports ARCHIVED** | `git mv` → `docs/status/archived/`; `docs/status/` now holds only `README.md` + `archived/` | git index | `ls` verified |
@@ -61,15 +63,17 @@ commits); all gates green; both status reports annotated and archived;
 
 ## c) NOT STARTED
 
-1. **T16** — first `fuzz.yml` runner run (next scheduled 2026-09-14 03:17 UTC;
-   `workflow_dispatch` could trigger earlier) + this session's ci.yml changes
-   on real runners.
+1. **T16** — runner verification of the whole batch: the session's changes ARE
+   pushed (daemon) and went red (`exhaustruct_v5` settings bug, fixed ~14:55);
+   the fix itself needs a green run, plus the first `fuzz.yml` run (next
+   scheduled 2026-09-14 03:17 UTC; `workflow_dispatch` could trigger earlier).
 2. **T21** — release cut v0.5.1/v0.6.0 (owner-gated): `[Unreleased]` carries
    the user-visible exhaustion-message change; at tag time also update
    ROADMAP's "current release" line + CHANGELOG compare links + re-check
    pkg.go.dev (now incl. `ExampleDoWithValue`).
-3. **T17 residual** — dependabot settings-side root cause (needs GitHub-admin
-   visibility I don't have) or delete the dead config.
+3. **T17 residual** — review Dependabot PR #1 (merge or close) and explain the
+   sudden first fire after a history of silence; then decide the ongoing
+   policy.
 4. **T20** — corpus↔seeds sync test.
 5. **T18** — actionlint/schema pre-push gate (must respect the two-tool repo
    convention or justify a third tool).
@@ -107,6 +111,16 @@ commits); all gates green; both status reports annotated and archived;
    reports — written before the `git mv` ran. Correct only because the move
    succeeded. References should be written/updated after the move they
    reference, not before.
+6. **My lint-config change broke master's CI.** The `exhaustruct_v5` migration
+   kept v4's `exclude` settings block; v5's schema rejects that key. Local
+   `golangci-lint run` stayed green (it tolerates it); the CI action runs
+   `config verify` first and the lint job went red on three consecutive pushes
+   (`5058fec5`, `8615ef8d`, and Dependabot's PR #1 branch). Caught within ~20
+   minutes via a routine `gh run list` while writing this report; fixed by
+   dropping the settings block (the `_test.go` exclusion rule is independent;
+   the only non-test v5 finding is already nolint'd). `config verify` now
+   passes locally. Root cause: I verified the migration with the same tool
+   invocation the repo always used, not with the invocation CI actually runs.
 
 ## e) WHAT WE SHOULD IMPROVE
 
@@ -128,6 +142,9 @@ commits); all gates green; both status reports annotated and archived;
 7. **Report-time self-checks paid off twice** (d.1, d.2). Institutionalize:
    no status report without (a) marker-coverage check, (b) hash verification
    for every newly cited hash.
+8. **After touching `.golangci.yml`, run `golangci-lint config verify`** —
+   the exact command the CI action runs before linting (d.6). Recorded as an
+   AGENTS.md gotcha so it survives sessions.
 
 ## f) Up to 50 things to get done next
 
@@ -135,9 +152,9 @@ commits); all gates green; both status reports annotated and archived;
 > verification · `[RELEASE]` release flow · `[CI]` · `[CODE]` · `[DOC]` ·
 > `[ROADMAP]` · `[WISEGO]` other repo · `[OWNER]` needs you · `[PROCESS]`.
 
-1. `[VERIFY]` T16: push the current master; watch all three `ci.yml` jobs
-   (exhaustruct_v5 + golangci v2.13.2 + timeouts + concurrency are
-   runner-unverified).
+1. `[VERIFY]` T16: verify the config-verify fix lands green on the runner
+   (next push), then watch all three `ci.yml` jobs (exhaustruct_v5 + golangci
+   v2.13.2 + timeouts + concurrency).
 2. `[VERIFY]` T16: trigger `fuzz.yml` once via `workflow_dispatch` instead of
    waiting for tomorrow 03:17 UTC; confirm the committed corpus loads
    (14 entries in the log).
@@ -157,10 +174,10 @@ commits); all gates green; both status reports annotated and archived;
    CHANGELOG compare links at tag time.
 10. `[RELEASE]` T21: re-check pkg.go.dev rendering post-tag (incl.
     `ExampleDoWithValue`).
-11. `[OWNER]` T17: your GitHub-admin answer decides dependabot.yml's fate
-    (see g.2).
-12. `[CI]` T17: if kept, document the zero-PR finding in a dependabot.yml
-    comment so the next session doesn't re-investigate.
+11. `[CI]` T17: review Dependabot PR #1 (bump the actions group with 3
+    updates) — merge or close; decide Dependabot-owned vs manual policy.
+12. `[CI]` T17: after PR #1's fate is decided, update the AGENTS.md gotcha if
+    the policy changes from manual SHA bumps.
 13. `[CI]` T18: actionlint gate — pick the install surface (pre-commit hook?
     CI job? documented manual step?) without breaking the two-tool convention.
 14. `[CI]` T19: name the crash artifact `fuzz-crash-corpus-${{ github.sha }}`.
@@ -207,7 +224,8 @@ commits); all gates green; both status reports annotated and archived;
 40. `[WISEGO]` wise-go CI re-enable (nix/GOEXPERIMENT).
 41. `[OWNER]` Confirm 0.x release policy (ROADMAP Open question).
 42. `[OWNER]` Confirm archive retention (default keep-forever is recorded).
-43. `[OWNER]` Push policy for the unpushed commits (see g.1).
+43. `[OWNER]` Push policy going forward (the daemon pushes; confirm that is
+    intended for master, see g.1).
 44. `[DOC]` `.config/metadata.yaml` — never read; check whether it's repo
     tooling that docs should mention.
 45. `[DOC]` CHANGELOG convention: decide whether doc-only changes get entries
@@ -216,8 +234,8 @@ commits); all gates green; both status reports annotated and archived;
     change (standing).
 47. `[CI]` If T16's timeout of 10 min proves tight on slow runners (coverage
     job), bump before it bites.
-48. `[DOC]` When T17 resolves, update the manual-bumps gotcha (it currently
-    says "cause unknown").
+48. `[DOC]` Superseded — the manual-bumps gotcha was updated the same hour
+    (Dependabot fired, PR #1).
 49. `[PROCESS]` Next docs-health pass: HARVEST this report's §f (route →
     TODO_LIST/ROADMAP; drop the `[WISEGO]` block for this repo).
 50. `[DOC]` Archive THIS report via docs-health ANNOTATE + ARCHIVE once its
@@ -225,16 +243,15 @@ commits); all gates green; both status reports annotated and archived;
 
 ## g) Questions I can NOT figure out myself
 
-1. **Push timing:** this session's code + CI changes (exhaustruct_v5, golangci
-   v2.13.2, timeouts, concurrency, 2 new tests) sit **unpushed** on local
-   master (origin = `691744b`). Push now so T16's runner verification starts
-   (and fire `fuzz.yml` via `workflow_dispatch`), or bundle with the release
-   push? Your repo, your push policy — I won't push without an explicit ask.
-2. **Dependabot fate (T17):** version updates have provably never fired (zero
-   PRs ever, SHA pins supported per docs). Should I treat `dependabot.yml` as
-   dead config and delete it — or will you check Settings → Code security →
-   Dependabot version updates on your admin side first? I have no access to
-   that UI state.
+1. **Push policy:** the daemon pushed this session's commits to master
+   unattended (which is how the broken lint config reached CI before I saw
+   it). Is daemon-auto-push to `master` intended policy, or should it stop so
+   red CI never hits the default branch? Your repo, your call — I won't push
+   manually either way.
+2. **Dependabot policy (T17):** PR #1 (bump the actions group with 3 updates)
+   is the first Dependabot PR ever here. Merge it and hand action bumps to
+   Dependabot (drop the manual-SHA-bump rule), or close it and stay manual?
+   The AGENTS gotcha currently says manual; I'll follow your answer.
 3. **golangci v2.12.2 pin origin:** was CI's golangci-lint deliberately pinned
    to v2.12.2 (a cross-repo standard I should honor), or just drift? I bumped
    the pin to v2.13.2 to match local + unlock `exhaustruct_v5`; if the old pin

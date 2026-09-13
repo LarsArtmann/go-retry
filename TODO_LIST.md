@@ -39,17 +39,18 @@ Evidence: `CHANGELOG.md` `[Unreleased]`. Source: 12-57 report §f.19–20, §f.4
 
 ## P2
 
-### T17 — Dependabot: fix it or delete it
+### T17 — Dependabot: review PR #1 and set the policy
 
-Verified 2026-09-13: `dependabot.yml` configures weekly gomod +
-github-actions watchers, but **zero PRs have ever been opened** in this repo
-(`gh pr list --state all` is empty) even while checkout sat stale on v4 —
-GitHub docs confirm SHA+`# vX` comment pins _are_ supported, so version
-updates are simply not running (repo-settings-side; cause unknown). The
-update policy is already decided and documented (manual SHA bumps,
-`AGENTS.md` gotcha). Remaining: either find the settings-side cause or delete
-`dependabot.yml` as dead config. Evidence: `.github/dependabot.yml`.
-Source: 12-57 report §f.4–5.
+Update 2026-09-13 ~14:51 CEST: Dependabot **opened its first-ever PR**
+([#1](https://github.com/LarsArtmann/go-retry/pull/1), "bump the actions group
+with 3 updates") — after a repo-history of zero PRs (`gh pr list --state all`
+was empty that morning). So version updates DO run; the earlier silence stays
+unexplained. The update policy is decided and documented (manual SHA bumps,
+`AGENTS.md` gotcha). Remaining: review PR #1 (its CI ran red because the
+branch carried the invalid `exhaustruct_v5` settings block from master —
+fixed on master; Dependabot auto-rebases), then merge or close it and decide
+Dependabot-owned vs manual going forward. Evidence: `.github/dependabot.yml`.
+Source: 12-57 report §f.4–5; this report's §d.
 
 ### T20 — Corpus↔seeds sync test
 
