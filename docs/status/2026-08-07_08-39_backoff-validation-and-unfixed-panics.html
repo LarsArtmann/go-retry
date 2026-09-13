@@ -337,6 +337,7 @@ retry.Backoff(cfg, 38)</code></pre>
               <th>Effort</th>
               <th>Category</th>
               <th>Task</th>
+              <th>Status (2026-09-13)</th>
             </tr>
           </thead>
           <tbody>
@@ -349,6 +350,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Fix B1: add MaxDelay validation + guard
                 <code>Int64N(0)</code> in computeDelay
               </td>
+              <td>Done <code>5a693f9</code> (v0.2.0)</td>
             </tr>
             <tr>
               <td>2</td>
@@ -359,6 +361,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Fix B2: guard <code>half &le; 0</code> (sub-2ns delays) in
                 computeDelay
               </td>
+              <td>Done <code>5a693f9</code> (v0.2.0)</td>
             </tr>
             <tr>
               <td>3</td>
@@ -369,6 +372,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Fix B3: float-space overflow comparison + saturation in
                 computeDelay
               </td>
+              <td>Done <code>5a693f9</code> (v0.2.0)</td>
             </tr>
             <tr>
               <td>4</td>
@@ -379,6 +383,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Add [Unreleased] CHANGELOG entry for the breaking
                 Backoff/ComputeDelay signature change
               </td>
+              <td>Done <code>5a693f9</code> (v0.2.0)</td>
             </tr>
             <tr>
               <td>5</td>
@@ -389,6 +394,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Update AGENTS.md jitter gotcha + API notes for the new error
                 return
               </td>
+              <td>Done (v0.4.0 docs pass)</td>
             </tr>
             <tr>
               <td>6</td>
@@ -396,6 +402,7 @@ retry.Backoff(cfg, 38)</code></pre>
               <td>S</td>
               <td>Documentation</td>
               <td>Update FEATURES.md ComputeDelay entry (now returns error)</td>
+              <td>Done (v0.4.0 docs pass)</td>
             </tr>
             <tr>
               <td>7</td>
@@ -406,6 +413,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Land the ComputeDelay fuzz target (TODO T1) &mdash; would have
                 caught B2/B3
               </td>
+              <td>Done <code>e840c7d</code> (v0.3.0)</td>
             </tr>
             <tr>
               <td>8</td>
@@ -416,6 +424,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Add property test: assert computeDelay never panics across a
                 wide input matrix
               </td>
+              <td>Done <code>5a693f9</code> (v0.2.0)</td>
             </tr>
             <tr>
               <td>9</td>
@@ -426,6 +435,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Decide phantom <code>type Attempt int</code> vs. bare
                 <code>int</code> (branching-flow finding)
               </td>
+              <td>Won't implement &mdash; validation errors shipped instead (v0.2.0)</td>
             </tr>
             <tr>
               <td>10</td>
@@ -435,6 +445,7 @@ retry.Backoff(cfg, 38)</code></pre>
               <td>
                 Cross-link Backoff &harr; ComputeDelay doc comments (TODO T4)
               </td>
+              <td>Done <code>10a5566</code> (v0.3.0)</td>
             </tr>
             <tr>
               <td>11</td>
@@ -445,6 +456,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Modernize <code>for range b.N</code> &rarr;
                 <code>b.Loop()</code> in BenchmarkComputeDelay (gopls warning)
               </td>
+              <td>Done <code>a402f67</code> (v0.5.0)</td>
             </tr>
             <tr>
               <td>12</td>
@@ -455,6 +467,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Add parallel stress test proving concurrent Do invocations share
                 no mutable state (TODO T1)
               </td>
+              <td>Done <code>e840c7d</code> (v0.3.0)</td>
             </tr>
             <tr>
               <td>13</td>
@@ -465,6 +478,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Add minimal CI: <code>go test -race</code> +
                 <code>golangci-lint</code> on push/PR (TODO T3)
               </td>
+              <td>Done <code>e840c7d</code></td>
             </tr>
             <tr>
               <td>14</td>
@@ -475,6 +489,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Wire branching-flow into CI / pre-commit so phantom-type
                 findings are caught automatically
               </td>
+              <td>Won't implement &mdash; tool not adopted into the gates</td>
             </tr>
             <tr>
               <td>15</td>
@@ -485,6 +500,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Reconcile Config with errorfamily.RetryPolicy (TODO T7) &mdash;
                 split-brain across two libs
               </td>
+              <td>Done &mdash; <code>FromPolicy</code> (v0.3.0); compat matrix tracked in ROADMAP</td>
             </tr>
             <tr>
               <td>16</td>
@@ -492,6 +508,7 @@ retry.Backoff(cfg, 38)</code></pre>
               <td>S</td>
               <td>Documentation</td>
               <td>Add SECURITY.md (TODO T5)</td>
+              <td>Done <code>10a5566</code></td>
             </tr>
             <tr>
               <td>17</td>
@@ -501,6 +518,7 @@ retry.Backoff(cfg, 38)</code></pre>
               <td>
                 Verify hierarchical-errors migration is a no-op here (TODO T2)
               </td>
+              <td>Done &mdash; no-op confirmed (package uses errors.Is only)</td>
             </tr>
             <tr>
               <td>18</td>
@@ -511,6 +529,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 README quick-start: update any ComputeDelay/Backoff call sites
                 for the new signature
               </td>
+              <td>Done (README current as of v0.5.0)</td>
             </tr>
             <tr>
               <td>19</td>
@@ -521,6 +540,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Consider saturating <code>delay + jitter</code> at
                 <code>math.MaxInt64</code> to avoid wrap
               </td>
+              <td>Done <code>5a693f9</code> (jitter-wrap guard saturates at the cap)</td>
             </tr>
             <tr>
               <td>20</td>
@@ -531,6 +551,7 @@ retry.Backoff(cfg, 38)</code></pre>
                 Document the documented bound (<code>MaxDelay + 50%</code>
                 jitter) in ComputeDelay doc comment
               </td>
+              <td>Done <code>1f25dbc</code> (bound now: min(exp+jitter, MaxDelay))</td>
             </tr>
           </tbody>
         </table>
@@ -556,6 +577,10 @@ retry.Backoff(cfg, 38)</code></pre>
             <code>ComputeDelayValidated</code>)? I cannot decide your release
             cadence.
           </p>
+          <p>
+            <strong>Resolved:</strong> shipped as <code>v0.2.0</code> (minor
+            bump under 0.x) with a breaking-change CHANGELOG entry.
+          </p>
         </div>
 
         <div class="issue issue-important">
@@ -572,6 +597,12 @@ retry.Backoff(cfg, 38)</code></pre>
             decision only you can make &mdash; I tried both and both are
             defensible.
           </p>
+          <p>
+            <strong>Resolved:</strong> both shipped in <code>v0.2.0</code> —
+            <code>Validate()</code> rejects <code>&le; 0</code> up front, and
+            <code>computeDelay</code> still degrades an unset cap to "no
+            growth beyond InitialDelay" as a panic guard.
+          </p>
         </div>
 
         <div class="issue issue-important">
@@ -584,6 +615,11 @@ retry.Backoff(cfg, 38)</code></pre>
             cannot tell whether you want me to keep working or pause for a
             decision on Q2 first. The panics are confirmed-reachable in
             production code today.
+          </p>
+          <p>
+            <strong>Resolved:</strong> all three panics fixed and pinned in
+            <code>v0.2.0</code> (B1/B2/B3 + matrix property test + fuzz
+            target).
           </p>
         </div>
 
