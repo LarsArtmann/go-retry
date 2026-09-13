@@ -165,11 +165,13 @@ Error codes follow a `retry.<snake_case_event>` convention
   `retry.go` (`codeExhausted`/`msgExhausted`, `codeCanceled`/`msgCanceled`,
   `codeDeadline`/`msgDeadline`). The sentinels and their
   `WrapInfrastructure` call sites must use them — never re-inline the strings.
-- **The committed fuzz corpus mirrors the `f.Add` seeds.** Every seed in
-  `FuzzComputeDelayNeverPanics` has a matching `go test fuzz v1` file in
-  `testdata/fuzz/FuzzComputeDelayNeverPanics/`; add and update both together.
-  A daily scheduled workflow (`.github/workflows/fuzz.yml`) fuzzes for 30
-  minutes; new crashers land in the corpus, not just in seeds.
+- **The committed fuzz corpus mirrors the `f.Add` seeds, enforced by a test.**
+  `TestFuzzCorpusMirrorsSeeds` fails with the offending entry named when a
+  seed lacks its `testdata/fuzz/FuzzComputeDelayNeverPanics/` file or a
+  corpus entry matches no seed; a seed introducing a new constant expression
+  needs it added to `seedConstExpressions` in the same change. A daily
+  scheduled workflow (`.github/workflows/fuzz.yml`) fuzzes for 30 minutes;
+  new crashers land in the corpus AND as distilled seeds, together.
 - **Release notes are GitHub-only.** Bodies are composed at release time from
   the CHANGELOG section (the `go-release` skill flow); there is deliberately
   no `docs/releases/` directory.

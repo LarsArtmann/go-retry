@@ -63,14 +63,22 @@ as `e67a70e`. Policy settled: Dependabot stays enabled for github-actions +
 gomod; every PR gets the verify-by-SHA review before merge.
 Evidence: AGENTS.md Dependabot gotcha (updated).
 
-### T20 — Corpus↔seeds sync test
+### T20 — Corpus↔seeds sync test — RESOLVED (2026-09-13)
 
-A test asserting every `f.Add` seed in `FuzzComputeDelayNeverPanics` has a
+~~A test asserting every `f.Add` seed in `FuzzComputeDelayNeverPanics` has a
 matching `go test fuzz v1` file in `testdata/fuzz/FuzzComputeDelayNeverPanics/`.
 The mirror is currently maintained by hand with a documented sync rule
 (`AGENTS.md` gotcha); the test removes the human-discipline requirement.
 Evidence: `retry_test.go` (`FuzzComputeDelayNeverPanics`), `testdata/fuzz/`.
-Source: 12-57 report §f.11.
+Source: 12-57 report §f.11.~~
+
+**DONE (2026-09-13 ~19:05 CEST):** `TestFuzzCorpusMirrorsSeeds` lands —
+value-level 1:1 check (seeds normalized via a `seedConstExpressions` table,
+corpus files parsed in `go test fuzz v1` form, `slices.Sorted` +
+`BinarySearch` multiset compare), verified to fail naming the offender in
+both drift directions. Gate green: `-race -count=10`, lint 0 issues,
+`config verify`, coverage 100.0%. AGENTS gotcha updated to "enforced by a
+test"; CHANGELOG `[Unreleased]` entry added.
 
 ### T18 — Workflow schema gate before push
 

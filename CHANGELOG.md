@@ -9,11 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- **Corpus↔seeds mirror is enforced by a test.**
+  `TestFuzzCorpusMirrorsSeeds` parses the `f.Add` seeds from the test source
+  and the committed corpus files, normalizes both (including the constant
+  expressions `time.Millisecond`, `math.MaxInt64`, …), and fails naming the
+  offending entry when either side drifts. The hand-discipline documented in
+  `AGENTS.md` is now machine-checked. `retry_test.go`.
 
 ### Changed
 
-- Nothing yet.
+- **Fuzz workflow hardening.** The crash-corpus artifact is now named with
+  the commit SHA (`fuzz-crash-corpus-<sha>`) so artifacts from different
+  failing runs cannot shadow each other, and crash minimization is bounded
+  with `-fuzzminimizetime 5m` so it cannot consume the job's 45-minute
+  timeout on a hit. `.github/workflows/fuzz.yml`.
 
 ## [0.6.0] - 2026-09-13
 

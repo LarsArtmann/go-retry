@@ -24,11 +24,11 @@ jobs:
           go-version-file: go.mod
           cache: true
       - name: Fuzz FuzzComputeDelayNeverPanics (30 minutes)
-        run: go test -run '^$' -fuzz '^FuzzComputeDelayNeverPanics$' -fuzztime 30m .
+        run: go test -run '^$' -fuzz '^FuzzComputeDelayNeverPanics$' -fuzztime 30m -fuzzminimizetime 5m .
       - name: Upload crash corpus on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: fuzz-crash-corpus
+          name: fuzz-crash-corpus-${{ github.sha }}
           path: testdata/fuzz/
           if-no-files-found: ignore
