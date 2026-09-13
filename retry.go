@@ -11,6 +11,17 @@ import (
 	errorfamily "github.com/larsartmann/go-error-family"
 )
 
+const (
+	codeExhausted = "retry.exhausted"
+	msgExhausted  = "all retry attempts failed"
+
+	codeCanceled = "retry.canceled"
+	msgCanceled  = "retry canceled during backoff delay"
+
+	codeDeadline = "retry.deadline"
+	msgDeadline  = "retry deadline exceeded during backoff delay"
+)
+
 // ErrExhausted is returned by [Do] when all retry attempts have failed.
 // It is classified as Infrastructure because retry exhaustion typically
 // indicates a downstream system problem.
@@ -26,16 +37,16 @@ import (
 // loop treats an inner loop's exhaustion as terminal rather than
 // multiplying attempts.
 var ErrExhausted = errorfamily.NewInfrastructure(
-	"retry.exhausted",
-	"all retry attempts failed",
+	codeExhausted,
+	msgExhausted,
 )
 
 // ErrCanceled is returned by [Do] when the context is canceled during
 // a retry delay. Errors matching it also unwrap to [context.Canceled],
 // and the last attempt error remains in the chain.
 var ErrCanceled = errorfamily.NewInfrastructure(
-	"retry.canceled",
-	"retry canceled during backoff delay",
+	codeCanceled,
+	msgCanceled,
 )
 
 // ErrDeadlineExceeded is returned by [Do] when the context deadline is
@@ -45,8 +56,8 @@ var ErrCanceled = errorfamily.NewInfrastructure(
 // deadline means the operation was too slow, a cancel means the caller
 // shut down — the two are debugged differently.
 var ErrDeadlineExceeded = errorfamily.NewInfrastructure(
-	"retry.deadline",
-	"retry deadline exceeded during backoff delay",
+	codeDeadline,
+	msgDeadline,
 )
 
 // AttemptFunc is the function retried by [Do]. The attempt argument
@@ -104,8 +115,8 @@ func Do(ctx context.Context, config Config, fn AttemptFunc) error {
 		config.OnExhausted(config.MaxAttempts, err)
 	}
 
-	return errorfamily.WrapInfrastructure(ErrExhausted, "retry.exhausted",
-		"all attempts failed").WithCause(err)
+	return errorfamily.WrapInfrastructure(ErrExhausted, codeExhausted,
+		msgExhausted).WithCause(err)
 }
 
 // ResultFunc is the function retried by [DoWithValue]. The attempt
@@ -191,12 +202,12 @@ func contextEnded(ctx context.Context, lastErr error) error {
 	chain := fmt.Errorf("%w; last attempt: %w", ctx.Err(), lastErr)
 
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		return errorfamily.WrapInfrastructure(ErrDeadlineExceeded, "retry.deadline",
-			"retry deadline exceeded during backoff delay").WithCause(chain)
+		return errorfamily.WrapInfrastructure(ErrDeadlineExceeded, codeDeadline,
+			msgDeadline).WithCause(chain)
 	}
 
-	return errorfamily.WrapInfrastructure(ErrCanceled, "retry.canceled",
-		"retry canceled during backoff delay").WithCause(chain)
+	return errorfamily.WrapInfrastructure(ErrCanceled, codeCanceled,
+		msgCanceled).WithCause(chain)
 }
 
 // Backoff calculates the delay before the next attempt using exponential

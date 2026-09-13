@@ -153,7 +153,7 @@ func TestDo_DoesNotRetryNonRetryableError(t *testing.T) {
 		},
 	)
 
-	if err != rejection {
+	if err != rejection { //nolint:errorlint // identity check is deliberate: the typed error must never be re-wrapped
 		t.Fatalf("expected the typed rejection returned by identity, got %v", err)
 	}
 
@@ -1106,7 +1106,7 @@ func ExampleDo_delayFunc() {
 	fmt.Println("error:", err)
 	// Output:
 	// delays: [2ms]
-	// error: [infrastructure:retry.exhausted] all attempts failed: [transient:example.rate_limited] too many requests
+	// error: [infrastructure:retry.exhausted] all retry attempts failed: [transient:example.rate_limited] too many requests
 }
 
 // ExampleFromPolicy converts an error-family retry policy — the advisory
