@@ -173,60 +173,91 @@ commits); all gates green; both status reports annotated and archived;
    (v5 may flag structs v4 didn't). — no drift observed on the three green
    master runs so far; ongoing observation, no action needed unless a finding
    appears.
-6. `[RELEASE]` T21: decide v0.5.1 vs v0.6.0 — the exhaustion-message wording
-   is user-visible → minor-leaning.
-7. `[RELEASE]` T21: move ALL `[Unreleased]` entries together (incl. the two
-   pre-session pinning-test entries) — don't split the release.
-8. `[RELEASE]` T21: compose GitHub-only release notes (first exercise of the
-   T14 decision).
-9. `[RELEASE]` T21: update ROADMAP's "current release is v0.5.0" line +
-   CHANGELOG compare links at tag time.
+6. ~~`[RELEASE]` T21: decide v0.5.1 vs v0.6.0 — the exhaustion-message wording
+   is user-visible → minor-leaning.~~ done (v0.6.0 cut 2026-09-13; rationale
+   in release commit `6105848`).
+7. ~~`[RELEASE]` T21: move ALL `[Unreleased]` entries together (incl. the two
+   pre-session pinning-test entries) — don't split the release.~~ done
+   (9 Added + 4 Changed promoted as one block, `6105848`).
+8. ~~`[RELEASE]` T21: compose GitHub-only release notes (first exercise of the
+   T14 decision).~~ done (GitHub Release v0.6.0 composed from the CHANGELOG
+   section, user-facing summary).
+9. ~~`[RELEASE]` T21: update ROADMAP's "current release is v0.5.0" line +
+   CHANGELOG compare links at tag time.~~ done (`6105848`, pre-tag).
 10. `[RELEASE]` T21: re-check pkg.go.dev rendering post-tag (incl.
     `ExampleDoWithValue`).
-11. `[CI]` T17: review Dependabot PR #1 (bump the actions group with 3
-    updates) — merge or close; decide Dependabot-owned vs manual policy.
-12. `[CI]` T17: after PR #1's fate is decided, update the AGENTS.md gotcha if
-    the policy changes from manual SHA bumps.
-13. `[CI]` T18: actionlint gate — pick the install surface (pre-commit hook?
-    CI job? documented manual step?) without breaking the two-tool convention.
-14. `[CI]` T19: name the crash artifact `fuzz-crash-corpus-${{ github.sha }}`.
-15. `[CI]` T19: tune `-fuzzminimizetime` so crash minimization can't eat the
-    45-minute budget.
-16. `[CODE]` T20: corpus↔seeds sync test (fails when a seed lacks its corpus
-    file).
-17. `[DOC]` Run dprint over this session's markdown (config exists; tables
-    were hand-aligned).
-18. `[DOC]` CONTRIBUTING/FEATURES: replace hardcoded "v2.13.2" with "pinned in
-    `.github/workflows/ci.yml`" — the version string rots on the next bump.
-19. `[DOC]` DOMAIN_LANGUAGE: decide the policy for _external_ citations
-    (`classify.go:67` — dependency line numbers).
-20. `[DOC]` AGENTS gotcha prune at 20 (18 now).
+11. ~~`[CI]` T17: review Dependabot PR #1 (bump the actions group with 3
+    updates) — merge or close; decide Dependabot-owned vs manual policy.~~
+    done (SHA-verified evidence review posted; squash-merged `e67a70e`;
+    policy: Dependabot enabled + verify-by-SHA review, AGENTS gotcha).
+12. ~~`[CI]` T17: after PR #1's fate is decided, update the AGENTS.md gotcha if
+    the policy changes from manual SHA bumps.~~ done (gotcha rewritten to the
+    verify-then-merge flow, `c0fab05`).
+13. ~~`[CI]` T18: actionlint gate — pick the install surface (pre-commit hook?
+    CI job? documented manual step?) without breaking the two-tool
+    convention.~~ done (CI lint job, actionlint v1.7.12 via Go module proxy;
+    break test `34771094371` flagged `fuzz.yml:6:13` invalid cron; local
+    `go run` documented).
+14. ~~`[CI]` T19: name the crash artifact `fuzz-crash-corpus-${{ github.sha }}`.~~
+    done.
+15. ~~`[CI]` T19: tune `-fuzzminimizetime` so crash minimization can't eat the
+    45-minute budget.~~ done (`-fuzzminimizetime 5m`; 30+5 < 45).
+16. ~~`[CODE]` T20: corpus↔seeds sync test (fails when a seed lacks its corpus
+    file).~~ done (`TestFuzzCorpusMirrorsSeeds`, value-level 1:1, drift-fail
+    proven both directions, `ba5e97c`).
+17. ~~`[DOC]` Run dprint over this session's markdown (config exists; tables
+    were hand-aligned).~~ done (dprint 0.57.4 via nix; AGENTS + planning
+    files + this pass's edits).
+18. ~~`[DOC]` CONTRIBUTING/FEATURES: replace hardcoded "v2.13.2" with "pinned in
+    `.github/workflows/ci.yml`" — the version string rots on the next bump.~~
+    done (FEATURES, CONTRIBUTING, AGENTS; sweep found zero remaining).
+19. ~~`[DOC]` DOMAIN_LANGUAGE: decide the policy for _external_ citations
+    (`classify.go:67` — dependency line numbers).~~ done (policy: symbol +
+    dependency version, never line numbers; DOMAIN_LANGUAGE cleaned; AGENTS
+    gotcha extended, `781fa92`).
+20. ~~`[DOC]` AGENTS gotcha prune at 20 (18 now).~~ done (19 → 18 via the
+    callback-timing merge after the Dependabot gotcha rewrite).
 21. `[DOC]` docs/status/README.md: keep the State column current as reports
     land.
-22. `[PROCESS]` Institutionalize the report-time self-checks (see e.7).
-23. `[PROCESS]` Sweep-verify remaining stat-level hash citations (`9d7efa1`,
-    `3ec60b0`, `23192cd`) with `git show` when convenient.
+22. ~~`[PROCESS]` Institutionalize the report-time self-checks (see e.7).~~
+    done (AGENTS "Session Ritual" section + CONTRIBUTING cross-link).
+23. ~~`[PROCESS]` Sweep-verify remaining stat-level hash citations (`9d7efa1`,
+    `3ec60b0`, `23192cd`) with `git show` when convenient.~~ done (all three
+    verified present, 2026-09-13, `git show`).
 24. `[PROCESS]` Extend the docs-health annotate scripts with a routing kind
     upstream — decision stands as "won't for now"; revisit on the next batch
     pass.
-25. `[ROADMAP]` Graduate the periodic `-race` fuzz run when CI capacity is
-    known.
-26. `[ROADMAP]` Decide the govulncheck supply-chain posture (action runs
-    `go install …@latest` internally).
-27. `[ROADMAP]` Auto-PR loop: fuzz crasher → PR into `testdata/fuzz/`.
-28. `[ROADMAP]` Try `go test -shuffle=on` locally before proposing CI
-    adoption (cheap order-dependency probe).
-29. `[ROADMAP]` Corpus generation from seeds — superseded by T20 unless drift
-    pain recurs.
-30. `[ROADMAP]` v1.0: run the public API surface audit (12 symbols) as a
-    recorded checklist.
-31. `[ROADMAP]` v1.0: `AttemptFunc(ctx, attempt)` signature decision.
-32. `[ROADMAP]` Options-pattern migration design (`WithOnRetry`, `WithJitter`).
-33. `[ROADMAP]` Version-compatibility matrix with go-error-family.
-34. `[ROADMAP]` Deterministic-RNG decision (FEATURES WORTH_CONSIDERING).
-35. `[ROADMAP]` Deadline-aware attempt-budgeting decision (FEATURES
-    WORTH_CONSIDERING).
-36. `[ROADMAP]` Docs website (Astro/Starlight) — post-API-freeze only.
+25. ~~`[ROADMAP]` Graduate the periodic `-race` fuzz run when CI capacity is
+    known.~~ decided: rejected (measured ~19k execs/s with `-race` vs ~400k/s
+    without; ROADMAP CI-hardening record).
+26. ~~`[ROADMAP]` Decide the govulncheck supply-chain posture (action runs
+    `go install …@latest` internally).~~ decided: accepted, consciously
+    (verified from pinned action source; ROADMAP record).
+27. ~~`[ROADMAP]` Auto-PR loop: fuzz crasher → PR into `testdata/fuzz/`.~~
+    designed, build deferred to first crasher (permissions cost recorded;
+    ROADMAP record).
+28. ~~`[ROADMAP]` Try `go test -shuffle=on` locally before proposing CI
+    adoption (cheap order-dependency probe).~~ done: adopted (5 shuffled + 4
+    fixed-seed runs green; CI test job now `-shuffle=on`, `518e6ca`).
+29. ~~`[ROADMAP]` Corpus generation from seeds — superseded by T20 unless drift
+    pain recurs.~~ done: superseded by the enforced mirror test.
+30. ~~`[ROADMAP]` v1.0: run the public API surface audit (12 symbols) as a
+    recorded checklist.~~ done (12/12 freeze-worthy; `FromPolicy` coupling
+    flagged; ROADMAP checklist).
+31. ~~`[ROADMAP]` v1.0: `AttemptFunc(ctx, attempt)` signature decision.~~ done:
+    kept (survey-verified against avast/cenkalti/sethvargo sources; ROADMAP
+    record).
+32. ~~`[ROADMAP]` Options-pattern migration design (`WithOnRetry`, `WithJitter`).~~
+    done (variadic `opts ...Option` tail = additive; ROADMAP record).
+33. ~~`[ROADMAP]` Version-compatibility matrix with go-error-family.~~ done
+    (surface extracted, matrix + rule in ROADMAP).
+34. ~~`[ROADMAP]` Deterministic-RNG decision (FEATURES WORTH_CONSIDERING).~~
+    done (`WithRandomSource` with the options migration; FEATURES marked).
+35. ~~`[ROADMAP]` Deadline-aware attempt-budgeting decision (FEATURES
+    WORTH_CONSIDERING).~~ done: stay count-based (`MaxDelay` recipe for
+    callers; FEATURES marked).
+36. ~~`[ROADMAP]` Docs website (Astro/Starlight) — post-API-freeze only.~~
+    preconditions priced (ROADMAP checklist); launch remains post-v1.0.
 37. `[WISEGO]` Failsafe→go-retry adoption spike (other repo).
 38. `[WISEGO]` wise-go v1.0.0 tag (owner-gated).
 39. `[WISEGO]` wise-go sandbox integration tests (API-key-gated).
@@ -235,20 +266,25 @@ commits); all gates green; both status reports annotated and archived;
 42. `[OWNER]` Confirm archive retention (default keep-forever is recorded).
 43. `[OWNER]` Push policy going forward (the daemon pushes; confirm that is
     intended for master, see g.1).
-44. `[DOC]` `.config/metadata.yaml` — never read; check whether it's repo
-    tooling that docs should mention.
-45. `[DOC]` CHANGELOG convention: decide whether doc-only changes get entries
-    (current practice: only user-observable ones).
+44. ~~`[DOC]` `.config/metadata.yaml` — never read; check whether it's repo
+    tooling that docs should mention.~~ done (documented as external-tooling
+    metadata, do-not-edit, in AGENTS; `781fa92`-era commit).
+45. ~~`[DOC]` CHANGELOG convention: decide whether doc-only changes get entries
+    (current practice: only user-observable ones).~~ done (policy recorded in
+    CONTRIBUTING).
 46. `[TEST]` Keep `-race -count=10` in the personal gate for any jitter-adjacent
     change (standing).
 47. `[CI]` If T16's timeout of 10 min proves tight on slow runners (coverage
     job), bump before it bites.
 48. `[DOC]` Superseded — the manual-bumps gotcha was updated the same hour
     (Dependabot fired, PR #1).
-49. `[PROCESS]` Next docs-health pass: HARVEST this report's §f (route →
-    TODO_LIST/ROADMAP; drop the `[WISEGO]` block for this repo).
-50. `[DOC]` Archive THIS report via docs-health ANNOTATE + ARCHIVE once its
-    items resolve — its §f is the new backlog, not a to-read list.
+49. ~~`[PROCESS]` Next docs-health pass: HARVEST this report's §f (route →
+    TODO_LIST/ROADMAP; drop the `[WISEGO]` block for this repo).~~ done
+    (this execution pass, 2026-09-13; leftovers that stay owner-gated are
+    noted inline).
+50. ~~`[DOC]` Archive THIS report via docs-health ANNOTATE + ARCHIVE once its
+    items resolve — its §f is the new backlog, not a to-read list.~~ done
+    (archived to `docs/status/archived/` 2026-09-13, same pass).
 
 ## g) Questions I can NOT figure out myself
 
@@ -257,14 +293,20 @@ commits); all gates green; both status reports annotated and archived;
    it). Is daemon-auto-push to `master` intended policy, or should it stop so
    red CI never hits the default branch? Your repo, your call — I won't push
    manually either way.
-2. **Dependabot policy (T17):** PR #1 (bump the actions group with 3 updates)
+2. ~~**Dependabot policy (T17):** PR #1 (bump the actions group with 3 updates)
    is the first Dependabot PR ever here. Merge it and hand action bumps to
    Dependabot (drop the manual-SHA-bump rule), or close it and stay manual?
-   The AGENTS gotcha currently says manual; I'll follow your answer.
-3. **golangci v2.12.2 pin origin:** was CI's golangci-lint deliberately pinned
+   The AGENTS gotcha currently says manual; I'll follow your answer.~~
+   answered by execution (2026-09-13): PR #1 SHA-verified and merged
+   (`e67a70e`); policy = Dependabot stays enabled, every PR gets the
+   verify-by-SHA review before merge (AGENTS gotcha).
+3. ~~**golangci v2.12.2 pin origin:** was CI's golangci-lint deliberately pinned
    to v2.12.2 (a cross-repo standard I should honor), or just drift? I bumped
    the pin to v2.13.2 to match local + unlock `exhaustruct_v5`; if the old pin
-   was policy, I'll re-align the local toolchain down instead.
+   was policy, I'll re-align the local toolchain down instead.~~
+   de-facto resolved: v2.13.2 stayed, CI green across all subsequent runs
+   (34766960403, 34769469421, 34770512851, 34770760514), no owner objection
+   recorded; the v2.13.2 requirement is documented in AGENTS/CHANGELOG.
 
 ---
 
