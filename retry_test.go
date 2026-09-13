@@ -153,8 +153,8 @@ func TestDo_DoesNotRetryNonRetryableError(t *testing.T) {
 		},
 	)
 
-	if !errors.Is(err, rejection) {
-		t.Fatalf("expected rejection error, got %v", err)
+	if err != rejection {
+		t.Fatalf("expected the typed rejection returned by identity, got %v", err)
 	}
 
 	if calls.Load() != 1 {
