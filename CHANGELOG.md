@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- **Nesting fail-closed guarantee is now pinned by a test.** An outer `Do`
+  makes exactly one attempt when an inner loop returns `ErrExhausted`
+  (`Infrastructure` is not retryable by default) — the guarantee was
+  documented in the README and godoc but previously enforced by nothing.
+  `TestDo_NestedRetriesAreFailClosed`. `retry_test.go`.
+- **`OnExhausted` is pinned to never fire on context end.** Cancellation and
+  deadline termination return without the exhaustion callback.
+  `TestDo_OnExhaustedNotCalledOnCancel` /
+  `TestDo_OnExhaustedNotCalledOnDeadline`. `retry_test.go`.
 
 ## [0.5.0] - 2026-09-06
 

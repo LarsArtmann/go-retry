@@ -47,6 +47,12 @@ local campaign ran clean (104M+ execs, 0 failures). A scheduled workflow
 would keep exploring the input domain without a human remembering to run it.
 Graduated from `ROADMAP.md` → Raw ideas. Effort: S-M.
 
+### T15. `govulncheck` in CI
+
+Dropped by three consecutive sessions (2026-08-07 §c.6, 2026-08-08 §f.35,
+missing from the 2026-08-22 list). Add a `govulncheck ./...` step to the
+`test` job in `.github/workflows/ci.yml`. Effort: S.
+
 ## P3 — polish
 
 ### T13. Committed fuzz corpus (`testdata/fuzz/`)
