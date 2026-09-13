@@ -106,6 +106,13 @@ status report.
   `docs/status/archived/2026-08-22_01-20_go-retry-v0.4.0-hardening-executed.md`,
   Q3.)
 
+- **Where do release-notes bodies live?** **Decided (2026-09-13): GitHub-only.**
+  Release bodies are composed at release time from the matching `CHANGELOG.md`
+  section (the `go-release` skill flow — a curated user-focused summary, not a
+  copy). No `docs/releases/` directory: the CHANGELOG is the single in-repo
+  copy and GitHub Releases is the presentation layer; a third copy would
+  drift. (Resolves TODO_LIST T14.)
+
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —
 see `AGENTS.md` → Commands. Do not invent nix targets._

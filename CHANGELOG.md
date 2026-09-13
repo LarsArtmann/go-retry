@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Scheduled fuzz campaign in CI.** A daily `Fuzz` workflow runs
+  `FuzzComputeDelayNeverPanics` for 30 minutes (03:17 UTC, plus manual
+  `workflow_dispatch`) and uploads any crash corpus it discovers as an
+  artifact on failure. `.github/workflows/fuzz.yml`.
+- **Committed fuzz corpus.** The seven `f.Add` seeds are mirrored in
+  `testdata/fuzz/FuzzComputeDelayNeverPanics/`, so the corpus survives local
+  cache loss and future campaign discoveries accumulate in-repo; seeded runs
+  (`go test -run '^FuzzComputeDelayNeverPanics$'`) exercise it without
+  fuzzing. `testdata/fuzz/`.
+- **`govulncheck` in CI.** The `test` job now scans the module with the
+  official `golang/govulncheck-action` (SHA-pinned, Go pinned to `go.mod`).
+  Local run against the current code: no known vulnerabilities.
+  `.github/workflows/ci.yml`.
+- **Non-retryable errors are pinned by identity.**
+  `TestDo_DoesNotRetryNonRetryableError` now asserts `err != rejection`, not
+  just `errors.Is`, so `Do` can never silently start re-wrapping a typed
+  non-retryable error. `retry_test.go`.
+- **Decision record: release-notes bodies are GitHub-only.** Composed at
+  release time from the matching `CHANGELOG.md` section (the `go-release`
+  flow); there is deliberately no `docs/releases/` mirror — a third copy
+  would drift. `ROADMAP.md`, `AGENTS.md`.
 - **Nesting fail-closed guarantee is now pinned by a test.** An outer `Do`
   makes exactly one attempt when an inner loop returns `ErrExhausted`
   (`Infrastructure` is not retryable by default) — the guarantee was
@@ -18,6 +39,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   deadline termination return without the exhaustion callback.
   `TestDo_OnExhaustedNotCalledOnCancel` /
   `TestDo_OnExhaustedNotCalledOnDeadline`. `retry_test.go`.
+
+### Changed
+
+- **Terminal-error codes and messages are single-sourced.** `contextEnded`
+  and the exhaustion wrapper now derive their code/message from the same
+  constants as the `ErrCanceled`, `ErrDeadlineExceeded`, and `ErrExhausted`
+  sentinels, so a rename cannot drift the two sites apart. User-visible
+  effect: exhaustion errors now carry the sentinel's message ("all retry
+  attempts failed") where the wrapper previously said "all attempts failed".
+  `retry.go`.
+- **CI runs on `actions/checkout` v6** (SHA-pinned), off the deprecated Node
+  20 runtime that v4 used; `setup-go` was already v6.
+  `.github/workflows/ci.yml`.
 
 ## [0.5.0] - 2026-09-06
 

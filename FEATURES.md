@@ -119,7 +119,10 @@ deadline termination return without the exhaustion callback. `retry_test.go`
 (`TestDo_OnExhaustedNotCalledOnCancel`,
 `TestDo_OnExhaustedNotCalledOnDeadline`).
 - **Fuzz target** — `FuzzComputeDelayNeverPanics` with seeds for ordinary,
-  zero-cap, overflow, and near-`MaxInt64` inputs. `retry_test.go`.
+  zero-cap, overflow, and near-`MaxInt64` inputs. The seed corpus is also
+  committed in `testdata/fuzz/FuzzComputeDelayNeverPanics/`, and a scheduled
+  CI workflow fuzzes daily for 30 minutes. `retry_test.go`, `testdata/fuzz/`,
+  `.github/workflows/fuzz.yml`.
 - **Behavioral guarantees** — `OnRetry` not called after the final failure;
   a pre-canceled context yields `ErrCanceled`; a deadline exceeded during
   backoff yields `ErrDeadlineExceeded` matching `context.DeadlineExceeded`
@@ -142,9 +145,10 @@ deadline termination return without the exhaustion callback. `retry_test.go`
   verified live. `.golangci.yml`.
 - **Domain glossary** — `docs/DOMAIN_LANGUAGE.md` defines the retry and
   `error-family` vocabulary and the `retry.<event>` code table.
-- **CI workflow** — `.github/workflows/ci.yml` runs `go vet` and
-  `go test ./... -race`, lints via golangci-lint, and enforces a 95%
-  coverage floor on every push and pull request.
+- **CI workflow** — `.github/workflows/ci.yml` runs `go vet`,
+  `go test ./... -race`, and a `govulncheck` vulnerability scan, lints via
+  golangci-lint, and enforces a 95% coverage floor on every push and pull
+  request.
 
 ## PARTIALLY_FUNCTIONAL
 

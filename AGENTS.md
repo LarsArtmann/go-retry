@@ -25,10 +25,12 @@ go test ./... -race             # tests (always with -race; backoff uses math/ra
 go test ./... -race -count=10   # flake-prone jitter/backoff tests
 golangci-lint run ./...         # lint (committed .golangci.yml enables gosec/mnd/exhaustruct + defaults)
 go vet ./...
+go test -run '^$' -fuzz '^FuzzComputeDelayNeverPanics$' -fuzztime 5m .   # fuzz campaign
 ```
 
 `go test` is the only verification gate. There is no build step beyond `go build`
-(the package is consumed as a library).
+(the package is consumed as a library). `govulncheck ./...` also runs in CI
+(via the official action); the local `go install` needs network access.
 
 ## Architecture & Data Flow
 
@@ -129,8 +131,22 @@ Error codes follow a `retry.<snake_case_event>` convention
   linters are enabled in `.golangci.yml`: `exhaustruct` on `DefaultConfig`
   (optional callbacks omitted), `gosec` on the jitter line (weak rand is
   intentional and safe here; `mnd` does not fire — `2` is in its
-  ignored-numbers). Removing either marker produces a real finding.
+  ignored-numbers), and `errorlint` on the identity comparison in
+  `TestDo_DoesNotRetryNonRetryableError` (the whole point of the assertion is
+  `err != rejection`). Removing any marker produces a real finding.
   Preserve them when editing.
+- **Terminal-error codes/messages are single-sourced constants** at the top of
+  `retry.go` (`codeExhausted`/`msgExhausted`, `codeCanceled`/`msgCanceled`,
+  `codeDeadline`/`msgDeadline`). The sentinels and their
+  `WrapInfrastructure` call sites must use them — never re-inline the strings.
+- **The committed fuzz corpus mirrors the `f.Add` seeds.** Every seed in
+  `FuzzComputeDelayNeverPanics` has a matching `go test fuzz v1` file in
+  `testdata/fuzz/FuzzComputeDelayNeverPanics/`; add and update both together.
+  A daily scheduled workflow (`.github/workflows/fuzz.yml`) fuzzes for 30
+  minutes; new crashers land in the corpus, not just in seeds.
+- **Release notes are GitHub-only.** Bodies are composed at release time from
+  the CHANGELOG section (the `go-release` skill flow); there is deliberately
+  no `docs/releases/` directory.
 - **Go files use tabs** (`.editorconfig`); YAML/JSON/Nix use 2 spaces.
 
 ## Testing Patterns
