@@ -34,18 +34,18 @@
 
 ## b) PARTIALLY DONE
 
-1. **CHANGELOG.md + TODO_LIST.md final accuracy edits are UNSTAGED.** The auto-git daemon committed FEATURES.md/ROADMAP.md + initial CHANGELOG/TODO_LIST at `32f840d`, but my last two surgical corrections (citation range fixes: `README.md:1-4→1-5`, `.gitignore:42-44→43`) remain as `M` in the working tree. The committed versions are _slightly_ wrong; the working-tree versions are correct. → needs a commit/amend to reconcile.
-2. **Cross-file consistency — run, but not exhaustively.** I hit the high-value checks (links, split-brain, commands-run) but did NOT systematically tick every box on the docs-health minimum checklist (e.g. "every file referenced from a doc exists" was only spot-checked, not enumerated).
+1. ~~**CHANGELOG.md + TODO_LIST.md final accuracy edits are UNSTAGED.** The auto-git daemon committed FEATURES.md/ROADMAP.md + initial CHANGELOG/TODO_LIST at `32f840d`, but my last two surgical corrections (citation range fixes: `README.md:1-4→1-5`, `.gitignore:42-44→43`) remain as `M` in the working tree. The committed versions are _slightly_ wrong; the working-tree versions are correct. → needs a commit/amend to reconcile.~~ done (committed in follow-up daemon commits; current files verified correct)
+2. ~~**Cross-file consistency — run, but not exhaustively.** I hit the high-value checks (links, split-brain, commands-run) but did NOT systematically tick every box on the docs-health minimum checklist (e.g. "every file referenced from a doc exists" was only spot-checked, not enumerated).~~ done (docs-health pass 2026-09-13)
 
 ---
 
 ## c) NOT STARTED
 
-1. **`README.md` rewrite** — identified as catastrophically broken (see d.1) but NOT fixed. Punted to TODO T1 instead of fixing on sight. **This is the session's biggest omission — see e.1.**
-2. **`CONTRIBUTING.md` lint-config resolution** — flagged as T2, not actioned.
-3. **`docs/DOMAIN_LANGUAGE.md`** — never even proposed during the audit. The `error-family` vocabulary (Transient / Rejection / Infrastructure / IsRetryable / WithCause / Classify) is load-bearing domain language. docs-health lists it as _optional_ for libraries, but the global AGENTS.md mandates reading it — so it should exist. Missed entirely.
-4. **Reconciling the unstaged edits** — see b.1.
-5. **Committing this status report** — the skill says commit; my operating rules say don't commit without explicit ask. Left for the auto-daemon / user.
+1. ~~**`README.md` rewrite** — identified as catastrophically broken (see d.1) but NOT fixed. Punted to TODO T1 instead of fixing on sight. **This is the session's biggest omission — see e.1.**~~ done at `e4801b3`
+2. ~~**`CONTRIBUTING.md` lint-config resolution** — flagged as T2, not actioned.~~ done at `f0734cf`
+3. ~~**`docs/DOMAIN_LANGUAGE.md`** — never even proposed during the audit. The `error-family` vocabulary (Transient / Rejection / Infrastructure / IsRetryable / WithCause / Classify) is load-bearing domain language. docs-health lists it as _optional_ for libraries, but the global AGENTS.md mandates reading it — so it should exist. Missed entirely.~~ done at `9aaf52e`
+4. ~~**Reconciling the unstaged edits** — see b.1.~~ done (reconciled; see b)1)
+5. ~~**Committing this status report** — the skill says commit; my operating rules say don't commit without explicit ask. Left for the auto-daemon / user.~~ done at `4b9c234`
 
 ---
 
