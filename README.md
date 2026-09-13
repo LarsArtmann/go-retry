@@ -59,6 +59,22 @@ func main() {
 succeeded on attempt 3
 ```
 
+## Retries that produce a value
+
+When the retried call returns a value, `DoWithValue` removes the
+closure-plus-variable dance — the successful attempt's result comes straight
+back:
+
+```go
+user, err := retry.DoWithValue(ctx, cfg,
+	func(ctx context.Context, attempt int) (*User, error) {
+		return fetchUser(ctx, id)
+	},
+)
+// success: user is set, err is nil
+// failure: user is the zero value, err is what Do would have returned
+```
+
 ## Configuration
 
 `retry.DefaultConfig()` returns sensible defaults; override only what you need.
