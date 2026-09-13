@@ -151,7 +151,7 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   `error-family` vocabulary and the `retry.<event>` code table.
 - **CI workflow** — `.github/workflows/ci.yml` runs `go vet`,
   `go test ./... -race`, and a `govulncheck` vulnerability scan, lints via
-  golangci-lint (pinned to the local version, v2.13.2), and enforces a 95%
+  golangci-lint (version pinned in `.github/workflows/ci.yml`), and enforces a 95%
   coverage floor on every push and pull request; each job carries a
   10-minute timeout and pushes to the same ref cancel superseded runs.
   Verified green on real runners for the current tip (run 34755167105,

@@ -59,7 +59,7 @@ land in the committed corpus, not just in seeds.
 The committed [`.golangci.yml`](.golangci.yml) enables the standard default
 linters plus ~100 extra ones (`gosec`, `mnd`, `exhaustruct_v5`, `errorlint`,
 and many more — see the `enable` list). CI pins the same golangci-lint version
-the repo develops against (v2.13.2). The following in-source `//nolint:`
+the repo develops against (the version pinned in `.github/workflows/ci.yml`). The following in-source `//nolint:`
 markers are **deliberate** — do not "fix" them by removing the marker or
 restructuring the code:
 

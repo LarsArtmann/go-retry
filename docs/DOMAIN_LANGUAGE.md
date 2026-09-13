@@ -59,11 +59,11 @@ Every error carries a behavioral **Family** and a stable string **code**.
   | **Infrastructure** | The system cannot serve / downstream problem.     | No         | `ErrExhausted`, `ErrCanceled`, `ErrDeadlineExceeded` outcomes. |
 
 - **`IsRetryable(err) bool`** — the default retry predicate. Returns `true` iff
-  `Classify(err) == Transient` (`classify.go:67`). Substituted by `Do` when
+  `Classify(err) == Transient`. Substituted by `Do` when
   `Config.IsRetryable` is `nil`.
 - **`Classify(err) Family`** — returns an error's family, defaulting to
   `Transient` for unknown errors (fail-open for retry) and `Rejection` for
-  `nil` (`classify.go:61`). Used in tests to assert the family of validation
+  `nil`. Used in tests to assert the family of validation
   errors.
 - **`NewTransient / NewRejection / NewInfrastructure(code, msg)`** — construct
   a fresh error of that family (`constructors.go`). `go-retry`'s sentinels are

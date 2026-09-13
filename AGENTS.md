@@ -45,7 +45,7 @@ Flat single-package layout — no internal subpackages:
 | `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                    |
 | `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                |
 | `.golangci.yml`                              | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                    |
-| `.github/workflows/ci.yml`                   | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, golangci-lint (pinned v2.13.2)                                                                                        |
+| `.github/workflows/ci.yml`                   | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, golangci-lint (version pinned in-repo)                                                                                        |
 | `.github/workflows/fuzz.yml`                 | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                              |
 | `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                   |
 | `docs/status/`                               | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)                                             |
@@ -142,11 +142,14 @@ Error codes follow a `retry.<snake_case_event>` convention
   `TestDo_DoesNotRetryNonRetryableError` (the whole point of the assertion is
   `err != rejection`). Removing any marker produces a real finding.
   Preserve them when editing.
-- **Never cite `retry.go`/`config.go` line numbers in prose docs.** They rot on
-  the next insertion above them (this happened twice: the T10 const block
-  shifted every citation in FEATURES/DOMAIN_LANGUAGE within a day). Cite by
-  function/type name only (`retry.go` (`Do`)); function names are unique in
-  this package, so nothing is lost.
+- **Never cite line numbers in prose docs — ours or dependencies'.** Own-file
+  citations rot on the next insertion above them (this happened twice: the
+  T10 const block shifted every citation in FEATURES/DOMAIN_LANGUAGE within a
+  day). Cite by function/type name only (`retry.go` (`Do`)); function names
+  are unique in this package, so nothing is lost. The same applies to
+  dependency sources: no `classify.go:NN` refs into `go-error-family` — cite
+  the symbol (`Classify`, `IsRetryable`) and, when precision matters, the
+  dependency version from `go.mod`.
 - **Dependabot PRs are now an expected supply-chain surface — verify, then
   merge.** Configured weekly (`dependabot.yml`: gomod + github-actions); it
   stayed silent until 2026-09-13, then opened its first PR (#1, actions
