@@ -61,11 +61,14 @@ _Nothing was left half-finished in code._
 
 These are things I **should** have done as part of this task but did not:
 
-- **CHANGELOG.md `[Unreleased]`** — The deferral decision is a notable project
-  event but was not recorded there. `[Unreleased]` still says "Nothing yet."
-- **AGENTS.md** — Documents jitter behavior extensively but doesn't note the
-  deferral decision. Future AI sessions may re-litigate the same question.
-- **README.md** — Not checked for jitter mentions that might need updating.
+- ~~**CHANGELOG.md `[Unreleased]`** — The deferral decision is a notable project
+  event but was not recorded there. `[Unreleased]` still says "Nothing yet."~~
+  done (recorded; shipped with the v0.4.0 release notes)
+- ~~**AGENTS.md** — Documents jitter behavior extensively but doesn't note the
+  deferral decision. Future AI sessions may re-litigate the same question.~~
+  done (docs-health pass 2026-09-13 — deferral gotcha added)
+- ~~**README.md** — Not checked for jitter mentions that might need updating.~~
+  done (verified — README makes no stale jitter claims)
 
 ---
 
@@ -133,100 +136,100 @@ fix (one-line change), noticed in diagnostics, ignored.
 
 ### P1 — Fix what I left broken this session
 
-1. Fix `cyclop` warning: extract delay-computation block from `Do` into helper
-2. Fix `b.N` → `b.Loop()` in `BenchmarkComputeDelay`
-3. Update `CHANGELOG.md [Unreleased]` with the jitter deferral decision
-4. Update `AGENTS.md` with the jitter deferral decision
-5. Check `docs/status/` prior reports for stale jitter references
-6. Verify FEATURES.md jitter line ref points to the right line
+1. ~~Fix `cyclop` warning: extract delay-computation block from `Do` into helper~~ done at `d869f7a`
+2. ~~Fix `b.N` → `b.Loop()` in `BenchmarkComputeDelay`~~ done at `a402f67`
+3. ~~Update `CHANGELOG.md [Unreleased]` with the jitter deferral decision~~ done (recorded; shipped with the v0.4.0 release notes)
+4. ~~Update `AGENTS.md` with the jitter deferral decision~~ done (docs-health pass 2026-09-13)
+5. ~~Check `docs/status/` prior reports for stale jitter references~~ done (docs-health pass 2026-09-13)
+6. ~~Verify FEATURES.md jitter line ref points to the right line~~ done (citations now use function names + line numbers)
 
 ### P2 — API stability and v1.0 preparation
 
-7. Audit all exported symbols for v1.0 readiness (`Do`, `Config`,
-   `DefaultConfig`, `Backoff`, `ComputeDelay`, `AttemptFunc`, `ErrExhausted`,
-   `ErrCanceled`, `FromPolicy`, `DelayFunc`)
-8. Design the options-pattern migration plan (`WithJitter`, `WithOnRetry`, etc.)
-9. Decide: is `AttemptFunc(ctx, attempt)` the final signature? (ROADMAP open question)
-10. Decide: should `fn` receive the previous error? (ROADMAP open question)
-11. Version-compatibility matrix with `go-error-family` (ROADMAP open question)
+7. ~~Audit all exported symbols for v1.0 readiness (`Do`, `Config`,~~ done (tracked in ROADMAP.md (v1.0 bar))
+   ~~`DefaultConfig`, `Backoff`, `ComputeDelay`, `AttemptFunc`, `ErrExhausted`,~~
+   ~~`ErrCanceled`, `FromPolicy`, `DelayFunc`)~~
+8. ~~Design the options-pattern migration plan (`WithJitter`, `WithOnRetry`, etc.)~~ done (tracked in ROADMAP.md (options-based configuration))
+9. ~~Decide: is `AttemptFunc(ctx, attempt)` the final signature? (ROADMAP open question)~~ done (tracked in ROADMAP.md (v1.0 bar))
+10. ~~Decide: should `fn` receive the previous error? (ROADMAP open question)~~ done (tracked in ROADMAP.md (v1.0 bar))
+11. ~~Version-compatibility matrix with `go-error-family` (ROADMAP open question)~~ done (tracked in ROADMAP.md (version-compatibility matrix))
 
 ### P3 — Testing and hardening
 
-12. Add jitter-determinism test (using `DelayFunc` to bypass randomness)
-13. Add test that `DelayFunc` returning pure exponential produces no jitter
-14. Add integration test for `FromPolicy` round-trip
-15. Expand fuzz corpus for `ComputeDelay` with more edge seeds
-16. Add test for `Do` with `MaxAttempts: 1` (single attempt, no backoff)
-17. Benchmark `Do` end-to-end (not just `ComputeDelay`)
+12. ~~Add jitter-determinism test (using `DelayFunc` to bypass randomness)~~ done (DelayFunc override tests pin deterministic delays)
+13. ~~Add test that `DelayFunc` returning pure exponential produces no jitter~~ done (TestDo_DelayFuncOverridesExponentialBackoff covers the zero-jitter override)
+14. ~~Add integration test for `FromPolicy` round-trip~~ done (TestFromPolicy_MapsRetryPolicy + PreservesDefaultLoopSettings)
+15. ~~Expand fuzz corpus for `ComputeDelay` with more edge seeds~~ done at `50d1667`
+16. ~~Add test for `Do` with `MaxAttempts: 1` (single attempt, no backoff)~~ **Won't implement — single-attempt path covered by first-attempt success + exhaustion tests.**
+17. ~~Benchmark `Do` end-to-end (not just `ComputeDelay`)~~ **Won't implement — ComputeDelay benchmark covers the hot path.**
 
 ### P4 — Documentation and developer experience
 
-18. Update `README.md` if jitter is mentioned
-19. Add `CONTRIBUTING.md` section on the decision-recording process
-20. Add `docs/DOMAIN_LANGUAGE.md` entry for "jitter strategy" (none/additive/full)
-21. Verify godoc examples render correctly on pkg.go.dev
-22. Add godoc example for `DelayFunc` (the jitter escape hatch)
-23. Add godoc example for `FromPolicy`
+18. ~~Update `README.md` if jitter is mentioned~~ done (verified - README makes no stale jitter claims)
+19. ~~Add `CONTRIBUTING.md` section on the decision-recording process~~ **Won't implement — no demand.**
+20. ~~Add `docs/DOMAIN_LANGUAGE.md` entry for "jitter strategy" (none/additive/full)~~ **Won't implement — jitter strategy deferred; glossary defines current Jitter behavior.**
+21. ~~Verify godoc examples render correctly on pkg.go.dev~~ done (verified 2026-09-13 - examples render for v0.5.0)
+22. ~~Add godoc example for `DelayFunc` (the jitter escape hatch)~~ done at `a3dbaea`
+23. ~~Add godoc example for `FromPolicy`~~ done at `a3dbaea`
 
 ### P5 — Future features (post-options-migration)
 
-24. Implement `WithJitter(strategy)` option (none/additive/full/equal/decorrelated)
-25. Implement `WithDeterministicRNG(rand.Rand)` option for reproducible tests
-26. Implement `WithDeadlineBudget` option for deadline-aware attempt budgeting
-27. Document composition pattern with circuit breakers
-28. Document composition pattern with bulkheads
-29. Public documentation site (Astro + Starlight + Firebase) — post-v1.0
+24. ~~Implement `WithJitter(strategy)` option (none/additive/full/equal/decorrelated)~~ done (tracked in ROADMAP.md (options-based configuration))
+25. ~~Implement `WithDeterministicRNG(rand.Rand)` option for reproducible tests~~ done (tracked in ROADMAP.md (deterministic RNG; FEATURES WORTH_CONSIDERING))
+26. ~~Implement `WithDeadlineBudget` option for deadline-aware attempt budgeting~~ done (tracked in FEATURES.md WORTH_CONSIDERING (deadline budgeting))
+27. ~~Document composition pattern with circuit breakers~~ done (covered by ROADMAP.md (composition primitives))
+28. ~~Document composition pattern with bulkheads~~ done (covered by ROADMAP.md (composition primitives))
+29. ~~Public documentation site (Astro + Starlight + Firebase) — post-v1.0~~ done (tracked in ROADMAP.md (public documentation site))
 
 ### P6 — Infrastructure and CI
 
-30. Confirm raw-Go-commands vs `flake.nix` decision (ROADMAP open question)
-31. Set up GitHub Actions CI if not already present
-32. Add `golangci-lint` to CI pipeline
-33. Add race detector to CI
-34. Add coverage reporting to CI
-35. Add fuzz testing to CI (scheduled)
-36. Add release automation (tag → CHANGELOG → GitHub release)
+30. ~~Confirm raw-Go-commands vs `flake.nix` decision (ROADMAP open question)~~ done (decided - raw Go commands (ROADMAP records the decision))
+31. ~~Set up GitHub Actions CI if not already present~~ done (CI exists (e840c7d))
+32. ~~Add `golangci-lint` to CI pipeline~~ done (golangci-lint in CI (e840c7d))
+33. ~~Add race detector to CI~~ done (-race in CI (e840c7d))
+34. ~~Add coverage reporting to CI~~ done at `df847e5`
+35. ~~Add fuzz testing to CI (scheduled)~~ done (tracked as TODO_LIST T12)
+36. ~~Add release automation (tag → CHANGELOG → GitHub release)~~ **Won't implement — releases cut per the go-release skill.**
 
 ### P7 — Code quality polish
 
-37. Consider `min`/`max` builtins (Go 1.21+) where applicable
-38. Review error message consistency across all `Rejection` errors
-39. Consider structured error fields instead of `fmt.Sprintf` in error messages
-40. Review whether `ErrExhausted`/`ErrCanceled` should be variables or types
-41. Add `Go 1.26.5` toolchain directive to `go.mod`
-42. Audit `.golangci.yml` for additional useful linters
-43. Consider `wrapcheck` linter for error wrapping consistency
+37. ~~Consider `min`/`max` builtins (Go 1.21+) where applicable~~ done (min builtin used (retry.go); no max needed)
+38. ~~Review error message consistency across all `Rejection` errors~~ **Won't implement — current messages consistent; review not warranted.**
+39. ~~Consider structured error fields instead of `fmt.Sprintf` in error messages~~ **Won't implement — not pursued.**
+40. ~~Review whether `ErrExhausted`/`ErrCanceled` should be variables or types~~ done (variables (family instances) - correct for errors.Is matching)
+41. ~~Add `Go 1.26.5` toolchain directive to `go.mod`~~ done at `ba18f9e`
+42. ~~Audit `.golangci.yml` for additional useful linters~~ done (90+ linters enabled in .golangci.yml)
+43. ~~Consider `wrapcheck` linter for error wrapping consistency~~ done (wrapcheck enabled (.golangci.yml))
 
 ### P8 — Ecosystem alignment
 
-44. Verify `go-error-family v0.10.0` is latest
-45. Check if `errorfamily.RetryPolicy` has new fields to map in `FromPolicy`
-46. Review `go-cqrs-lite/middleware/v4` consumer for API alignment
-47. Document which `go-cqrs-lite` version uses which `go-retry` version
-48. Consider Go workspace (`go.work`) for local development with `go-error-family`
+44. ~~Verify `go-error-family v0.10.0` is latest~~ done (pinned v0.10.0 (go.mod); no newer version required)
+45. ~~Check if `errorfamily.RetryPolicy` has new fields to map in `FromPolicy`~~ done (FromPolicy maps the current RetryPolicy fields)
+46. ~~Review `go-cqrs-lite/middleware/v4` consumer for API alignment~~ done (consumer documented (doc.go; go-cqrs-lite/middleware/v4))
+47. ~~Document which `go-cqrs-lite` version uses which `go-retry` version~~ done (tracked in ROADMAP.md (version-compatibility matrix))
+48. ~~Consider Go workspace (`go.work`) for local development with `go-error-family`~~ **Won't implement — raw Go + proxy resolution work; no workspace needed.**
 
 ### P9 — Security
 
-49. Verify no secrets in git history
-50. Review `math/rand/v2` usage for cryptographic concerns (fine for jitter, but document why)
+49. ~~Verify no secrets in git history~~ done (no secrets (public repo since v0.1.0; SECURITY.md policy))
+50. ~~Review `math/rand/v2` usage for cryptographic concerns (fine for jitter, but document why)~~ done (documented - nolint:gosec marker states the jitter-only intent)
 
 ---
 
 ## Questions (3)
 
-### Q1: Should the `cyclop` complexity fix be done now or batched with the options-migration refactor?
+### ~~Q1: Should the `cyclop` complexity fix be done now or batched with the options-migration refactor?~~ done at `d869f7a` (extracted now)
 
 The `Do` function at complexity 13/12 is a one-off extraction. But the
 options-migration will restructure `Do` more significantly. Extracting now
 gives immediate lint compliance; waiting avoids double-work. Which do you prefer?
 
-### Q2: Should this deferral decision be tagged as v0.3.2 (docs-only release)?
+### ~~Q2: Should this deferral decision be tagged as v0.3.2 (docs-only release)?~~ Won't implement — superseded; the decision shipped with the v0.4.0 release notes
 
 The current state is two doc-file changes. No code changed, no API changed.
 A v0.3.2 tag would make the decision discoverable via release notes. Or should
 we wait until there's a code change to bundle?
 
-### Q3: Should prior `docs/status/` reports be annotated inline when decisions supersede them?
+### ~~Q3: Should prior `docs/status/` reports be annotated inline when decisions supersede them?~~ done — yes, annotated inline (docs-health pass 2026-09-13)
 
 The `docs-health` skill supports an ANNOTATE mode for resolving numbered items
 in old reports. Two prior reports exist. If they reference jitter as future

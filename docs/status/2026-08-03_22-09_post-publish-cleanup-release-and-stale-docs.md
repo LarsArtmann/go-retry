@@ -492,6 +492,9 @@ retags. Options:
 I can't decide this because it's a policy question about how seriously you
 treat tag immutability for a brand-new release.
 
+_**Resolved (2026-08-03, option a):** no consumers existed; the retag is
+documented in this report (E4) and no release-note change was made._
+
 ### Q2. Is the auto-git daemon appropriate for a now-public repo?
 
 The daemon makes commits with empty messages (`31db438`, `6a41c5c`),
@@ -509,6 +512,8 @@ I can't decide this because it's a workflow/infra policy question. Options:
 - **(c)** Keep as-is — the daemon's productivity value outweighs the
   cosmetic mess.
 
+_**Resolved:** option (c) — kept as-is for this solo-maintainer repo._
+
 ### Q3. Should I add CI now, or wait for a LarsArtmann-standard workflow?
 
 A minimal CI workflow (`go test -race` + `golangci-lint`) is ~20 lines of
@@ -523,3 +528,6 @@ your other repos. Options:
 - **(b)** Check a sibling repo (`go-error-family`, `go-cqrs-lite`) for a
   standard pattern and copy it.
 - **(c)** Wait — you'll provide the standard CI config.
+
+_**Resolved:** option (a) — minimal workflow shipped (`e840c7d`), later
+SHA-pinned (`bd7314e`) and extended with vet + a coverage floor (`df847e5`)._
