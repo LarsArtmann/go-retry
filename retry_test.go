@@ -767,6 +767,168 @@ func FuzzComputeDelayNeverPanics(f *testing.F) {
 	})
 }
 
+// seedConstExpressions maps the non-literal constant expressions used in the
+// f.Add calls of FuzzComputeDelayNeverPanics to their values, so the sync
+// test below can normalize seeds and corpus files into comparable forms.
+// A new seed that introduces a new expression fails the sync test with an
+// "unmapped expression" message naming it — extend this table and add the
+// corpus file in the same change.
+var seedConstExpressions = map[string]int64{
+	"time.Millisecond":  int64(time.Millisecond),
+	"time.Second":       int64(time.Second),
+	"math.MaxInt64":     math.MaxInt64,
+	"math.MaxInt64-179": math.MaxInt64 - 179,
+}
+
+func TestFuzzCorpusMirrorsSeeds(t *testing.T) {
+	t.Parallel()
+
+	seeds := fuzzSeedsFromSource(t)
+	if len(seeds) == 0 {
+		t.Fatal("found no f.Add seeds in retry_test.go — parser broke or seeds were removed")
+	}
+
+	corpusDir := filepath.Join("testdata", "fuzz", "FuzzComputeDelayNeverPanics")
+
+	entries, err := os.ReadDir(corpusDir)
+	if err != nil {
+		t.Fatalf("read corpus dir %s: %v", corpusDir, err)
+	}
+
+	corpus := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		values := fuzzCorpusValues(t, filepath.Join(corpusDir, entry.Name()))
+		corpus = append(corpus, values)
+	}
+
+	sortedSeeds := make([]string, len(seeds))
+	copy(sortedSeeds, seeds)
+	sort.Strings(sortedSeeds)
+
+	sortedCorpus := make([]string, len(corpus))
+	copy(sortedCorpus, corpus)
+	sort.Strings(sortedCorpus)
+
+	for _, seed := range sortedSeeds {
+		if !sort.SearchStrings(sortedCorpus, seed) < len(sortedCorpus) && sortedCorpus[sort.SearchStrings(sortedCorpus, seed)] == seed {
+			t.Errorf("seed %v has no corpus file — create one under %s with the same values", seed, corpusDir)
+		}
+	}
+
+	for _, file := range sortedCorpus {
+		if i := sort.SearchStrings(sortedSeeds, file); i >= len(sortedSeeds) || sortedSeeds[i] != file {
+			t.Errorf("corpus entry %v matches no f.Add seed — distill it into a seed or remove the file", file)
+		}
+	}
+}
+
+// fuzzSeedsFromSource extracts the f.Add argument lists from the fuzz
+// function in this package's test file and normalizes them into the same
+// canonical form the corpus files use, so both sides compare equal.
+func fuzzSeedsFromSource(t *testing.T) []string {
+	t.Helper()
+
+	source, err := os.ReadFile("retry_test.go")
+	if err != nil {
+		t.Fatalf("read retry_test.go: %v", err)
+	}
+
+	fAdd := regexp.MustCompile(`f\.Add\((.*)\)`)
+
+	var seeds []string
+	for _, line := range strings.Split(string(source), "\n") {
+		match := fAdd.FindStringSubmatch(line)
+		if match == nil {
+			continue
+		}
+
+		parts := strings.Split(match[1], ", ")
+		canonical := make([]string, 0, len(parts))
+		for _, part := range parts {
+			canonical = append(canonical, canonicalFuzzValue(t, part))
+		}
+
+		seeds = append(seeds, strings.Join(canonical, ", "))
+	}
+
+	return seeds
+}
+
+// fuzzCorpusValues reads one `go test fuzz v1` corpus file and returns its
+// normalized value tuple.
+func fuzzCorpusValues(t *testing.T, path string) string {
+	t.Helper()
+
+	lines := strings.Split(strings.TrimSpace(string(mustRead(t, path))), "\n")
+	if len(lines) < 2 || lines[0] != "go test fuzz v1" {
+		t.Fatalf("%s is not a `go test fuzz v1` corpus file", path)
+	}
+
+	values := make([]string, 0, len(lines)-1)
+	for _, line := range lines[1:] {
+		values = append(values, canonicalFuzzValue(t, line))
+	}
+
+	return strings.Join(values, ", ")
+}
+
+// canonicalFuzzValue normalizes one typed value — `int64(1)`, `float64(2)`,
+// a constant expression like `int64(time.Millisecond)` — into the minimal
+// typed form the corpus files are written in.
+func canonicalFuzzValue(t *testing.T, raw string) string {
+	t.Helper()
+
+	typed := regexp.MustCompile(`^(int64|int|float64)\((.+)\)$`)
+	match := typed.FindStringSubmatch(strings.TrimSpace(raw))
+	if match == nil {
+		t.Fatalf("unrecognized fuzz value %q", raw)
+	}
+
+	typ, expr := match[1], strings.TrimSpace(match[2])
+	if value, known := seedConstExpressions[expr]; known {
+		return fmt.Sprintf("%s(%s)", typ, strconv.FormatInt(value, 10))
+	}
+
+	switch typ {
+	case "float64":
+		value, err := strconv.ParseFloat(expr, 64)
+		if err != nil {
+			t.Fatalf("unmapped float expression %q in a fuzz seed — extend seedConstExpressions", expr)
+		}
+
+		return fmt.Sprintf("float64(%s)", strconv.FormatFloat(value, 'g', -1, 64))
+	case "int":
+		value, err := strconv.Atoi(expr)
+		if err != nil {
+			t.Fatalf("unmapped int expression %q in a fuzz seed — extend seedConstExpressions", expr)
+		}
+
+		return fmt.Sprintf("int(%s)", strconv.Itoa(value))
+	default:
+		value, err := strconv.ParseInt(expr, 10, 64)
+		if err != nil {
+			t.Fatalf("unmapped int64 expression %q in a fuzz seed — extend seedConstExpressions", expr)
+		}
+
+		return fmt.Sprintf("int64(%s)", strconv.FormatInt(value, 10))
+	}
+}
+
+func mustRead(t *testing.T, path string) []byte {
+	t.Helper()
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
+	}
+
+	return data
+}
+
 func TestBackoff_IncreasesExponentially(t *testing.T) {
 	t.Parallel()
 
