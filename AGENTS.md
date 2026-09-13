@@ -146,14 +146,16 @@ Error codes follow a `retry.<snake_case_event>` convention
   shifted every citation in FEATURES/DOMAIN_LANGUAGE within a day). Cite by
   function/type name only (`retry.go` (`Do`)); function names are unique in
   this package, so nothing is lost.
-- **Dependency, action, and toolchain bumps are manual.** Dependabot is
-  configured (`dependabot.yml`: weekly gomod + github-actions) but stayed
-  silent for the repo's whole history until 2026-09-13, when it suddenly
-  opened its first PR (actions group). Treat Dependabot PRs as unexpected but
-  real now — review them like any external PR. The gomod watcher will not
-  touch the `go` directive regardless. Action bumps otherwise stay manual
-  SHA re-pins, verified via `git ls-remote` + the tag's `action.yml` before
-  encoding.
+- **Dependabot PRs are now an expected supply-chain surface — verify, then
+  merge.** Configured weekly (`dependabot.yml`: gomod + github-actions); it
+  stayed silent until 2026-09-13, then opened its first PR (#1, actions
+  group), which was SHA-verified and merged the same day (`e67a70e`).
+  Review flow that worked: fetch each pinned commit **by SHA** from upstream
+  (content-addressed — the hash proves what will run), read its `action.yml`
+  inputs, diff against this repo's `with:` usage, post the evidence, merge.
+  Annotated-tag pins may be re-pinned by Dependabot to the peeled commit
+  (zero code change — `v9` tag object → same commit). The gomod watcher will
+  not touch the `go` directive regardless.
 - **After touching `.golangci.yml`, run `golangci-lint config verify`.** Plain
   `golangci-lint run` tolerates settings that strict schema validation (what
   the CI action executes first) rejects. This bit once: `exhaustruct_v5`

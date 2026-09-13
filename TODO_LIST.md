@@ -42,7 +42,7 @@ Evidence: `CHANGELOG.md` `[Unreleased]`. Source: 12-57 report §f.19–20, §f.4
 
 ## P2
 
-### T17 — Dependabot: review PR #1 and set the policy
+### T17 — Dependabot policy — RESOLVED (2026-09-13)
 
 Update 2026-09-13 ~14:51 CEST: Dependabot **opened its first-ever PR**
 ([#1](https://github.com/LarsArtmann/go-retry/pull/1), "bump the actions group
@@ -54,6 +54,14 @@ branch carried the invalid `exhaustruct_v5` settings block from master —
 fixed on master; Dependabot auto-rebases), then merge or close it and decide
 Dependabot-owned vs manual going forward. Evidence: `.github/dependabot.yml`.
 Source: 12-57 report §f.4–5; this report's §d.
+
+**DONE (2026-09-13 18:45 CEST):** PR #1 reviewed with SHA-level evidence
+(each new pin fetched by SHA from upstream, `action.yml` inputs diffed
+against this repo's usage; the golangci bump proved to be a zero-diff
+tag-object→commit re-pin), evidence review posted on the PR, merged squash
+as `e67a70e`. Policy settled: Dependabot stays enabled for github-actions +
+gomod; every PR gets the verify-by-SHA review before merge.
+Evidence: AGENTS.md Dependabot gotcha (updated).
 
 ### T20 — Corpus↔seeds sync test
 
