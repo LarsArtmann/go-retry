@@ -20,7 +20,7 @@ boundary: if a feature needs CQRS or OTel types, it belongs in
 
 ## v1.0 — what is the bar?
 
-The current release is **v0.4.0** (tagged 2026-08-22). The path to v1.0 is an
+The current release is **v0.5.0** (tagged 2026-09-06). The path to v1.0 is an
 **API-stability promise**, not a feature list. Open questions to resolve before
 v1.0:
 
@@ -44,8 +44,9 @@ v1.0:
   libraries pass the previous error back into `fn`; this one does not. Worth a
   deliberate decision, not an accident.
 - **Public API surface audit** — confirm every exported symbol
-  (`Do`, `Config`, `DefaultConfig`, `FromPolicy`, `Backoff`, `ComputeDelay`,
-  `AttemptFunc`, `ErrExhausted`, `ErrCanceled`, `ErrDeadlineExceeded`) and every exported `Config`
+  (`Do`, `DoWithValue`, `Config`, `DefaultConfig`, `FromPolicy`, `Backoff`,
+  `ComputeDelay`, `AttemptFunc`, `ResultFunc`, `ErrExhausted`, `ErrCanceled`,
+  `ErrDeadlineExceeded`) and every exported `Config`
   field (`MaxAttempts`, `InitialDelay`, `MaxDelay`, `Multiplier`, `IsRetryable`,
   `DelayFunc`, `OnRetry`, `OnExhausted`) is one callers should depend on, and
   that nothing exported is leaking an implementation detail.
@@ -81,10 +82,6 @@ v1.0:
   exist (`ExampleDo`, `ExampleDo_customIsRetryable` — see `CHANGELOG.md`
   `[0.1.0]`); the remaining precondition is API stability (see v1.0 bar
   above). Not before.
-- **Fuzzing.** `ComputeDelay` is pure numeric code taking caller-controlled
-  inputs; a `go test -fuzz` target could harden the overflow / negative-delay
-  edges that the current table tests sample only spot-check. Candidate once the
-  function's invariants are written down.
 
 ## Explicit non-goals
 
@@ -100,8 +97,14 @@ Unresolved decisions that need a human (they are _not_ TODO tasks). They block
 parts of the docs/release flow, so they live here rather than rotting in a
 status report.
 
-- **Does this repo deliberately skip the LarsArtmann `flake.nix` convention?**
-  The global `AGENTS.md` mandates `flake.nix` for build/task automation, yet this
-  repo uses raw `go test` / `golangci-lint` (and `AGENTS.md` documents that as
-  intentional). Confirm raw-Go-commands is the deliberate choice for this small
-  library, or whether a `flake.nix` should be added.
+- **0.x releases: GitHub full release or prerelease?** The `go-release` skill
+  defaults 0.x to prereleases, but practice in these repos is full releases
+  (wise-go v0.9.0; go-retry v0.4.0 and v0.5.0 were published as full
+  releases, following the owner's demonstrated preference). Confirm full
+  releases for 0.x going forward so the skill default stops fighting
+  practice. (Raised in
+  `docs/status/2026-08-22_01-20_go-retry-v0.4.0-hardening-executed.md`, Q3.)
+
+_Decided (kept for the record): the repo deliberately uses raw `go` /
+`golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —
+see `AGENTS.md` → Commands. Do not invent nix targets._

@@ -4,7 +4,7 @@ Thanks for your interest in contributing to `go-retry`!
 
 ## Prerequisites
 
-- **Go 1.26** or later (`go.mod` pins `1.26.5`)
+- **Go 1.26** or later (`go.mod` pins the toolchain version)
 - **[golangci-lint](https://golangci-lint.run/)** v2.x (config is committed at
   [`.golangci.yml`](.golangci.yml))
 
@@ -33,6 +33,18 @@ Current statement coverage is **100%**. CI enforces a **95% floor**
 100% where practical; the floor exists so a hard-to-test edge never blocks
 a fix.
 
+### Fuzzing
+
+`FuzzComputeDelayNeverPanics` hardens the delay computation against panics
+and negative durations. Run a bounded campaign locally:
+
+```bash
+go test -run '^$' -fuzz=FuzzComputeDelayNeverPanics -fuzztime=5m ./...
+```
+
+Interesting inputs become permanent seeds via `f.Add` in `retry_test.go` —
+commit new discoveries as seeds so the next campaign starts from them.
+
 ## Lint policy
 
 The committed [`.golangci.yml`](.golangci.yml) enables the default linters plus
@@ -42,9 +54,9 @@ the code:
 
 - `config.go` (`DefaultConfig`) — `//nolint:exhaustruct`: `OnRetry` and
   `OnExhausted` are intentionally omitted (they are optional callbacks).
-- `retry.go` (`ComputeDelay`) — `//nolint:mnd,gosec`: the `delay / 2` jitter
-  divisor uses a weak RNG on purpose; this is jitter, not security-sensitive
-  randomness.
+- `retry.go` (`computeDelay`) — `//nolint:gosec`: the jitter source uses a
+  weak RNG on purpose; this is jitter, not security-sensitive randomness
+  (`mnd` does not fire — the divisor `2` is in its ignored-numbers).
 
 `mnd` and `exhaustruct` are excluded from `*_test.go` (see `.golangci.yml`),
 where partial struct literals and bare scalars are legitimate.
@@ -55,7 +67,9 @@ where partial struct literals and bare scalars are legitimate.
 - Every test calls `t.Parallel()`.
 - Counters use `sync/atomic` (`atomic.Int32`), not mutexes.
 - Keep delays millisecond-scale (see the `fastConfig()` helper) so the suite
-  stays fast; the cancellation test is the only deliberate exception.
+  stays fast; the two context-ending tests (cancel + deadline) are the only
+  deliberate exceptions — they use `5s` delays so the context end fires
+  during the wait.
 
 See [`AGENTS.md`](AGENTS.md) for the deeper architectural context (the
 `error-family` dependency, the no-CQRS/no-OTel boundary, control flow of `Do`).
