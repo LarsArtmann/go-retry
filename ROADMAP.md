@@ -233,12 +233,24 @@ status report.
 
 - **0.x releases: GitHub full release or prerelease?** The `go-release` skill
   defaults 0.x to prereleases, but practice in these repos is full releases
-  (wise-go v0.9.0; go-retry v0.4.0 and v0.5.0 were published as full
-  releases, following the owner's demonstrated preference). Confirm full
+  (wise-go v0.9.0; go-retry v0.4.0, v0.5.0, and now v0.6.0 were published as
+  full releases, following the owner's demonstrated preference). Confirm full
   releases for 0.x going forward so the skill default stops fighting
   practice. (Raised in
   `docs/status/archived/2026-08-22_01-20_go-retry-v0.4.0-hardening-executed.md`,
   Q3.)
+
+- **Daemon push policy.** The auto-commit daemon commits AND pushes to
+  `master` unattended (2026-09-13: an invalid lint config reached CI and
+  went red on master that way, before any human saw it). Is daemon-auto-push
+  to the default branch intended, or should it push to a branch / stop
+  pushing so red CI never lands on master unreviewed? Owner call.
+  (Harvested from the archived 2026-09-13 14:48 report, g.1.)
+
+- **Status-report archive retention.** Default is keep-forever
+  (`docs/status/archived/` grows unbounded; 11 files as of 2026-09-13).
+  Confirm keep-forever or define a pruning policy. Owner call.
+  (Harvested from the archived 2026-09-13 14:48 report, §f.42.)
 
 - **Where do release-notes bodies live?** **Decided (2026-09-13): GitHub-only.**
   Release bodies are composed at release time from the matching `CHANGELOG.md`
