@@ -37,16 +37,29 @@ on green (`skipped`, not failed). `-fuzzminimizetime 5m` accepted by the
 runner. Every CI surface in this repo has now executed on a real runner.
 Source: `docs/status/archived/2026-09-13_12-57_t9-t15-execution-status.md` §f.1–3.
 
-### T21 — Cut the next release (v0.5.1 or v0.6.0) — owner-gated
+### T21 — Cut the next release — RESOLVED (2026-09-13): v0.6.0 shipped
 
-`[Unreleased]` holds user-visible changes: the exhaustion error message now
+~~`[Unreleased]` holds user-visible changes: the exhaustion error message now
 reads "all retry attempts failed" (was "all attempts failed"), plus the new
 example/pins and CI hardening. Decide patch vs minor (the message wording is
 observable in error strings → minor-leaning). When cutting: move **all**
 `[Unreleased]` entries together (including the two pre-session pinning-test
 entries), compose GitHub-only release notes from the CHANGELOG section (the
 T14 decision), and re-check `pkg.go.dev` rendering after the tag.
-Evidence: `CHANGELOG.md` `[Unreleased]`. Source: 12-57 report §f.19–20, §f.49.
+Evidence: `CHANGELOG.md` `[Unreleased]`. Source: 12-57 report §f.19–20, §f.49.~~
+
+**DONE:** v0.6.0 cut 2026-09-13 — minor (user-visible message wording),
+all 13 entries promoted together, signed annotated tag on `6105848`, GitHub
+Release composed from the CHANGELOG section, proxy + clean-room
+`go get` verified. `pkg.go.dev` render check rode the documented lag window.
+Evidence: tag `v0.6.0`, release
+https://github.com/LarsArtmann/go-retry/releases/tag/v0.6.0.
+
+---
+
+**No open work.** Every P1–P3 item is resolved. New findings go through the
+docs-health HARVEST route (`TODO_LIST.md` ← status reports / session
+discoveries); long-term bets live in `ROADMAP.md`.
 
 ## P2
 
