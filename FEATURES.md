@@ -17,12 +17,12 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
 
 - **Retry with configurable max attempts** — `Do` calls `AttemptFunc` up to
   `Config.MaxAttempts` times, returning immediately on the first `nil`.
-  `retry.go` (`Do`, line 72).
+  `retry.go` (`Do`).
 - **Value-returning retries (`DoWithValue[T]`)** — generic companion to `Do`
   for retries that produce a value: returns the successful attempt's result
   with a nil error, and the zero value with the same error `Do` would produce
   on any failure (non-retryable, exhaustion, context end). `retry.go`
-  (`DoWithValue`, line 125), `retry_test.go`.
+  (`DoWithValue`), `retry_test.go`.
 - **Exponential backoff with additive jitter, hard-capped** — delay for
   attempt `n` is `min(InitialDelay * Multiplier^(n-1) + jitter, MaxDelay)`
   where jitter is up to 50% of the capped exponential delay; the returned
@@ -38,13 +38,13 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   attempt number and the error from the failed attempt, so callers can honor
   server-provided delays (e.g. HTTP `Retry-After`) or implement custom backoff
   strategies. A return `> 0` overrides; `0` means "use the default exponential
-  backoff." `config.go` (`DelayFunc` field, line 48), `retry.go` (`Do`).
+  backoff." `config.go` (`DelayFunc` field), `retry.go` (`Do`).
 - **Retry-policy interoperability** — `FromPolicy` maps an
   `errorfamily.RetryPolicy` into this package's `Config`, preserving the
   dependency's advisory attempt and delay defaults while retaining this
-  package's multiplier and hooks. `config.go` (`FromPolicy`, line 75).
-- **Panic-proof delay computation** — the internal `computeDelay`
-  (`retry.go`, line 242) is hardened so no input combination can panic or
+  package's multiplier and hooks. `config.go` (`FromPolicy`).
+- **Panic-proof delay computation** — the internal `computeDelay` (`retry.go`)
+  is hardened so no input combination can panic or
   return a negative duration: zero/unset `MaxDelay` degrades to "no growth
   beyond initial", sub-2ns delays skip jitter, and `math.Pow` overflow
   saturates to `MaxDelay` instead of wrapping. Proven by a matrix property test
@@ -59,26 +59,26 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
 ### Configuration
 
 - **`Config` with sensible defaults** — `MaxAttempts: 3`, `InitialDelay: 100ms`,
-  `MaxDelay: 5s`, `Multiplier: 2.0`. `config.go` (defaults, lines 10-15;
-  `DefaultConfig`, line 62).
+  `MaxDelay: 5s`, `Multiplier: 2.0`. `config.go` (defaults;
+  `DefaultConfig`).
 - **Config validation** — `Validate()` rejects `MaxAttempts < 1`,
   `InitialDelay <= 0`, `MaxDelay <= 0`, and `Multiplier <= 1` with
-  `Rejection`-family errors. `config.go` (`Validate`, line 85).
+  `Rejection`-family errors. `config.go` (`Validate`).
 - **Pluggable retryable predicate** — `Config.IsRetryable func(error) bool`;
   when `nil`, `Do` substitutes `errorfamily.IsRetryable`. `config.go`
-  (`IsRetryable` field, line 35), `retry.go` (`Do`, lines 77-80).
+  (`IsRetryable` field), `retry.go` (`Do`).
 
 ### Observability hooks
 
 - **Per-attempt callback** — `Config.OnRetry(attempt, delay, err)` fires after a
   failed attempt, before sleeping, only when more attempts remain. When
   `DelayFunc` is set, `OnRetry` receives the `DelayFunc`-computed delay, not
-  the exponential one. `config.go` (`OnRetry` field, line 53), `retry.go`
-  (`awaitBackoff`, lines 152-154).
+  the exponential one. `config.go` (`OnRetry` field), `retry.go`
+  (`awaitBackoff`).
 - **Exhaustion callback** — `Config.OnExhausted(attempts, err)` fires once after
   all attempts fail, receiving the exact last error by identity — and never
-  when a context end terminates the loop. `config.go` (`OnExhausted` field,
-  line 58), `retry.go` (`Do`, lines 103-105).
+  when a context end terminates the loop. `config.go` (`OnExhausted` field),
+  `retry.go` (`Do`).
 
 ### Error model (`error-family` integration)
 
@@ -110,10 +110,12 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
 - **No-panic property test** — sweeps `initial x maxDelay x multiplier x
 attempt` to prove `computeDelay` cannot panic or return negative for any
 reachable input. `retry_test.go` (`TestComputeDelay_NeverPanicsAcrossMatrix`).
-- **Nested loops are fail-closed (pinned)** — an outer `Do` makes exactly one
-attempt when an inner loop returns `ErrExhausted`, because `Infrastructure`
-is not retryable by default. `retry_test.go`
-(`TestDo_NestedRetriesAreFailClosed`).
+- **Nested loops are fail-closed (pinned, both directions)** — an outer `Do`
+  makes exactly one attempt when an inner loop returns `ErrExhausted`, because
+  `Infrastructure` is not retryable by default
+  (`TestDo_NestedRetriesAreFailClosed`); a deliberate `IsRetryable` override
+  re-enables amplification, pinned as `outer(3) × inner(3) = 9` attempts
+  (`TestDo_NestedRetriesAmplifyWhenOverridden`). `retry_test.go`.
 - **`OnExhausted` never fires on context end (pinned)** — cancellation and
 deadline termination return without the exhaustion callback. `retry_test.go`
 (`TestDo_OnExhaustedNotCalledOnCancel`,
@@ -134,21 +136,26 @@ deadline termination return without the exhaustion callback. `retry_test.go`
 
 - **Runnable godoc examples** — `ExampleDo` (success path),
   `ExampleDo_customIsRetryable` (custom predicate), `ExampleDo_delayFunc`
-  (server-provided Retry-After), and `ExampleFromPolicy` (error-family
-  policy → `Config`) are deterministic, carry `// Output:` comments, and
-  render on `pkg.go.dev`. `retry_test.go`.
+  (server-provided Retry-After), `ExampleFromPolicy` (error-family
+  policy → `Config`), and `ExampleDoWithValue` (value-returning API) are
+  deterministic, carry `// Output:` comments, and render on `pkg.go.dev`.
+  `retry_test.go`.
 - **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
-  (~32 ns/op on the dev machine; 0 allocations — the jitter path allocates
-  nothing). `retry_test.go`.
-- **Committed lint config** — `.golangci.yml` (v2) enables the default linters
-  plus `gosec`, `mnd`, `exhaustruct`; the in-source `//nolint:` markers are
-  verified live. `.golangci.yml`.
+  (~20–35 ns/op depending on machine load; 0 allocations — the jitter path
+  allocates nothing). `retry_test.go`.
+- **Committed lint config** — `.golangci.yml` (v2) enables the standard
+  defaults plus ~100 extra linters (`gosec`, `mnd`, `exhaustruct_v5` among
+  them); the in-source `//nolint:` markers are verified live.
+  `.golangci.yml`.
 - **Domain glossary** — `docs/DOMAIN_LANGUAGE.md` defines the retry and
   `error-family` vocabulary and the `retry.<event>` code table.
 - **CI workflow** — `.github/workflows/ci.yml` runs `go vet`,
   `go test ./... -race`, and a `govulncheck` vulnerability scan, lints via
-  golangci-lint, and enforces a 95% coverage floor on every push and pull
-  request.
+  golangci-lint (pinned to the local version, v2.13.2), and enforces a 95%
+  coverage floor on every push and pull request; each job carries a
+  10-minute timeout and pushes to the same ref cancel superseded runs.
+  Verified green on real runners for the current tip (run 34755167105,
+  2026-09-13).
 
 ## PARTIALLY_FUNCTIONAL
 
@@ -181,7 +188,7 @@ graduation into `TODO_LIST.md` once scoped.
   pressure to switch strategies but does not by itself justify a new
   `Config` field. Tradeoff: another field to validate and freeze.
 - **Deterministic RNG option** — `ComputeDelay` uses `math/rand/v2` globally
-  (`retry.go:8`); a pluggable `rand` source would make delay sequences
+  (`retry.go` imports); a pluggable `rand` source would make delay sequences
   reproducible in tests without sampling-based assertions (the existing
   `TestBackoff_IncreasesExponentially` works around this by testing the formula,
   not sampled values).

@@ -23,9 +23,10 @@ No `flake.nix`, `Makefile`, or `justfile` exists in this repo — `go` and
 ```bash
 go test ./... -race             # tests (always with -race; backoff uses math/rand/v2)
 go test ./... -race -count=10   # flake-prone jitter/backoff tests
-golangci-lint run ./...         # lint (committed .golangci.yml enables gosec/mnd/exhaustruct + defaults)
+golangci-lint run ./...         # lint (committed .golangci.yml: standard defaults + ~100 extra linters, incl. gosec/mnd/exhaustruct_v5)
 go vet ./...
 go test -run '^$' -fuzz '^FuzzComputeDelayNeverPanics$' -fuzztime 5m .   # fuzz campaign
+go test -run '^FuzzComputeDelayNeverPanics$' .                          # seeded corpus run (no fuzzing)
 ```
 
 `go test` is the only verification gate. There is no build step beyond `go build`
@@ -42,6 +43,11 @@ Flat single-package layout — no internal subpackages:
 | `config.go`     | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                             |
 | `doc.go`        | Package doc stating the no-CQRS/no-OTel boundary                                                                                             |
 | `retry_test.go` | External test package (`retry_test`)                                                                                                         |
+| `.golangci.yml` | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                              |
+| `.github/workflows/ci.yml` | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, golangci-lint (pinned v2.13.2)                                       |
+| `.github/workflows/fuzz.yml` | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                          |
+| `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                              |
+| `docs/status/`  | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)      |
 
 **Control flow of `Do`**: validate config → loop `attempt` from 1 to
 `MaxAttempts` → call `fn(ctx, attempt)` → on `nil` return immediately → if not
@@ -128,13 +134,26 @@ Error codes follow a `retry.<snake_case_event>` convention
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
 - **`//nolint:` directives are deliberate**, not leftover, and the referenced
-  linters are enabled in `.golangci.yml`: `exhaustruct` on `DefaultConfig`
+  linters are enabled in `.golangci.yml`: `exhaustruct_v5` on `DefaultConfig`
   (optional callbacks omitted), `gosec` on the jitter line (weak rand is
   intentional and safe here; `mnd` does not fire — `2` is in its
   ignored-numbers), and `errorlint` on the identity comparison in
   `TestDo_DoesNotRetryNonRetryableError` (the whole point of the assertion is
   `err != rejection`). Removing any marker produces a real finding.
   Preserve them when editing.
+- **Never cite `retry.go`/`config.go` line numbers in prose docs.** They rot on
+  the next insertion above them (this happened twice: the T10 const block
+  shifted every citation in FEATURES/DOMAIN_LANGUAGE within a day). Cite by
+  function/type name only (`retry.go` (`Do`)); function names are unique in
+  this package, so nothing is lost.
+- **Dependency, action, and toolchain bumps are manual.** Dependabot is
+  configured (`dependabot.yml`: weekly gomod + github-actions) but has never
+  opened a single PR in this repo (verified 2026-09-13 via `gh pr list --state
+  all` — empty; GitHub docs confirm SHA+comment pins ARE supported, so the
+  updates are simply not running — settings-side, cause unknown). The gomod
+  watcher would not touch the `go` directive anyway. Action bumps are manual
+  SHA re-pins, verified via `git ls-remote` + the tag's `action.yml` before
+  encoding.
 - **Terminal-error codes/messages are single-sourced constants** at the top of
   `retry.go` (`codeExhausted`/`msgExhausted`, `codeCanceled`/`msgCanceled`,
   `codeDeadline`/`msgDeadline`). The sentinels and their
