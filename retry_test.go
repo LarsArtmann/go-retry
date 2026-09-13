@@ -313,6 +313,108 @@ func TestDo_DeadlineExceededDuringBackoff(t *testing.T) {
 	}
 }
 
+func TestDo_NestedRetriesAreFailClosed(t *testing.T) {
+	t.Parallel()
+
+	var innerCalls atomic.Int32
+
+	var outerCalls atomic.Int32
+
+	err := retry.Do(context.Background(), fastConfig(), func(ctx context.Context, attempt int) error {
+		outerCalls.Add(1)
+
+		return retry.Do(ctx, fastConfig(), func(ctx context.Context, innerAttempt int) error {
+			innerCalls.Add(1)
+
+			return errorfamily.NewTransient("inner.always.fails", "inner always fails")
+		})
+	})
+
+	if !errors.Is(err, retry.ErrExhausted) {
+		t.Fatalf("expected ErrExhausted, got %v", err)
+	}
+
+	if outerCalls.Load() != 1 {
+		t.Fatalf("outer loop must make exactly 1 attempt on inner exhaustion (fail-closed), got %d", outerCalls.Load())
+	}
+
+	if innerCalls.Load() != 3 {
+		t.Fatalf("inner loop must make its own 3 attempts, got %d", innerCalls.Load())
+	}
+}
+
+func TestDo_OnExhaustedNotCalledOnCancel(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	transient := errorfamily.NewTransient("test.transient", "fail")
+
+	go func() {
+		time.Sleep(10 * time.Millisecond) // let the first attempt fail
+		cancel()
+	}()
+
+	cfg := retry.Config{
+		MaxAttempts:  10,
+		InitialDelay: 5 * time.Second, // long delay so cancel fires during it
+		MaxDelay:     10 * time.Second,
+		Multiplier:   2.0,
+	}
+
+	var exhaustedCalls atomic.Int32
+
+	cfg.OnExhausted = func(attempts int, err error) {
+		exhaustedCalls.Add(1)
+	}
+
+	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
+		return transient
+	})
+
+	if !errors.Is(err, retry.ErrCanceled) {
+		t.Fatalf("expected ErrCanceled, got %v", err)
+	}
+
+	if exhaustedCalls.Load() != 0 {
+		t.Fatalf("OnExhausted must not fire when cancellation ends the loop, got %d calls", exhaustedCalls.Load())
+	}
+}
+
+func TestDo_OnExhaustedNotCalledOnDeadline(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	transient := errorfamily.NewTransient("test.transient", "fail")
+
+	cfg := retry.Config{
+		MaxAttempts:  10,
+		InitialDelay: 5 * time.Second, // long delay so the deadline fires during it
+		MaxDelay:     10 * time.Second,
+		Multiplier:   2.0,
+	}
+
+	var exhaustedCalls atomic.Int32
+
+	cfg.OnExhausted = func(attempts int, err error) {
+		exhaustedCalls.Add(1)
+	}
+
+	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
+		return transient
+	})
+
+	if !errors.Is(err, retry.ErrDeadlineExceeded) {
+		t.Fatalf("expected ErrDeadlineExceeded, got %v", err)
+	}
+
+	if exhaustedCalls.Load() != 0 {
+		t.Fatalf("OnExhausted must not fire when a deadline ends the loop, got %d calls", exhaustedCalls.Load())
+	}
+}
+
 func TestDo_AttemptNumberStartsAt1(t *testing.T) {
 	t.Parallel()
 
