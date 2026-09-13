@@ -83,81 +83,81 @@ Pareto-ranked. P1 = highest impact. Items already in `TODO_LIST.md` (T1–T7) ar
 
 ### P1 — unblock correctness
 
-1. **(T1) Rewrite `README.md`** — real title, real description, real install (or drop it if no remote), real usage example, real dev commands. **Do this next, on sight.**
-2. **Resolve the LICENSE vs module-path contradiction (d.3)** — decide proprietary vs publishable; align LICENSE or the path.
-3. **(T2) Resolve the `CONTRIBUTING.md` lint-config gap** — commit `.golangci.yml` or document "defaults + intentional nolints."
-4. **Commit/amend the 2 unstaged accuracy edits** (b.1) so committed CHANGELOG/TODO_LIST match working tree.
-5. **Decide on a git remote** (d.4) — publish or explicitly mark internal-only. Unblocks correct install/compare links.
+1. ~~**(T1) Rewrite `README.md`** — real title, real description, real install (or drop it if no remote), real usage example, real dev commands. **Do this next, on sight.**~~ done at `e4801b3`
+2. ~~**Resolve the LICENSE vs module-path contradiction (d.3)** — decide proprietary vs publishable; align LICENSE or the path.~~ done at `a16bd9b`
+3. ~~**(T2) Resolve the `CONTRIBUTING.md` lint-config gap** — commit `.golangci.yml` or document "defaults + intentional nolints."~~ done at `f0734cf`
+4. ~~**Commit/amend the 2 unstaged accuracy edits** (b.1) so committed CHANGELOG/TODO_LIST match working tree.~~ done (committed; see b)1)
+5. ~~**Decide on a git remote** (d.4) — publish or explicitly mark internal-only. Unblocks correct install/compare links.~~ done (origin created 2026-08-03 (github.com/LarsArtmann/go-retry))
 
 ### P2 — completeness & developer experience
 
-6. **Create `docs/DOMAIN_LANGUAGE.md`** — define Transient/Rejection/Infrastructure, `IsRetryable`, `WithCause`, `Classify`, the `retry.<event>` code convention.
-7. **(T3) Add `ExampleDo` (and a custom-`IsRetryable` example)** — renders on `pkg.go.dev`.
-8. **(T4) Add `BenchmarkComputeDelay`** — make jitter allocation cost visible.
-9. **(T5) Document the coverage workflow** in CONTRIBUTING — one-liner regen command.
-10. **Audit the public API surface** for v1.0 freeze — confirm `Do/Config/DefaultConfig/Backoff/ComputeDelay/AttemptFunc/ErrExhausted/ErrCanceled` are all meant to be public.
-11. **Decide whether `AttemptFunc(ctx, attempt)` should also pass the previous error** — deliberate API decision before v1.0.
-12. **Add a real usage example to README** once it's rewritten (ties to #1).
+6. ~~**Create `docs/DOMAIN_LANGUAGE.md`** — define Transient/Rejection/Infrastructure, `IsRetryable`, `WithCause`, `Classify`, the `retry.<event>` code convention.~~ done at `9aaf52e`
+7. ~~**(T3) Add `ExampleDo` (and a custom-`IsRetryable` example)** — renders on `pkg.go.dev`.~~ done at `9aaf52e`
+8. ~~**(T4) Add `BenchmarkComputeDelay`** — make jitter allocation cost visible.~~ done at `9aaf52e`
+9. ~~**(T5) Document the coverage workflow** in CONTRIBUTING — one-liner regen command.~~ done at `9aaf52e`
+10. ~~**Audit the public API surface** for v1.0 freeze — confirm `Do/Config/DefaultConfig/Backoff/ComputeDelay/AttemptFunc/ErrExhausted/ErrCanceled` are all meant to be public.~~ done (tracked in ROADMAP.md (v1.0 bar))
+11. ~~**Decide whether `AttemptFunc(ctx, attempt)` should also pass the previous error** — deliberate API decision before v1.0.~~ done (tracked in ROADMAP.md (v1.0 bar))
+12. ~~**Add a real usage example to README** once it's rewritten (ties to #1).~~ done at `e4801b3`
 
 ### P2 — test hardening (low-risk, high-value)
 
-13. Test: `OnRetry` is NOT called on the last failed attempt (only between attempts).
-14. Test: context already canceled _before_ the first `Do` call.
-15. Test: `OnExhausted` receives the exact last error (identity, not just `errors.Is`).
-16. Test: `MaxDelay` boundary — delay lands exactly at cap with zero jitter contribution.
-17. Test: `Multiplier` just above 1 (e.g. 1.0001) doesn't stall the loop.
-18. Test: very large `attempt` values don't overflow in `ComputeDelay` (math.Pow path).
-19. Test: concurrent `Do` invocations don't share state (the global `math/rand/v2` is fine, but prove it).
-20. **Fuzz `ComputeDelay`** — numeric edge cases (negative-ish durations via huge multiplier, overflow).
+13. ~~Test: `OnRetry` is NOT called on the last failed attempt (only between attempts).~~ done at `6a41c5c`
+14. ~~Test: context already canceled _before_ the first `Do` call.~~ done at `6a41c5c`
+15. ~~Test: `OnExhausted` receives the exact last error (identity, not just `errors.Is`).~~ done at `6a41c5c`
+16. ~~Test: `MaxDelay` boundary — delay lands exactly at cap with zero jitter contribution.~~ done (covered by TestBackoff_RespectsMaxDelay + TestComputeDelay_NeverExceedsMaxDelay)
+17. ~~Test: `Multiplier` just above 1 (e.g. 1.0001) doesn't stall the loop.~~ **Won't implement — capped delays make a stall impossible; Validate rejects multipliers <= 1.**
+18. ~~Test: very large `attempt` values don't overflow in `ComputeDelay` (math.Pow path).~~ done (B3 saturation + TestComputeDelay_SaturatesNearMaxInt64 + fuzz target)
+19. ~~Test: concurrent `Do` invocations don't share state (the global `math/rand/v2` is fine, but prove it).~~ done at `e840c7d`
+20. ~~**Fuzz `ComputeDelay`** — numeric edge cases (negative-ish durations via huge multiplier, overflow).~~ done at `e840c7d`
 
 ### P3 — capability candidates (ROADMAP fuel; needs scoping)
 
-21. **Configurable jitter factor** (`Config.JitterFactor` or `Jitter: none|additive|full`).
-22. **Deterministic RNG option** (pluggable `rand` source for reproducible tests).
-23. **Deadline-aware attempt budgeting** (stop retrying when remaining ctx budget < one more attempt).
-24. **Options-style config API** (`WithOnRetry`, `WithJitter`, …) for forward-compat without struct breakage.
-25. **Document the circuit-breaker/bulkhead composition boundary** (likely: stay pure, document the pattern, don't add code).
-26. **Version-compat matrix with `go-error-family`** (currently pinned `v0.10.0`).
-27. **(T7) Add Keep-a-Changelog compare links** once a remote exists.
-28. **(T6) Minimal CI** (`go test -race` + `golangci-lint`) once remote exists.
-29. **Public docs site** (Astro + Starlight + Firebase, per `website-launch` skill) — only after API stable + examples exist.
-30. **v1.0 release** once the API-freeze questions (#10, #11, #24) are settled.
+21. ~~**Configurable jitter factor** (`Config.JitterFactor` or `Jitter: none|additive|full`).~~ **Won't implement — deferred (decision 2026-08-08, reaffirmed 2026-08-22; see ROADMAP.md).**
+22. ~~**Deterministic RNG option** (pluggable `rand` source for reproducible tests).~~ done (tracked in FEATURES.md WORTH_CONSIDERING)
+23. ~~**Deadline-aware attempt budgeting** (stop retrying when remaining ctx budget < one more attempt).~~ done (tracked in FEATURES.md WORTH_CONSIDERING)
+24. ~~**Options-style config API** (`WithOnRetry`, `WithJitter`, …) for forward-compat without struct breakage.~~ done (tracked in ROADMAP.md (options-based configuration))
+25. ~~**Document the circuit-breaker/bulkhead composition boundary** (likely: stay pure, document the pattern, don't add code).~~ done (covered by ROADMAP.md (composition primitives) + doc.go)
+26. ~~**Version-compat matrix with `go-error-family`** (currently pinned `v0.10.0`).~~ done (tracked in ROADMAP.md (version-compatibility matrix))
+27. ~~**(T7) Add Keep-a-Changelog compare links** once a remote exists.~~ done (added 2026-08-03 (see the 22:09 report, A5))
+28. ~~**(T6) Minimal CI** (`go test -race` + `golangci-lint`) once remote exists.~~ done at `e840c7d`
+29. ~~**Public docs site** (Astro + Starlight + Firebase, per `website-launch` skill) — only after API stable + examples exist.~~ done (tracked in ROADMAP.md (public documentation site))
+30. ~~**v1.0 release** once the API-freeze questions (#10, #11, #24) are settled.~~ done (tracked in ROADMAP.md (v1.0 bar))
 
 ### P3 — polish & hygiene
 
-31. Add `// Version` / build-time version info (or explicitly decide against).
-32. Confirm `reports/coverage.out` should stay gitignored (it is) vs committed as evidence.
-33. Reconcile `CHANGELOG.md` `[Unreleased]` semantics — doc-only additions arguably aren't SemVer "changes."
-34. Add a CONTRIBUTING note on the intentional `//nolint:` markers so contributors don't "fix" them.
-35. Verify the signed-tag workflow is documented (the `v0.1.0` tag is SSH-signed — is that intentional process?).
-36. Add `.gitattributes` Go-specific rules (currently only `* text=auto eol=lf`).
-37. Consider a `SECURITY.md` (proprietary LICENSE → reporting contact already in LICENSE, but a dedicated file is conventional).
-38. Add `CODEOWNERS` if this will be multi-maintainer.
-39. Standardize error-code naming in a table (currently scattered: `retry.exhausted`, `retry.canceled`, `retry.invalid_*`).
-40. Add a doc comment cross-link from `Backoff` → `ComputeDelay` (and vice-versa) explaining when to use which.
+31. ~~Add `// Version` / build-time version info (or explicitly decide against).~~ **Won't implement — no demand; module-proxy tags carry the version.**
+32. ~~Confirm `reports/coverage.out` should stay gitignored (it is) vs committed as evidence.~~ done (reports/ still gitignored (verified))
+33. ~~Reconcile `CHANGELOG.md` `[Unreleased]` semantics — doc-only additions arguably aren't SemVer "changes."~~ done (practice settled - Unreleased holds notable changes until the next tag)
+34. ~~Add a CONTRIBUTING note on the intentional `//nolint:` markers so contributors don't "fix" them.~~ done at `9aaf52e`
+35. ~~Verify the signed-tag workflow is documented (the `v0.1.0` tag is SSH-signed — is that intentional process?).~~ **Won't implement — tagging runs per the go-release skill; nothing repo-specific to document.**
+36. ~~Add `.gitattributes` Go-specific rules (currently only `* text=auto eol=lf`).~~ **Won't implement — kept minimal - eol=lf covers a single-package repo.**
+37. ~~Consider a `SECURITY.md` (proprietary LICENSE → reporting contact already in LICENSE, but a dedicated file is conventional).~~ done at `10a5566`
+38. ~~Add `CODEOWNERS` if this will be multi-maintainer.~~ **Won't implement — solo maintainer.**
+39. ~~Standardize error-code naming in a table (currently scattered: `retry.exhausted`, `retry.canceled`, `retry.invalid_*`).~~ done at `9aaf52e`
+40. ~~Add a doc comment cross-link from `Backoff` → `ComputeDelay` (and vice-versa) explaining when to use which.~~ done at `10a5566`
 
 ### P4 — nice-to-haves / open questions (route to ROADMAP or drop)
 
-41. Telemetry hook contract — is `OnRetry`/`OnExhausted` the _final_ seam, or will a structured `Event` type replace it?
-42. Metrics naming convention guidance for consumers wrapping the callbacks.
-43. Decide if `Config` should implement `fmt.Stringer` / logging helper.
-44. Explore whether `Do` should accept a `BackoffFunc` override (custom schedule beyond exponential).
-45. Decide policy on Go version bumps (currently `go 1.26.5`).
-46. Evaluate `errors.AsType` migration per the `hierarchical-errors` skill (Go 1.26+ generic error handling) — `error-family` may already handle this; verify.
-47. Consider a `context.Context`-aware `DefaultConfig` variant.
-48. Add architecture decision record (ADR) for the "no-CQRS/no-OTel core" boundary so the rationale survives.
-49. Survey whether any LarsArtmann sibling lib already wraps this (avoid duplication).
-50. Schedule a re-run of `docs-health` HARVEST once this report's section (f) lands in TODO/ROADMAP — otherwise these items rot here.
+41. ~~Telemetry hook contract — is `OnRetry`/`OnExhausted` the _final_ seam, or will a structured `Event` type replace it?~~ done (answered - OnRetry/OnExhausted are the seam; OnSuccess deferred (ROADMAP))
+42. ~~Metrics naming convention guidance for consumers wrapping the callbacks.~~ **Won't implement — no demand.**
+43. ~~Decide if `Config` should implement `fmt.Stringer` / logging helper.~~ **Won't implement — no demand.**
+44. ~~Explore whether `Do` should accept a `BackoffFunc` override (custom schedule beyond exponential).~~ **Won't implement — DelayFunc already covers custom schedules.**
+45. ~~Decide policy on Go version bumps (currently `go 1.26.5`).~~ done (toolchain bumps via dependabot (ba18f9e bumped 1.26.5 to 1.26.7))
+46. ~~Evaluate `errors.AsType` migration per the `hierarchical-errors` skill (Go 1.26+ generic error handling) — `error-family` may already handle this; verify.~~ done (no-op confirmed 2026-08-07 (package uses errors.Is only))
+47. ~~Consider a `context.Context`-aware `DefaultConfig` variant.~~ **Won't implement — no demand; Do takes ctx explicitly.**
+48. ~~Add architecture decision record (ADR) for the "no-CQRS/no-OTel core" boundary so the rationale survives.~~ done (recorded in doc.go + AGENTS.md)
+49. ~~Survey whether any LarsArtmann sibling lib already wraps this (avoid duplication).~~ done (known consumer go-cqrs-lite/middleware/v4 (doc.go); no duplicate wrapper)
+50. ~~Schedule a re-run of `docs-health` HARVEST once this report's section (f) lands in TODO/ROADMAP — otherwise these items rot here.~~ done (docs-health pass 2026-09-13)
 
 ---
 
 ## g) Questions I can NOT figure out myself
 
-1. **Is a public git remote intended for this repo?** The module path `github.com/larsartmann/go-retry`, a _signed_ `v0.1.0` tag, and a SemVer CHANGELOG all imply "will be published," but `git remote -v` is empty. This blocks writing _any_ correct install/compare-link documentation. Will one be added, and is the public path final? (If internal-only, the README/CHANGELOG story changes entirely.)
+1. ~~**Is a public git remote intended for this repo?** The module path `github.com/larsartmann/go-retry`, a _signed_ `v0.1.0` tag, and a SemVer CHANGELOG all imply "will be published," but `git remote -v` is empty. This blocks writing _any_ correct install/compare-link documentation. Will one be added, and is the public path final? (If internal-only, the README/CHANGELOG story changes entirely.)~~ done (resolved - origin created 2026-08-03 (public))
 
-2. **Is the proprietary `LICENSE` intentional, or should this be open-sourced?** "Proprietary — All rights reserved" directly contradicts a public importable Go module path. I cannot decide your licensing/business intent. This determines whether README should show `go get` at all.
+2. ~~**Is the proprietary `LICENSE` intentional, or should this be open-sourced?** "Proprietary — All rights reserved" directly contradicts a public importable Go module path. I cannot decide your licensing/business intent. This determines whether README should show `go get` at all.~~ done (resolved - MIT (a16bd9b))
 
-3. **Does this repo deliberately NOT follow the LarsArtmann `flake.nix` convention?** The global AGENTS.md mandates `flake.nix` for build/task automation ("Never use Makefile — use `flake.nix`"), yet this repo has none and CONTRIBUTING uses raw `go test` / `golangci-lint`. The stale README references `just`. Which is the intended workflow — adopt `flake.nix`, or is raw-Go-commands the deliberate choice for this small library? (Affects whether TODO T6 / a flake.nix task should exist.)
+3. ~~**Does this repo deliberately NOT follow the LarsArtmann `flake.nix` convention?** The global AGENTS.md mandates `flake.nix` for build/task automation ("Never use Makefile — use `flake.nix`"), yet this repo has none and CONTRIBUTING uses raw `go test` / `golangci-lint`. The stale README references `just`. Which is the intended workflow — adopt `flake.nix`, or is raw-Go-commands the deliberate choice for this small library? (Affects whether TODO T6 / a flake.nix task should exist.)~~ done (decided - raw Go commands (ROADMAP records the decision))
 
 ---
 

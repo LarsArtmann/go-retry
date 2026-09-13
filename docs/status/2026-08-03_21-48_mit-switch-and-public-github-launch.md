@@ -38,23 +38,23 @@
 
 ## b) PARTIALLY DONE
 
-1. **ROADMAP "Open questions" updated — but still lists the flake.nix question.** The LICENSE question was removed (resolved: MIT). The git-remote question is now also resolved (remote exists). But the flake.nix question remains open, and the remote question text still says "git remote -v is empty" — stale post-publish. The TODO P3 items also still say "blocked on a git remote" when the remote now exists. Needs a cleanup pass.
+1. ~~**ROADMAP "Open questions" updated — but still lists the flake.nix question.** The LICENSE question was removed (resolved: MIT). The git-remote question is now also resolved (remote exists). But the flake.nix question remains open, and the remote question text still says "git remote -v is empty" — stale post-publish. The TODO P3 items also still say "blocked on a git remote" when the remote now exists. Needs a cleanup pass.~~ done (purged in the 22:09 session (A4))
 
-2. **CHANGELOG `[Unreleased]` is comprehensive — but compare links are still missing.** Now that the remote exists (`https://github.com/LarsArtmann/go-retry`), the Keep-a-Changelog footer links (`[Unreleased]: https://github.com/.../compare/v0.1.0...HEAD`, `[0.1.0]: .../tag/v0.1.0`) CAN and SHOULD be added. The CHANGELOG note still says "no remote" — stale.
+2. ~~**CHANGELOG `[Unreleased]` is comprehensive — but compare links are still missing.** Now that the remote exists (`https://github.com/LarsArtmann/go-retry`), the Keep-a-Changelog footer links (`[Unreleased]: https://github.com/.../compare/v0.1.0...HEAD`, `[0.1.0]: .../tag/v0.1.0`) CAN and SHOULD be added. The CHANGELOG note still says "no remote" — stale.~~ done (added in the 22:09 session (A5))
 
-3. **GitHub repo is live — but no GitHub Release was created.** The `v0.1.0` tag is pushed, but the Releases page (<https://github.com/LarsArtmann/go-retry/releases>) is empty. A tag is not a release. Users browsing GitHub won't see v0.1.0 as a release with notes. Should be `gh release create v0.1.0 --notes-from-tag` or with a generated body.
+3. ~~**GitHub repo is live — but no GitHub Release was created.** The `v0.1.0` tag is pushed, but the Releases page (<https://github.com/LarsArtmann/go-retry/releases>) is empty. A tag is not a release. Users browsing GitHub won't see v0.1.0 as a release with notes. Should be `gh release create v0.1.0 --notes-from-tag` or with a generated body.~~ done (created in the 22:09 session (A3))
 
 ---
 
 ## c) NOT STARTED
 
-1. **CI (`.github/workflows/`)** — No GitHub Actions workflow exists. Was listed as P3 "blocked on a git remote" — **but the remote now exists**, so this is unblocked and should be re-prioritized. A minimal workflow running `go test ./... -race` and `golangci-lint run ./...` on push/PR is ~20 lines of YAML.
+1. ~~**CI (`.github/workflows/`)** — No GitHub Actions workflow exists. Was listed as P3 "blocked on a git remote" — **but the remote now exists**, so this is unblocked and should be re-prioritized. A minimal workflow running `go test ./... -race` and `golangci-lint run ./...` on push/PR is ~20 lines of YAML.~~ done at `e840c7d`
 
-2. **`go get` end-to-end verification** — The README example was verified with local `replace` directives (pre-publish). Now that the repo is public, a real `go get github.com/larsartmann/go-retry@latest` in a clean module should be tested to confirm the public import path actually resolves. Likely works (module path matches repo path, `v0.1.0` tag exists), but not proven.
+2. ~~**`go get` end-to-end verification** — The README example was verified with local `replace` directives (pre-publish). Now that the repo is public, a real `go get github.com/larsartmann/go-retry@latest` in a clean module should be tested to confirm the public import path actually resolves. Likely works (module path matches repo path, `v0.1.0` tag exists), but not proven.~~ done (verified in the 22:09 session (A6))
 
-3. **Go Proxy / pkg.go.dev indexing** — A newly published module takes time to appear on `pkg.go.dev` and `proxy.golang.org`. Not actionable from here, but worth noting that the examples (`ExampleDo`) won't render anywhere until Google's crawler indexes the module.
+3. ~~**Go Proxy / pkg.go.dev indexing** — A newly published module takes time to appear on `pkg.go.dev` and `proxy.golang.org`. Not actionable from here, but worth noting that the examples (`ExampleDo`) won't render anywhere until Google's crawler indexes the module.~~ done (verified 2026-09-13 - pkg.go.dev renders v0.5.0 with examples)
 
-4. **`SECURITY.md`** — Still in TODO (T4). Low priority but conventional for public repos.
+4. ~~**`SECURITY.md`** — Still in TODO (T4). Low priority but conventional for public repos.~~ done at `10a5566`
 
 ---
 
@@ -92,71 +92,71 @@ Pareto-ranked. P1 = highest impact. Items already in `TODO_LIST.md` are marked *
 
 ### P1 — unblock correctness (post-publish)
 
-1. **Create the GitHub Release for v0.1.0** — `gh release create v0.1.0` with release notes from CHANGELOG. The Releases page is currently empty despite the tag being pushed. This is the #1 miss.
-2. **Update TODO_LIST P3 items** — T5 (CI) and T6 (changelog links) are no longer blocked. The remote exists. Re-prioritize to P2 and remove the "blocked" framing.
-3. **Update ROADMAP Open questions** — Remove the resolved git-remote question. The flake.nix question remains. Fix any "git remote -v is empty" text that is now stale.
-4. **Add CHANGELOG compare links** — Now possible: `[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.1.0...HEAD` and `[0.1.0]: https://github.com/LarsArtmann/go-retry/releases/tag/v0.1.0`.
-5. **Verify `go get github.com/larsartmann/go-retry@latest`** works in a clean module outside the repo. Proves the public import path resolves end-to-end.
+1. ~~**Create the GitHub Release for v0.1.0** — `gh release create v0.1.0` with release notes from CHANGELOG. The Releases page is currently empty despite the tag being pushed. This is the #1 miss.~~ done (done in the 22:09 session (A3))
+2. ~~**Update TODO_LIST P3 items** — T5 (CI) and T6 (changelog links) are no longer blocked. The remote exists. Re-prioritize to P2 and remove the "blocked" framing.~~ done (done in the 22:09 session (A4/B1))
+3. ~~**Update ROADMAP Open questions** — Remove the resolved git-remote question. The flake.nix question remains. Fix any "git remote -v is empty" text that is now stale.~~ done (done in the 22:09 session (A4))
+4. ~~**Add CHANGELOG compare links** — Now possible: `[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.1.0...HEAD` and `[0.1.0]: https://github.com/LarsArtmann/go-retry/releases/tag/v0.1.0`.~~ done (done in the 22:09 session (A5))
+5. ~~**Verify `go get github.com/larsartmann/go-retry@latest`** works in a clean module outside the repo. Proves the public import path resolves end-to-end.~~ done (done in the 22:09 session (A6))
 
 ### P2 — developer experience & CI
 
-6. **Add minimal CI** (`.github/workflows/ci.yml`) — `go test ./... -race` + `golangci-lint run ./...` on push/PR. ~20 lines. The remote exists now.
-7. **(T1) Close remaining behavioral test gaps** — concurrent `Do` stress test; fuzz `ComputeDelay` for overflow/negative edges.
-8. **(T2) Verify `hierarchical-errors` migration applies** — likely a no-op (this package uses only `errors.Is`), but confirm and close.
-9. **(T3) Cross-link `Backoff` ↔ `ComputeDelay` doc comments** — one-line "See [ComputeDelay]" / "See [Backoff]" in each.
-10. **(T4) Add `SECURITY.md`** — conventional vulnerability reporting policy for a public repo.
-11. **Add a CONTRIBUTING note on the auto-git daemon** — contributors should know the repo auto-commits. (Or is this intentionally hidden from public view?)
+6. ~~**Add minimal CI** (`.github/workflows/ci.yml`) — `go test ./... -race` + `golangci-lint run ./...` on push/PR. ~20 lines. The remote exists now.~~ done at `e840c7d`
+7. ~~**(T1) Close remaining behavioral test gaps** — concurrent `Do` stress test; fuzz `ComputeDelay` for overflow/negative edges.~~ done at `e840c7d`
+8. ~~**(T2) Verify `hierarchical-errors` migration applies** — likely a no-op (this package uses only `errors.Is`), but confirm and close.~~ done (no-op confirmed 2026-08-07 (package uses errors.Is only))
+9. ~~**(T3) Cross-link `Backoff` ↔ `ComputeDelay` doc comments** — one-line "See [ComputeDelay]" / "See [Backoff]" in each.~~ done at `10a5566`
+10. ~~**(T4) Add `SECURITY.md`** — conventional vulnerability reporting policy for a public repo.~~ done at `10a5566`
+11. ~~**Add a CONTRIBUTING note on the auto-git daemon** — contributors should know the repo auto-commits. (Or is this intentionally hidden from public view?)~~ **Won't implement — internal tooling; public contributors do not need it documented.**
 
 ### P2 — API stability (pre-v1.0)
 
-12. **Audit the public API surface** — confirm every exported symbol (`Do`, `Config`, `DefaultConfig`, `Backoff`, `ComputeDelay`, `AttemptFunc`, `ErrExhausted`, `ErrCanceled`) is meant to be public. No leaking implementation details.
-13. **Decide whether `AttemptFunc(ctx, attempt)` should pass the previous error** — some retry libraries do. Deliberate decision before v1.0.
-14. **Decide on options-style config API** (`WithOnRetry`, `WithJitter`, ...) — forward-compat without struct breakage. Large change; needs migration story.
-15. **Write down `ComputeDelay` invariants** for the fuzz target (what must always hold? non-negative? capped? no overflow?).
+12. ~~**Audit the public API surface** — confirm every exported symbol (`Do`, `Config`, `DefaultConfig`, `Backoff`, `ComputeDelay`, `AttemptFunc`, `ErrExhausted`, `ErrCanceled`) is meant to be public. No leaking implementation details.~~ done (tracked in ROADMAP.md (v1.0 bar))
+13. ~~**Decide whether `AttemptFunc(ctx, attempt)` should pass the previous error** — some retry libraries do. Deliberate decision before v1.0.~~ done (tracked in ROADMAP.md (v1.0 bar))
+14. ~~**Decide on options-style config API** (`WithOnRetry`, `WithJitter`, ...) — forward-compat without struct breakage. Large change; needs migration story.~~ done (tracked in ROADMAP.md (options-based configuration))
+15. ~~**Write down `ComputeDelay` invariants** for the fuzz target (what must always hold? non-negative? capped? no overflow?).~~ done (fuzz target asserts no-panic + non-negative + cap (FuzzComputeDelayNeverPanics + matrix test))
 
 ### P3 — capability candidates (ROADMAP fuel; needs scoping)
 
-16. **Configurable jitter factor** (`Config.JitterFactor` or `Jitter: none|additive|full`).
-17. **Deterministic RNG option** (pluggable `rand` source for reproducible tests).
-18. **Deadline-aware attempt budgeting** (stop retrying when remaining ctx budget < one more attempt).
-19. **Document the circuit-breaker/bulkhead composition boundary** (likely: stay pure, document, don't code).
-20. **Version-compat matrix with `go-error-family`** (pinned `v0.10.0`).
-21. **Public docs site** (Astro + Starlight + Firebase, per `website-launch` skill) — only after API stable + examples exist (examples now exist).
-22. **v1.0 release** once the API-freeze questions (#12, #13, #14) are settled.
+16. ~~**Configurable jitter factor** (`Config.JitterFactor` or `Jitter: none|additive|full`).~~ **Won't implement — deferred (decision 2026-08-08, reaffirmed 2026-08-22; see ROADMAP.md).**
+17. ~~**Deterministic RNG option** (pluggable `rand` source for reproducible tests).~~ done (tracked in FEATURES.md WORTH_CONSIDERING)
+18. ~~**Deadline-aware attempt budgeting** (stop retrying when remaining ctx budget < one more attempt).~~ done (tracked in FEATURES.md WORTH_CONSIDERING)
+19. ~~**Document the circuit-breaker/bulkhead composition boundary** (likely: stay pure, document, don't code).~~ done (covered by ROADMAP.md (composition primitives) + doc.go)
+20. ~~**Version-compat matrix with `go-error-family`** (pinned `v0.10.0`).~~ done (tracked in ROADMAP.md (version-compatibility matrix))
+21. ~~**Public docs site** (Astro + Starlight + Firebase, per `website-launch` skill) — only after API stable + examples exist (examples now exist).~~ done (tracked in ROADMAP.md (public documentation site))
+22. ~~**v1.0 release** once the API-freeze questions (#12, #13, #14) are settled.~~ done (tracked in ROADMAP.md (v1.0 bar))
 
 ### P3 — polish & hygiene
 
-23. **Add `.gitattributes` Go-specific rules** — currently only `* text=auto eol=lf`; add `*.go text eol=lf` and `*.go diff=golang` (if a `.gitattributes` diff driver is configured).
-24. **Standardize error-code naming in a table** — currently scattered: `retry.exhausted`, `retry.canceled`, `retry.invalid_*`. A table in DOMAIN_LANGUAGE or doc.go.
-25. **Consider a `CODEOWNERS`** if this will be multi-maintainer.
-26. **Add `//go:build go1.26` build constraint** — or decide the minimum Go version policy. `go.mod` says `1.26.5`; users on 1.25 can't import it.
-27. **Evaluate `modernize` linter findings** — the standard `.golangci.yml` enables `modernize`; check if any suggestions apply to the codebase.
-28. **Reconcile `[Unreleased]` semantics** — doc-only additions (README, CONTRIBUTING, DOMAIN_LANGUAGE) arguably aren't SemVer "changes" warranting a version bump. Decide policy.
-29. **Add architecture decision record (ADR)** for the "no-CQRS/no-OTel core" boundary so the rationale survives personnel changes.
-30. **Schedule a re-run of `docs-health` HARVEST** on this report's section (f) — otherwise these items rot here.
+23. ~~**Add `.gitattributes` Go-specific rules** — currently only `* text=auto eol=lf`; add `*.go text eol=lf` and `*.go diff=golang` (if a `.gitattributes` diff driver is configured).~~ **Won't implement — kept minimal - eol=lf covers a single-package repo.**
+24. ~~**Standardize error-code naming in a table** — currently scattered: `retry.exhausted`, `retry.canceled`, `retry.invalid_*`. A table in DOMAIN_LANGUAGE or doc.go.~~ done at `9aaf52e`
+25. ~~**Consider a `CODEOWNERS`** if this will be multi-maintainer.~~ **Won't implement — solo maintainer.**
+26. ~~**Add `//go:build go1.26` build constraint** — or decide the minimum Go version policy. `go.mod` says `1.26.5`; users on 1.25 can't import it.~~ **Won't implement — go.mod toolchain pin is the mechanism; no build tag needed.**
+27. ~~**Evaluate `modernize` linter findings** — the standard `.golangci.yml` enables `modernize`; check if any suggestions apply to the codebase.~~ done (modernize enabled in .golangci.yml; lint reports 0 issues)
+28. ~~**Reconcile `[Unreleased]` semantics** — doc-only additions (README, CONTRIBUTING, DOMAIN_LANGUAGE) arguably aren't SemVer "changes" warranting a version bump. Decide policy.~~ done (practice settled - Unreleased holds notable changes until the next tag)
+29. ~~**Add architecture decision record (ADR)** for the "no-CQRS/no-OTel core" boundary so the rationale survives personnel changes.~~ done (recorded in doc.go + AGENTS.md)
+30. ~~**Schedule a re-run of `docs-health` HARVEST** on this report's section (f) — otherwise these items rot here.~~ done (docs-health pass 2026-09-13)
 
 ### P4 — nice-to-haves / open questions
 
-31. **Telemetry hook contract** — is `OnRetry`/`OnExhausted` the final seam, or will a structured `Event` type replace it?
-32. **Metrics naming guidance** for consumers wrapping the callbacks.
-33. **Should `Config` implement `fmt.Stringer`** or a logging helper?
-34. **Should `Do` accept a `BackoffFunc` override** (custom schedule beyond exponential)?
-35. **Go version bump policy** — currently `go 1.26.5`; how aggressive?
-36. **Evaluate `errors.AsType` migration** per the `hierarchical-errors` skill — `go-error-family` may already handle this; verify.
-37. **Context-aware `DefaultConfig` variant?**
-38. **Survey whether any LarsArtmann sibling lib already wraps this** (avoid duplication — `go-cqrs-lite/middleware/v4` is the known one).
-39. **Is the auto-git daemon appropriate for a public repo?** — Contributors seeing commits they didn't make may be confused. Decision needed.
-40. **GitHub branch protection rules** — now that the repo is public, should `master` be protected? Should PRs be required?
+31. ~~**Telemetry hook contract** — is `OnRetry`/`OnExhausted` the final seam, or will a structured `Event` type replace it?~~ done (answered - OnRetry/OnExhausted are the seam; OnSuccess deferred (ROADMAP))
+32. ~~**Metrics naming guidance** for consumers wrapping the callbacks.~~ **Won't implement — no demand.**
+33. ~~**Should `Config` implement `fmt.Stringer`** or a logging helper?~~ **Won't implement — no demand.**
+34. ~~**Should `Do` accept a `BackoffFunc` override** (custom schedule beyond exponential)?~~ **Won't implement — DelayFunc already covers custom schedules.**
+35. ~~**Go version bump policy** — currently `go 1.26.5`; how aggressive?~~ done (toolchain bumps via dependabot (ba18f9e))
+36. ~~**Evaluate `errors.AsType` migration** per the `hierarchical-errors` skill — `go-error-family` may already handle this; verify.~~ done (no-op confirmed 2026-08-07 (package uses errors.Is only))
+37. ~~**Context-aware `DefaultConfig` variant?**~~ **Won't implement — no demand; Do takes ctx explicitly.**
+38. ~~**Survey whether any LarsArtmann sibling lib already wraps this** (avoid duplication — `go-cqrs-lite/middleware/v4` is the known one).~~ done (known consumer go-cqrs-lite/middleware/v4 (doc.go))
+39. ~~**Is the auto-git daemon appropriate for a public repo?** — Contributors seeing commits they didn't make may be confused. Decision needed.~~ **Won't implement — accepted solo-repo behavior.**
+40. ~~**GitHub branch protection rules** — now that the repo is public, should `master` be protected? Should PRs be required?~~ **Won't implement — solo repo; direct pushes to master are the workflow.**
 
 ---
 
 ## g) Questions I can NOT figure out myself
 
-1. **Should I create a GitHub Release for v0.1.0 now, or wait?** The tag is pushed but the Releases page is empty. A release with notes is the conventional public-facing artifact. But v0.1.0 was tagged _before_ this session's doc/license fixes — the tag points at `eae60c5`, not at the current HEAD (`a16bd9b`) which has the MIT license, README, examples, etc. Should I: (a) create a release from the existing tag (notes will describe v0.1.0 as originally shipped, then note the post-tag fixes in `[Unreleased]`), (b) move the tag to HEAD and release from there, or (c) cut a v0.2.0 with the doc/license fixes? Option (a) is the honest/standard approach but means the release notes won't mention the MIT license.
+1. ~~**Should I create a GitHub Release for v0.1.0 now, or wait?** The tag is pushed but the Releases page is empty. A release with notes is the conventional public-facing artifact. But v0.1.0 was tagged _before_ this session's doc/license fixes — the tag points at `eae60c5`, not at the current HEAD (`a16bd9b`) which has the MIT license, README, examples, etc. Should I: (a) create a release from the existing tag (notes will describe v0.1.0 as originally shipped, then note the post-tag fixes in `[Unreleased]`), (b) move the tag to HEAD and release from there, or (c) cut a v0.2.0 with the doc/license fixes? Option (a) is the honest/standard approach but means the release notes won't mention the MIT license.~~ done (resolved in the 22:09 session (retag + release))
 
-2. **Is the auto-git daemon intentional for this now-public repo?** The daemon made commits with empty messages (`31db438`, `6a41c5c`) and overwrote my `.golangci.yml` with the project standard. For a solo repo this may be fine; for a public repo where contributors see the history, empty commit messages and unexpected auto-commits could be confusing. Should the daemon be documented, configured, or disabled for this repo?
+2. ~~**Is the auto-git daemon intentional for this now-public repo?** The daemon made commits with empty messages (`31db438`, `6a41c5c`) and overwrote my `.golangci.yml` with the project standard. For a solo repo this may be fine; for a public repo where contributors see the history, empty commit messages and unexpected auto-commits could be confusing. Should the daemon be documented, configured, or disabled for this repo?~~ done (accepted solo-repo behavior (see f)39))
 
-3. **Should I add CI now, or is there a LarsArtmann-standard CI workflow to copy?** The repo has no `.github/workflows/`. Other LarsArtmann repos likely have a standard CI setup (Go version matrix, golangci-lint action, etc.). Should I write one from scratch, or is there a canonical workflow to copy from a sibling repo (e.g., `go-error-family`, `go-cqrs-lite`)?
+3. ~~**Should I add CI now, or is there a LarsArtmann-standard CI workflow to copy?** The repo has no `.github/workflows/`. Other LarsArtmann repos likely have a standard CI setup (Go version matrix, golangci-lint action, etc.). Should I write one from scratch, or is there a canonical workflow to copy from a sibling repo (e.g., `go-error-family`, `go-cqrs-lite`)?~~ done (resolved - CI shipped (e840c7d))
 
 ---
 
