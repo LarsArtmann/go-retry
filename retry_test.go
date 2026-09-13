@@ -343,6 +343,45 @@ func TestDo_NestedRetriesAreFailClosed(t *testing.T) {
 	}
 }
 
+func TestDo_NestedRetriesAmplifyWhenOverridden(t *testing.T) {
+	t.Parallel()
+
+	var outerCalls atomic.Int32
+
+	var innerCalls atomic.Int32
+
+	cfg := fastConfig()
+	// Deliberate override: retry everything except caller-input rejections —
+	// including the Infrastructure-family exhaustion the inner loop returns,
+	// which the default predicate treats as terminal.
+	cfg.IsRetryable = func(err error) bool {
+		return errorfamily.Classify(err) != errorfamily.Rejection
+	}
+
+	err := retry.Do(context.Background(), cfg, func(ctx context.Context, attempt int) error {
+		outerCalls.Add(1)
+
+		return retry.Do(ctx, fastConfig(), func(ctx context.Context, innerAttempt int) error {
+			innerCalls.Add(1)
+
+			return errorfamily.NewTransient("inner.always.fails", "inner always fails")
+		})
+	})
+
+	if !errors.Is(err, retry.ErrExhausted) {
+		t.Fatalf("expected ErrExhausted, got %v", err)
+	}
+
+	if outerCalls.Load() != 3 {
+		t.Fatalf("overridden predicate must re-enable amplification: expected 3 outer attempts, got %d",
+			outerCalls.Load())
+	}
+
+	if innerCalls.Load() != 9 {
+		t.Fatalf("each outer attempt must run a full inner loop: expected 9 inner attempts, got %d", innerCalls.Load())
+	}
+}
+
 func TestDo_OnExhaustedNotCalledOnCancel(t *testing.T) {
 	t.Parallel()
 
@@ -1133,6 +1172,30 @@ func ExampleFromPolicy() {
 	// policy attempts: 3
 	// ran attempts: 3
 	// exhausted: true
+}
+
+// ExampleDoWithValue retries a call that produces a value: the successful
+// attempt's result comes straight back, and any failure yields the zero
+// value with the same error [Do] would produce.
+func ExampleDoWithValue() {
+	cfg := retry.DefaultConfig()
+	cfg.MaxAttempts = 3
+	cfg.InitialDelay = time.Millisecond
+
+	user, err := retry.DoWithValue(context.Background(), cfg, func(ctx context.Context, attempt int) (string, error) {
+		if attempt < 3 {
+			// A Transient error is retryable by the default predicate.
+			return "", errorfamily.NewTransient("example.transient", "lookup failed")
+		}
+
+		return "ada", nil
+	})
+
+	fmt.Println("user:", user)
+	fmt.Println("error:", err)
+	// Output:
+	// user: ada
+	// error: <nil>
 }
 
 func BenchmarkComputeDelay(b *testing.B) {

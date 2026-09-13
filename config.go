@@ -60,7 +60,7 @@ type Config struct {
 
 // DefaultConfig returns sensible defaults for retry.
 func DefaultConfig() Config {
-	return Config{ //nolint:exhaustruct // OnRetry and OnExhausted are optional
+	return Config{ //nolint:exhaustruct_v5 // OnRetry and OnExhausted are optional
 		MaxAttempts:  defaultMaxAttempts,
 		InitialDelay: defaultInitDelay,
 		MaxDelay:     defaultMaxDelay,
