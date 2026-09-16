@@ -218,77 +218,118 @@ styled HTML dashboard — override honored, not propagated).
 17. ~~`[DOC]` Add the M19 recipe to the README configuration section: callers
     with a deadline budget should set `MaxDelay` below their remaining time.~~
     done at `b4efa02` (README → "Deadline budgets").
-18. `[CI]` Decide the local-gate surface honestly: checked-in `tools.go`
+18. ~~`[CI]` Decide the local-gate surface honestly: checked-in `tools.go`
     (pinned actionlint + dprint as module tools) vs documented-manual-only —
-    needs §g.2's answer.
-19. `[VERIFY]` Track go-error-family releases; if `RetryPolicy`'s shape ever
-    changes, execute the compat-matrix rule (go-retry minor bump + new row).
-20. `[RELEASE]` Add a local `govulncheck` step to the pre-release ritual
-    (currently CI-only; the skill's Phase 4 gate should mirror CI).
-21. `[DOC]` Tiny guard: validate every CHANGELOG footer compare-link resolves
-    (grep-the-URLs script or a test).
-22. `[DOC]` Link-rot sweep over README/CONTRIBUTING external links (dprint
-    checks formatting, not 404s).
-23. `[DOC]` AGENTS: record the setup-go/manifest-lag + `GOTOOLCHAIN=local`
+    needs §g.2's answer.~~ → routed to ROADMAP → Open questions (third local
+    tool).
+19. ~~`[VERIFY]` Track go-error-family releases; if `RetryPolicy`'s shape ever
+    changes, execute the compat-matrix rule (go-retry minor bump + new row).~~
+    → covered: the ROADMAP compat-matrix rule (2026-09-13) is the standing
+    mechanism; no separate tracker needed.
+20. ~~`[RELEASE]` Add a local `govulncheck` step to the pre-release ritual
+    (currently CI-only; the skill's Phase 4 gate should mirror CI).~~ →
+    routed to TODO_LIST T30.
+21. ~~`[DOC]` Tiny guard: validate every CHANGELOG footer compare-link resolves
+    (grep-the-URLs script or a test).~~ → routed to TODO_LIST T28 (all 7
+    links verified by hand 2026-09-16).
+22. ~~`[DOC]` Link-rot sweep over README/CONTRIBUTING external links (dprint
+    checks formatting, not 404s).~~ → routed to TODO_LIST T29.
+23. ~~`[DOC]` AGENTS: record the setup-go/manifest-lag + `GOTOOLCHAIN=local`
     interaction (the go-release skill's Phase 4.4 warning) as a gotcha
-    before it bites a tag-CI run.
-24. `[VERIFY]` Bench re-run post-v0.6.0; refresh FEATURES' ns/op numbers if
-    drifted (last recorded 21.3/34.9 ns/op, 0 allocs).
-25. `[ROADMAP]` Write the 20-line `Option` type skeleton into the M16 record
-    so implementation starts without a design decision.
-26. `[PROCESS]` Run the docs-health `annotate-*.py` scripts next time instead
-    of ad-hoc python (calibrated marker kinds).
-27. `[CI]` Consider an input-allowlist test for the 6 remote actions we pin
-    (would have caught `namee:`) — weigh maintenance vs the gate gap.
-28. `[DOC]` Verify the dprint-rewrapped plan file still renders its mermaid
-    graph (fenced block survived reflow?).
-29. `[CI]` Review whether the `ci-${{ github.ref }}` concurrency group should
-    share a group across the tag ref and master for identical SHAs.
-30. `[RELEASE]` Record the v0.6.0 release-notes skeleton as the reusable
-    template (first T14 exercise went well — capture the shape).
-31. `[CODE]` Run the `modernize` analyzer over non-test code (it only flagged
-    the test file this time; keep the codebase modernizer-clean).
-32. `[VERIFY]` Confirm `gofmt` enforcement is real: is a gofmt/gofumpt
+    before it bites a tag-CI run.~~ done at `b4efa02` (skill claim
+    re-verified against the skill source the same day).
+24. ~~`[VERIFY]` Bench re-run post-v0.6.0; refresh FEATURES' ns/op numbers if
+    drifted (last recorded 21.3/34.9 ns/op, 0 allocs).~~ Verified 2026-09-16:
+    20.1–21.1 ns/op, 0 allocs/op — FEATURES' documented "~20–35 ns/op;
+    0 allocations" holds; no drift.
+25. ~~`[ROADMAP]` Write the 20-line `Option` type skeleton into the M16 record
+    so implementation starts without a design decision.~~ done 2026-09-16
+    (this pass): skeleton written into ROADMAP's options-design record.
+26. ~~`[PROCESS]` Run the docs-health `annotate-*.py` scripts next time instead
+    of ad-hoc python (calibrated marker kinds).~~ Noted: this pass used
+    hand-written repo-convention markers (heterogeneous routed verdicts);
+    the scripts remain the tool for uniform numbered batches.
+27. ~~`[CI]` Consider an input-allowlist test for the 6 remote actions we pin
+    (would have caught `namee:`) — weigh maintenance vs the gate gap.~~ →
+    routed to ROADMAP (CI hardening ideas).
+28. ~~`[DOC]` Verify the dprint-rewrapped plan file still renders its mermaid
+    graph (fenced block survived reflow?).~~ Verified 2026-09-16: the
+    ```mermaid fenced block is intact (single open/close pair).
+29. ~~`[CI]` Review whether the `ci-${{ github.ref }}` concurrency group should
+    share a group across the tag ref and master for identical SHAs.~~ →
+    routed to ROADMAP (CI hardening ideas).
+30. ~~`[RELEASE]` Record the v0.6.0 release-notes skeleton as the reusable
+    template (first T14 exercise went well — capture the shape).~~ → routed
+    to TODO_LIST T31.
+31. ~~`[CODE]` Run the `modernize` analyzer over non-test code (it only flagged
+    the test file this time; keep the codebase modernizer-clean).~~
+    Verified 2026-09-16: `modernize` is enabled in `.golangci.yml` and the
+    gate is 0-issue — non-test code is modernizer-clean by enforcement.
+32. ~~`[VERIFY]` Confirm `gofmt` enforcement is real: is a gofmt/gofumpt
     linter enabled in `.golangci.yml`, or does format drift rely on local
-    discipline?
-33. `[DOC]` CONTRIBUTING: document the golines/tabs formatting conventions
+    discipline?~~ Verified 2026-09-16: real — `gci`, `goimports`, `gofumpt`,
+    and `golines` (max-len 120) run as lint-enforced formatters; documented
+    in CONTRIBUTING (`b4efa02`).
+33. ~~`[DOC]` CONTRIBUTING: document the golines/tabs formatting conventions
     that bit the previous session (128-col wrap rule is invisible to
-    contributors today).
-34. `[CODE]` Distill any NEW interesting fuzz inputs into seeds only if they
+    contributors today).~~ done at `b4efa02` (Formatting section; premise
+    corrected — golines max-len is 120, not 128).
+34. ~~`[CODE]` Distill any NEW interesting fuzz inputs into seeds only if they
     map to new input classes (standing practice; the dispatch run found
-    ~43 new interesting inputs in cache, not corpus).
-35. `[DOC]` `docs/status/README.md`: add this report's row with its State
-    column set, keeping the index honest.
-36. `[PROCESS]` Schedule the next docs-health pass to annotate THIS report
-    once its §f items resolve.
-37. `[OWNER]` Daemon push policy (§g.1) — then align AGENTS wording with the
-    answer.
-38. `[OWNER]` Third-local-tool blessing for `tools.go` (§g.2).
-39. `[OWNER]` Consumer-bump permission for cross-repo writes (§g.3).
-40. `[OWNER]` Archive-retention answer (keep-forever vs pruning).
-41. `[OWNER]` 0.x full-release confirmation (v0.6.0 adds a third data point).
-42. `[OWNER]` `.config/metadata.yaml`: keep the external tooling or remove
-    the file — the do-not-edit note is a stopgap.
-43. `[CI]` Evaluate a release workflow (tag → gh release) vs the manual
+    ~43 new interesting inputs in cache, not corpus).~~ → covered: standing
+    practice already pinned by the AGENTS corpus↔seeds gotcha and its
+    enforcing test; no new action.
+35. ~~`[DOC]` `docs/status/README.md`: add this report's row with its State
+    column set, keeping the index honest.~~ done this pass: annotated +
+    archived + indexed (2026-09-16).
+36. ~~`[PROCESS]` Schedule the next docs-health pass to annotate THIS report
+    once its §f items resolve.~~ done: this is that pass (2026-09-16).
+37. ~~`[OWNER]` Daemon push policy (§g.1) — then align AGENTS wording with the
+    answer.~~ → routed to ROADMAP → Open questions; AGENTS alignment follows
+    the answer.
+38. ~~`[OWNER]` Third-local-tool blessing for `tools.go` (§g.2).~~ → routed
+    to ROADMAP → Open questions (added 2026-09-16).
+39. ~~`[OWNER]` Consumer-bump permission for cross-repo writes (§g.3).~~ →
+    routed to ROADMAP → Open questions (added 2026-09-16); gates TODO_LIST
+    T23.
+40. ~~`[OWNER]` Archive-retention answer (keep-forever vs pruning).~~ →
+    routed to ROADMAP → Open questions (count refreshed to 12).
+41. ~~`[OWNER]` 0.x full-release confirmation (v0.6.0 adds a third data point).~~
+    → routed to ROADMAP → Open questions (carries v0.6.0).
+42. ~~`[OWNER]` `.config/metadata.yaml`: keep the external tooling or remove
+    the file — the do-not-edit note is a stopgap.~~ → routed to ROADMAP →
+    Open questions (added 2026-09-16).
+43. ~~`[CI]` Evaluate a release workflow (tag → gh release) vs the manual
     `go-release` skill discipline — automation trades the skill's gate
-    ceremony for speed; deliberate choice, not drift.
-44. `[DOC]` ROADMAP: note the observed setup-go precedence behavior
+    ceremony for speed; deliberate choice, not drift.~~ → routed to ROADMAP
+    (CI hardening ideas).
+44. ~~`[DOC]` ROADMAP: note the observed setup-go precedence behavior
     (`go-version-input` default 'stable' + `go-version-file` coexistence) as
-    verified-in-practice.
-45. `[VERIFY]` Re-verify `go mod tidy` produces no diff at the NEXT release
-    tag (Phase 3 discipline was clean this time).
-46. `[CODE]` Coverage floor stays 95% while local is 100% — consider raising
-    the floor to 99% now that the sync test guards test-integrity too.
-47. `[DOC]` README: the Development section lists three commands; add the
-    seeded corpus run + actionlint one-liner for parity with AGENTS.
-48. `[CI]` Tag-push CI: confirm the v0.6.0 tag-ref run used the same workflow
+    verified-in-practice.~~ done 2026-09-16: noted in ROADMAP's CI ideas
+    (verified-in-practice bullet); the manifest-lag caveat lives in AGENTS.
+45. ~~`[VERIFY]` Re-verify `go mod tidy` produces no diff at the NEXT release
+    tag (Phase 3 discipline was clean this time).~~ → routed to TODO_LIST
+    T33 (watchlist).
+46. ~~`[CODE]` Coverage floor stays 95% while local is 100% — consider raising
+    the floor to 99% now that the sync test guards test-integrity too.~~ →
+    routed to TODO_LIST T32.
+47. ~~`[DOC]` README: the Development section lists three commands; add the
+    seeded corpus run + actionlint one-liner for parity with AGENTS.~~ done
+    at `b4efa02` (both commands added; `-shuffle=on` noted in the CI
+    paragraph).
+48. ~~`[CI]` Tag-push CI: confirm the v0.6.0 tag-ref run used the same workflow
     version as master's (it did — both green — but record that tags trigger
-    CI so releases carry their own run link).
-49. `[PROCESS]` When a report-time mega-annotation is needed, split it:
+    CI so releases carry their own run link).~~ → covered: §a.3 records the
+    tag-ref run and FEATURES' CI row documents runner-verified tips; tag
+    pushes triggering CI is standing behavior.
+49. ~~`[PROCESS]` When a report-time mega-annotation is needed, split it:
     annotate per section and commit per section so the daemon's snapshots
-    stay bisectable (this session had one 101-insertion blob).
-50. `[ROADMAP]` Revisit "Imported by: 0" after the consumer sweep — the v1.0
-    API-freeze claim is stronger once ≥1 real consumer pins v0.6.0.
+    stay bisectable (this session had one 101-insertion blob).~~ Applied
+    this pass: section-sized batches (§b/§g, then §f.1–17, §f.18–34,
+    §f.35–50).
+50. ~~`[ROADMAP]` Revisit "Imported by: 0" after the consumer sweep — the v1.0
+    API-freeze claim is stronger once ≥1 real consumer pins v0.6.0.~~ →
+    routed to TODO_LIST T23 (folded into the consumer sweep).
 
 ## g) Questions I can NOT figure out myself
 
