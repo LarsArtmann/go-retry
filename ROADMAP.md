@@ -341,3 +341,21 @@ _Decided (kept for the record, 2026-09-13): no delay-sequence table in the
 README. Proposed repeatedly, never demanded; the formula is already documented
 in three places, and a static table would be a fourth number to keep in sync
 with `computeDelay`. Reopen only if a consumer actually asks._
+
+_Decided (2026-09-16, plan M15): keep the CI coverage floor at 95%. The floor
+is a tripwire against catastrophic drift, not a coverage maximizer; local
+coverage has held 100% across the repo's life and the Session Ritual enforces
+it, while the four points of headroom protect the panic-proof defensive style
+(untestable guard branches must not turn CI red). Revisit only if local
+coverage ever dips below 100._
+
+_Decided (2026-09-16, plan M15): supply-chain-triggered fuzzing is deferred.
+The daily campaign plus the corpus↔seeds guard already bound the risk; a
+trigger-on-dependency-PR fuzz would need `pull-requests: write` and secrets
+on untrusted branches — cost exceeds benefit until a real supply-chain event
+occurs. (Resolves the 2026-09-14 report §f.42 question.)_
+
+_Idea seeds (2026-09-16): pin dprint in a checked-in `tools.go` so the
+markdown format gate works offline (owner blessed the tools.go pattern);
+a bump-trace audit trail — one line in each go-error-family-bump commit
+linking the Dependabot PR and the SHA-verification evidence._

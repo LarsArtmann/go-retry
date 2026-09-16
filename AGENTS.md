@@ -232,6 +232,11 @@ Error codes follow a `retry.<snake_case_event>` convention
   `git show`/`git log` before writing it into a report; status-report claims
   are re-verified against fresh CLI runs, never trusted (reports are
   point-in-time).
+- **Annotate-as-you-land:** plan/report tables get their `done at <hash>`
+  verdict in the same change that completes the work (re-check `git status`
+  immediately before `git add` — the daemon races explicit commits), and a
+  report cites only the final hash of the work it describes, never an
+  intermediate one.
 - **Pipeline masking:** never judge a gate by a filtered tail (`| rg ... |
   head`); read the raw `ok`/`FAIL` summary lines — filters match test names
   and hide failing summaries.

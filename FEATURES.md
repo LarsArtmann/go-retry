@@ -165,7 +165,9 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   `retry_test.go`.
 - **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
   (~20–35 ns/op depending on machine load; 0 allocations — the jitter path
-  allocates nothing). `retry_test.go`.
+  allocates nothing). Re-check when the Go toolchain or the reference machine
+  changes — the absolute number is hardware-bound, the 0-allocs claim is the
+  invariant. `retry_test.go`.
 - **Committed lint config** — `.golangci.yml` (v2) enables the standard
   defaults plus ~100 extra linters (`gosec`, `mnd`, `exhaustruct_v5` among
   them); the in-source `//nolint:` markers are verified live.
