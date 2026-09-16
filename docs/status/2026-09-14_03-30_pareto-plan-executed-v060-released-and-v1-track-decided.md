@@ -43,21 +43,27 @@ styled HTML dashboard — override honored, not propagated).
    indexed, "Latest" badge correct), but the check itself remains a manual
    fetch-retry ritual with a ~1–9 h lag window. The loop closes per release;
    it is not automated. (§f.1.)
-2. **Actionlint gate coverage** — proven for the cron/structure/expression
+2. ~~**Actionlint gate coverage** — proven for the cron/structure/expression
    class; **remote-action input typos are outside the tool's scope** (the
    `namee:` incident proved a broken-but-green master window is possible).
    The limitation is documented in this session's incident commit but not yet
-   as an AGENTS gotcha. (§f.33.)
+   as an AGENTS gotcha.~~ (§f.33-era numbering.) Resolved 2026-09-16: the
+   limitation is now an explicit AGENTS gotcha (`b4efa02`).
 3. **Fuzz failure path** — `fuzz.yml`'s success path is runner-proven; the
    crash-artifact upload + minimization path has never executed (no crasher
    has ever occurred, which is good news but untested plumbing). (§f.30–31.)
-4. **First scheduled fuzz run** — `workflow_dispatch` is green, but the cron
+4. ~~**First scheduled fuzz run** — `workflow_dispatch` is green, but the cron
    trigger (`17 3 * * *` UTC ≈ 05:17 CEST) fires ~2 h after this report;
    schedule-trigger runs have different semantics (default-branch-only,
-   token differences). (§f.13.)
-5. **Owner questions** — daemon push policy, archive retention, and 0.x
+   token differences).~~ (§f.13-era numbering.) Resolved: the first
+   scheduled run fired 2026-09-14 03:33 UTC (run 34802993739) and schedule
+   runs stayed green through 2026-09-16 (34925264051, 35052069172).
+5. ~~**Owner questions** — daemon push policy, archive retention, and 0.x
    full-release confirmation remain unanswered; all three now live in
-   ROADMAP → Open questions so they cannot rot in archives.
+   ROADMAP → Open questions so they cannot rot in archives.~~ Updated
+   2026-09-16: §g.2 (third local tool) and §g.3 (consumer-bump permission)
+   joined them there, plus the `.config/metadata.yaml` keep-or-remove
+   question (§f.42); retention count refreshed to 12.
 
 ## c) NOT STARTED
 
@@ -72,8 +78,10 @@ styled HTML dashboard — override honored, not propagated).
 5. **Consumer propagation for v0.6.0** — `go-cqrs-lite/middleware/v4` (and
    any other consumer) has not been bumped to `go-retry v0.6.0`; the
    `go-ecosystem-upgrade` flow was not run post-release. (§f.2.)
-6. **v0.6.1/v0.7.0** — `[Unreleased]` already holds 3 entries (sync test,
-   fuzz hardening, shuffle); no release decision queued.
+6. ~~**v0.6.1/v0.7.0** — `[Unreleased]` already holds 3 entries (sync test,
+   fuzz hardening, shuffle); no release decision queued.~~ Count went stale:
+   `[Unreleased]` holds 4 entries (the workflow-schema gate joined); the
+   decision is tracked as TODO_LIST T25.
 
 ## d) TOTALLY FUCKED UP
 
@@ -155,45 +163,61 @@ styled HTML dashboard — override honored, not propagated).
 > `[RELEASE]` · `[CI]` · `[CODE]` · `[DOC]` · `[ROADMAP]` · `[OWNER]` ·
 > `[PROCESS]`.
 
-1. `[VERIFY]` Close the v0.6.0 verification loop formally: record the
+1. ~~`[VERIFY]` Close the v0.6.0 verification loop formally: record the
    pkg.go.dev render (incl. `ExampleDoWithValue`, "Latest" badge) in
-   TODO_LIST/AGENTS where the release is referenced.
-2. `[CODE]` Consumer sweep: bump `go-cqrs-lite/middleware/v4` (and any other
+   TODO_LIST/AGENTS where the release is referenced.~~
+   Verified live 2026-09-16 (this pass): pkg.go.dev renders v0.6.0 with all
+   five examples — evidence recorded in §a.3 and the archive index row.
+2. ~~`[CODE]` Consumer sweep: bump `go-cqrs-lite/middleware/v4` (and any other
    consumer) to `go-retry v0.6.0` via the `go-ecosystem-upgrade` flow —
-   post-release propagation was skipped this session.
-3. `[CODE]` Implement the options migration per the M16 design (variadic
-   `Option` tail on `Do`/`DoWithValue`).
-4. `[CODE]` Implement `WithJitter(strategy)` — lands the twice-deferred
-   jitter question as a designed capability, not a `Config` field.
-5. `[CODE]` Implement `WithRandomSource(rand.Source)` — then simplify
-   `TestBackoff_IncreasesExponentially` to sample-based assertions.
-6. `[CODE]` Add the remaining option mirrors (`WithIsRetryable`,
-   `WithDelayFunc`, `WithOnRetry`, `WithExhausted`).
-7. `[RELEASE]` Decide the next cut (v0.6.1 vs v0.7.0) once `[Unreleased]`
+   post-release propagation was skipped this session.~~ → routed to
+   TODO_LIST T23 (owner-gated via ROADMAP → Open questions).
+3. ~~`[CODE]` Implement the options migration per the M16 design (variadic
+   `Option` tail on `Do`/`DoWithValue`).~~ → routed to TODO_LIST T22 (P1;
+   type skeleton now proposed in ROADMAP).
+4. ~~`[CODE]` Implement `WithJitter(strategy)` — lands the twice-deferred
+   jitter question as a designed capability, not a `Config` field.~~ →
+   routed to TODO_LIST T22.
+5. ~~`[CODE]` Implement `WithRandomSource(rand.Source)` — then simplify
+   `TestBackoff_IncreasesExponentially` to sample-based assertions.~~ →
+   routed to TODO_LIST T22.
+6. ~~`[CODE]` Add the remaining option mirrors (`WithIsRetryable`,
+   `WithDelayFunc`, `WithOnRetry`, `WithExhausted`).~~ → routed to TODO_LIST
+   T22.
+7. ~~`[RELEASE]` Decide the next cut (v0.6.1 vs v0.7.0) once `[Unreleased]`
    accumulates — it already holds the sync test, fuzz hardening, and
-   `-shuffle` entries.
-8. `[CI]` Watch the first **scheduled** fuzz run (cron 03:17 UTC ≈ 05:17
-   CEST today) — dispatch-green ≠ schedule-green.
-9. `[VERIFY]` Crash drill: plant a temporary panic on a throwaway branch,
+   `-shuffle` entries.~~ → routed to TODO_LIST T25 (count now 4).
+8. ~~`[CI]` Watch the first **scheduled** fuzz run (cron 03:17 UTC ≈ 05:17
+   CEST today) — dispatch-green ≠ schedule-green.~~ Resolved: first
+   scheduled run 34802993739 fired 2026-09-14 03:33 UTC, green; schedule
+   runs 34925264051 and 35052069172 green through 2026-09-16.
+9. ~~`[VERIFY]` Crash drill: plant a temporary panic on a throwaway branch,
    `workflow_dispatch` fuzz, verify the SHA-named artifact uploads and
-   minimization stays within budget — the failure path has never run.
-10. `[VERIFY]` Confirm Dependabot's NEXT actions-group PR arrives rebased on
-    the new pins (post-merge auto-rebase behavior unobserved).
-11. `[DOC]` Record the actionlint limitation (remote-action inputs unchecked)
+   minimization stays within budget — the failure path has never run.~~ →
+   routed to TODO_LIST T24.
+10. ~~`[VERIFY]` Confirm Dependabot's NEXT actions-group PR arrives rebased on
+    the new pins (post-merge auto-rebase behavior unobserved).~~ → routed to
+    TODO_LIST T33 (watchlist).
+11. ~~`[DOC]` Record the actionlint limitation (remote-action inputs unchecked)
     as an explicit AGENTS gotcha — today it lives only in an incident commit
-    message and a report.
-12. `[PROCESS]` HARVEST this report's §f into `TODO_LIST.md` (the file
-    currently says "no open work"; this list re-seeds it).
-13. `[CI]` Add `workflow_dispatch` to `ci.yml` (manual re-run surface without
-    empty commits; parity with `fuzz.yml`).
-14. `[VERIFY]` Concurrency-group cancel check: push twice rapidly to one PR
-    branch and observe the superseded run actually cancel.
-15. `[DOC]` Update the FEATURES CI row with `-shuffle=on` + the actionlint
-    gate (job inventory drifted behind CHANGELOG).
-16. `[CODE]` Add godoc examples for `Backoff` and `ComputeDelay`
-    (docs-site precondition #3).
-17. `[DOC]` Add the M19 recipe to the README configuration section: callers
-    with a deadline budget should set `MaxDelay` below their remaining time.
+    message and a report.~~ done at `b4efa02` (AGENTS → Gotchas).
+12. ~~`[PROCESS]` HARVEST this report's §f into `TODO_LIST.md` (the file
+    currently says "no open work"; this list re-seeds it).~~ done 2026-09-16
+    (this pass): TODO_LIST rebuilt as T22–T33; ROADMAP gained the §g
+    open questions, CI ideas, and the Option skeleton.
+13. ~~`[CI]` Add `workflow_dispatch` to `ci.yml` (manual re-run surface without
+    empty commits; parity with `fuzz.yml`).~~ → routed to TODO_LIST T26.
+14. ~~`[VERIFY]` Concurrency-group cancel check: push twice rapidly to one PR
+    branch and observe the superseded run actually cancel.~~ → routed to
+    TODO_LIST T33 (watchlist).
+15. ~~`[DOC]` Update the FEATURES CI row with `-shuffle=on` + the actionlint
+    gate (job inventory drifted behind CHANGELOG).~~ done at `b4efa02`
+    (runner evidence refreshed to run 3479724601, 2026-09-14).
+16. ~~`[CODE]` Add godoc examples for `Backoff` and `ComputeDelay`
+    (docs-site precondition #3).~~ → routed to TODO_LIST T27.
+17. ~~`[DOC]` Add the M19 recipe to the README configuration section: callers
+    with a deadline budget should set `MaxDelay` below their remaining time.~~
+    done at `b4efa02` (README → "Deadline budgets").
 18. `[CI]` Decide the local-gate surface honestly: checked-in `tools.go`
     (pinned actionlint + dprint as module tools) vs documented-manual-only —
     needs §g.2's answer.
@@ -268,23 +292,26 @@ styled HTML dashboard — override honored, not propagated).
 
 ## g) Questions I can NOT figure out myself
 
-1. **Daemon push policy (repeat, now with sharper teeth):** today the daemon
+1. ~~**Daemon push policy (repeat, now with sharper teeth):** today the daemon
    pushed my accidental `namee:` break to master within minutes, and master
    sat broken-but-green because the gate doesn't cover that failure class.
    Is unattended daemon-auto-push to `master` intended, or should it stop
    pushing (or push to a side branch)? I cannot fix this from inside the
-   repo — it's your automation and your risk posture.
-2. **Third local tool: yes or no?** The repo's recorded convention is a
+   repo — it's your automation and your risk posture.~~ → routed to ROADMAP
+   → Open questions (2026-09-14; answer pending).
+2. ~~**Third local tool: yes or no?** The repo's recorded convention is a
    two-tool surface (`go` + `golangci-lint`), but today's `actionlint` gate
    is CI-only because local `go install` is blocked in my environment; a
    checked-in `tools.go` with pinned `actionlint`/`dprint` deps would make
    the local gate real and offline. Do I get the blessing to add the tools
-   pattern, or does the two-tool convention win permanently?
-3. **Cross-repo consumer bump: proactive or wait?** v0.6.0 is out, and
+   pattern, or does the two-tool convention win permanently?~~ → routed to
+   ROADMAP → Open questions (added 2026-09-16; answer pending).
+3. ~~**Cross-repo consumer bump: proactive or wait?** v0.6.0 is out, and
    `go-cqrs-lite/middleware/v4` consumes `go-retry`. Do you want me to run
    the `go-ecosystem-upgrade` flow on consumer repos on my own initiative
    (it writes to repos beyond this one), or do you prefer consumer bumps
-   only when you ask?
+   only when you ask?~~ → routed to ROADMAP → Open questions (added
+   2026-09-16); the answer gates TODO_LIST T23.
 
 ---
 

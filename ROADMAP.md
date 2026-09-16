@@ -121,6 +121,40 @@ v1.0:
   (deterministic RNG seam, see below). New behavior lands options-only so
   `Config`'s 8-field shape survives v1.0 unchanged.
 
+  **Type skeleton (proposed 2026-09-16, from the 2026-09-14 report §f.25 —
+  removes the implementer's first decision; override here if a better shape
+  emerges):**
+
+  ```go
+  // Option overrides one piece of Config for a single call. Mutator shape:
+  // Config stays the single source of truth, options compose left-to-right,
+  // and an option is a one-line method.
+  type Option func(*Config)
+
+  func WithIsRetryable(f func(error) bool) Option { return func(c *Config) { c.IsRetryable = f } }
+  func WithDelayFunc(f func(attempt int, err error) time.Duration) Option { return func(c *Config) { c.DelayFunc = f } }
+  func WithOnRetry(f func(attempt int, delay time.Duration, err error)) Option { return func(c *Config) { c.OnRetry = f } }
+  func WithExhausted(f func(attempts int, err error)) Option { return func(c *Config) { c.OnExhausted = f } }
+
+  // Options-only capabilities — never Config fields.
+  type JitterStrategy int
+
+  const (
+  	JitterAdditive JitterStrategy = iota // today's hardcoded default
+  	JitterNone
+  	JitterFull
+  	JitterEqual
+  	JitterDecorrelated
+  )
+
+  func WithJitter(s JitterStrategy) Option        { return func(c *Config) { c.jitterStrategy = s } }
+  func WithRandomSource(src rand.Source) Option   { return func(c *Config) { c.randSource = src } }
+  ```
+
+  The unexported fields (`jitterStrategy`, `randSource`) keep `Config`'s
+  public 8-field shape frozen; `Do`/`DoWithValue` apply `opts` after the
+  caller's `Config` and before `Validate`.
+
   **Deterministic RNG decision (2026-09-13).** Resolves the
   `WORTH_CONSIDERING` item: a pluggable randomness source lands as
   `WithRandomSource(rand.Source)` **with the options migration**, not as a
@@ -199,6 +233,20 @@ v1.0:
     permissions (today the workflows are `contents: read`), and crasher
     triage is inherently human — the corpus-seeds test keeps the manual
     path cheap.
+- **CI hardening ideas (unscoped, harvested 2026-09-16 from the 2026-09-14
+  report §f).**
+  - Remote-action input-allowlist test: the 6 pinned actions' inputs checked
+    against a table — would have caught the 2026-09-13 `namee:` typo that
+    actionlint cannot see. Weigh maintenance against the gate gap.
+  - Concurrency-group shape: `ci-${{ github.ref }}` currently separates the
+    tag ref from master even at identical SHAs; sharing one group would
+    cancel duplicate runs for the same commit. Needs a deliberate call.
+  - Release workflow (tag → `gh release`) vs the manual `go-release` skill
+    discipline: automation trades the skill's gate ceremony for speed —
+    choose deliberately, not by drift.
+  - Verified-in-practice (2026-09-13): `setup-go` with the default
+    `go-version-input: stable` coexists with `go-version-file`; the manifest
+    lag caveat lives in `AGENTS.md` → Gotchas.
 - **Public documentation site.** Other LarsArtmann libraries use the Astro +
   Starlight + Firebase Hosting pattern (see the `website-launch` skill). A
   rendered docs site is plausible once the API is stable. Godoc examples now
@@ -248,9 +296,28 @@ status report.
   (Harvested from the archived 2026-09-13 14:48 report, g.1.)
 
 - **Status-report archive retention.** Default is keep-forever
-  (`docs/status/archived/` grows unbounded; 11 files as of 2026-09-13).
+  (`docs/status/archived/` grows unbounded; 12 files as of 2026-09-16).
   Confirm keep-forever or define a pruning policy. Owner call.
   (Harvested from the archived 2026-09-13 14:48 report, §f.42.)
+
+- **Third local tool: checked-in `tools.go` or two-tool convention?** The
+  recorded convention is `go` + `golangci-lint`, but the actionlint gate is
+  CI-only because local `go install` is blocked in the AI environment; a
+  checked-in `tools.go` with pinned `actionlint`/`dprint` module deps would
+  make the local gate real and offline (documented in ROADMAP's CI ideas and
+  the 2026-09-14 report, §g.2). Bless the tools pattern, or make the
+  two-tool convention permanent?
+
+- **Cross-repo consumer bumps: proactive or on-request?** Releases here
+  (currently v0.6.0) are consumed by `go-cqrs-lite/middleware/v4`. Running
+  the `go-ecosystem-upgrade` flow unprompted writes to repos beyond this
+  one; alternatively consumer bumps happen only when asked (2026-09-14
+  report, §g.3). Owner call — it gates TODO_LIST's consumer-sweep item.
+
+- **`.config/metadata.yaml`: keep or remove?** Machine-written metadata from
+  Lars's external repo tooling; nothing in-repo reads or writes it (AGENTS
+  documents the do-not-edit note as a stopgap). Keep the external writer,
+  or remove the file at the source? (2026-09-14 report, §f.42.)
 
 - **Where do release-notes bodies live?** **Decided (2026-09-13): GitHub-only.**
   Release bodies are composed at release time from the matching `CHANGELOG.md`
