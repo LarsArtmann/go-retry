@@ -218,7 +218,13 @@ Error codes follow a `retry.<snake_case_event>` convention
 - **Gate order:** `gofmt -l .` → `go vet ./...` → `go test ./... -race
   -count=10` → `golangci-lint run ./...` → `golangci-lint config verify`
   (mandatory after any `.golangci.yml` touch — plain `run` tolerates schema
-  violations the CI action rejects) → coverage if tests changed.
+  violations the CI action rejects) → coverage if tests changed →
+  `nix run nixpkgs#dprint -- check` (markdown/JSON/YAML drift) →
+  `./scripts/check-compare-links.sh` (after any CHANGELOG link edit).
+- **Coverage canonical format:** `go test -cover ./...` — read the
+  `coverage: 100.0% of statements` line; the CI floor is 95% (decision
+  pending in TODO_LIST T32). Never quote coverage from `go tool cover`
+  output without the `go test -cover` line as source.
 - **Test-failure proof:** a new guard test must be shown to FAIL on the drift
   it guards (temporarily break the fixture, observe the named failure,
   restore). A test that was never seen failing is unverified.

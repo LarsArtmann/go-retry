@@ -158,9 +158,13 @@ not a copy. The shape that worked for v0.6.0/v0.6.1:
 4. `**Full changelog:**` compare link (`vPREV...vNEW`).
 
 Pre-tag ritual additions to the `go-release` Phase 4 gate: local
-`govulncheck ./...` (first exercised at v0.6.1: no vulnerabilities) and
-`go mod tidy` producing no diff at the tag.
+`govulncheck ./...` (first exercised at v0.6.1: no vulnerabilities),
+`go mod tidy` producing no diff at the tag, and
+`./scripts/check-compare-links.sh` after any CHANGELOG link edit
+(proven to fail on a poisoned link before it counted as a guard).
 
 Post-push verification ritual: proxy `go list -m -versions` shows the tag;
-clean-room `go get` in a scratch module; `pkg.go.dev/fetch/<module>@<tag>`
-returns 200; tag-CI run green.
+clean-room `go get` in a scratch module; the canonical
+`pkg.go.dev/github.com/larsartmann/go-retry` page renders the new version
+(the `/fetch` trigger URL may 404 while indexing — the page is the truth);
+tag-CI run green.
