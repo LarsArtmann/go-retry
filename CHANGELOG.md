@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Deadline-budget recipe.** The README's "Deadline budgets" section
+  documents the count-based retry contract and the pattern of setting
+  `MaxDelay` below a remaining time budget, so an over-deadline run fails
+  fast with `ErrDeadlineExceeded` instead of sleeping past the cutoff.
+  Documentation only; no API change. `README.md`.
 - **Corpus↔seeds mirror is enforced by a test.**
   `TestFuzzCorpusMirrorsSeeds` parses the `f.Add` seeds from the test source
   and the committed corpus files, normalizes both (including the constant

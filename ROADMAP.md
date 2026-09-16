@@ -198,10 +198,16 @@ v1.0:
   | v0.4.0        | v0.10.0         | family/code contract settled                                                  |
   | v0.5.0        | v0.10.0         | —                                                                             |
   | v0.6.0        | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc |
+  | master (→v0.6.1) | v0.10.1      | patch bump via Dependabot (2026-09-16); surface unchanged, gates green        |
 
   Rule: a go-error-family **major** (post-v1) or any change to the surface
   above requires a go-retry minor bump and a new matrix row; the `RetryPolicy`
   shape is the riskiest coupling (see the API-audit `FromPolicy` note).
+
+  Who bumps go-error-family (trace, 2026-09-16): Dependabot's weekly gomod
+  watcher opens the PR; the owner (or an agent following the AGENTS
+  verify-then-merge flow) SHA-verifies each action/gomod change, runs the
+  gates, and merges when green. No one edits the pin by hand.
 - **CI hardening ideas (unscoped).** A periodic `-race` fuzz short-run
   (throughput vs concurrency-bug tradeoff); pinning the govulncheck action's
   internal `go install …@latest` posture; an auto-PR loop that lands fuzz
@@ -279,45 +285,29 @@ Unresolved decisions that need a human (they are _not_ TODO tasks). They block
 parts of the docs/release flow, so they live here rather than rotting in a
 status report.
 
-- **0.x releases: GitHub full release or prerelease?** The `go-release` skill
-  defaults 0.x to prereleases, but practice in these repos is full releases
-  (wise-go v0.9.0; go-retry v0.4.0, v0.5.0, and now v0.6.0 were published as
-  full releases, following the owner's demonstrated preference). Confirm full
-  releases for 0.x going forward so the skill default stops fighting
-  practice. (Raised in
-  `docs/status/archived/2026-08-22_01-20_go-retry-v0.4.0-hardening-executed.md`,
-  Q3.)
+- **0.x releases: GitHub full release or prerelease?** **Decided (asked
+  2026-09-16, owner): full releases for 0.x** (v0.6.1 next, then v0.7.0);
+  v1.0 remains a separate later decision.
 
-- **Daemon push policy.** The auto-commit daemon commits AND pushes to
-  `master` unattended (2026-09-13: an invalid lint config reached CI and
-  went red on master that way, before any human saw it). Is daemon-auto-push
-  to the default branch intended, or should it push to a branch / stop
-  pushing so red CI never lands on master unreviewed? Owner call.
-  (Harvested from the archived 2026-09-13 14:48 report, g.1.)
+- **Daemon push policy.** **Decided (asked 2026-09-16, owner): the daemon
+  keeps committing AND pushing.** Agent commits amend over daemon races only
+  while unpushed, exactly as AGENTS documents.
 
-- **Status-report archive retention.** Default is keep-forever
-  (`docs/status/archived/` grows unbounded; 12 files as of 2026-09-16).
-  Confirm keep-forever or define a pruning policy. Owner call.
-  (Harvested from the archived 2026-09-13 14:48 report, §f.42.)
+- **Status-report archive retention.** **Decided (asked 2026-09-16, owner):
+  keep all forever** — `docs/status/archived/` grows unbounded by design.
 
-- **Third local tool: checked-in `tools.go` or two-tool convention?** The
-  recorded convention is `go` + `golangci-lint`, but the actionlint gate is
-  CI-only because local `go install` is blocked in the AI environment; a
-  checked-in `tools.go` with pinned `actionlint`/`dprint` module deps would
-  make the local gate real and offline (documented in ROADMAP's CI ideas and
-  the 2026-09-14 report, §g.2). Bless the tools pattern, or make the
-  two-tool convention permanent?
+- **Third local tool: checked-in `tools.go` or two-tool convention?**
+  **Decided (asked 2026-09-16, owner): the `tools.go` pattern is blessed** for
+  local-only tools (govulncheck, formatter); landing it is queued (plan M2/M15
+  follow-through), and `actionlint` stays `go run`-pinned until then.
 
-- **Cross-repo consumer bumps: proactive or on-request?** Releases here
-  (currently v0.6.0) are consumed by `go-cqrs-lite/middleware/v4`. Running
-  the `go-ecosystem-upgrade` flow unprompted writes to repos beyond this
-  one; alternatively consumer bumps happen only when asked (2026-09-14
-  report, §g.3). Owner call — it gates TODO_LIST's consumer-sweep item.
+- **Cross-repo consumer bumps: proactive or on-request?** **Decided (asked
+  2026-09-16, owner): authorized** — after v0.7.0 ships, bump
+  `go-cqrs-lite/middleware/v4` to it (the M9 sweep) without a further ask.
 
-- **`.config/metadata.yaml`: keep or remove?** Machine-written metadata from
-  Lars's external repo tooling; nothing in-repo reads or writes it (AGENTS
-  documents the do-not-edit note as a stopgap). Keep the external writer,
-  or remove the file at the source? (2026-09-14 report, §f.42.)
+- **`.config/metadata.yaml`: keep or remove?** **Decided (asked 2026-09-16,
+  owner): keep.** The external writer owns the file; the AGENTS do-not-edit
+  note stands as the permanent convention, not a stopgap.
 
 - **Where do release-notes bodies live?** **Decided (2026-09-13): GitHub-only.**
   Release bodies are composed at release time from the matching `CHANGELOG.md`
@@ -329,6 +319,9 @@ status report.
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —
 see `AGENTS.md` → Commands. Do not invent nix targets._
+
+_Decided (asked 2026-09-16, owner): the relaxed `go 1.26` directive in
+`go.mod` is intentional — stay on it; do not re-pin to a patch version._
 
 _Decided (kept for the record, 2026-09-13): no delay-sequence table in the
 README. Proposed repeatedly, never demanded; the formula is already documented

@@ -45,7 +45,8 @@ synonyms. Code is the source of truth — this glossary mirrors it.
 ## The `error-family` vocabulary (load-bearing)
 
 `go-retry` borrows its entire error model from
-[`go-error-family`](https://github.com/larsartmann/go-error-family) (`v0.10.0`).
+[`go-error-family`](https://github.com/larsartmann/go-error-family) (version
+pinned in `go.mod`).
 Every error carries a behavioral **Family** and a stable string **code**.
 
 - **Family** — an error's behavioral profile, used here to answer "should I

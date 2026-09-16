@@ -6,7 +6,7 @@ Concise, enduring context for every AI session working in `go-retry`.
 
 A single-package Go **library** (not an application) providing a dependency-light
 retry loop with exponential backoff and jitter. Module:
-`github.com/larsartmann/go-retry`, package `retry`, Go 1.26.7 (see `go.mod`).
+`github.com/larsartmann/go-retry`, package `retry`, Go 1.26 (see `go.mod`).
 
 This is the **core** retry primitive — intentionally free of CQRS message types
 and OpenTelemetry. The CQRS-wrapped variant (`MessageAdapter`, OTel spans,
