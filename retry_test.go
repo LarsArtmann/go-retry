@@ -1501,3 +1501,298 @@ func TestDoWithValue_DoesNotLeakPartialValueOnLaterFailure(t *testing.T) {
 		t.Fatalf("expected no partial value from a failed attempt, got %q", got)
 	}
 }
+
+func TestDo_OptionsTail(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		opts        []retry.Option
+		wantRetries int
+		wantReject  bool
+	}{
+		{
+			name:        "no options preserves struct-literal behavior",
+			opts:        nil,
+			wantRetries: fastConfig().MaxAttempts,
+		},
+		{
+			name:        "empty options slice behaves identically",
+			opts:        []retry.Option{},
+			wantRetries: fastConfig().MaxAttempts,
+		},
+		{
+			name:        "nil options are ignored",
+			opts:        []retry.Option{nil},
+			wantRetries: fastConfig().MaxAttempts,
+		},
+		{
+			name:        "option raising MaxAttempts is honored",
+			opts:        []retry.Option{func(c *retry.Config) { c.MaxAttempts = 5 }},
+			wantRetries: 5,
+		},
+		{
+			name:       "option setting an invalid value is rejected before the loop",
+			opts:       []retry.Option{func(c *retry.Config) { c.MaxAttempts = 0 }},
+			wantReject: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			var calls atomic.Int32
+
+			err := retry.Do(context.Background(), fastConfig(), func(_ context.Context, _ int) error {
+				calls.Add(1)
+
+				return errorfamily.NewTransient("test.transient", "always fails")
+			}, tt.opts...)
+
+			if tt.wantReject {
+				if err == nil || errorfamily.Classify(err) != errorfamily.Rejection {
+					t.Fatalf("expected a Rejection from Validate, got %v", err)
+				}
+
+				if got := calls.Load(); got != 0 {
+					t.Fatalf("Validate must run before the loop, but fn was called %d times", got)
+				}
+
+				return
+			}
+
+			if err == nil {
+				t.Fatal("expected exhaustion error")
+			}
+
+			if got := calls.Load(); got != int32(tt.wantRetries) {
+				t.Fatalf("fn ran %d times, want %d", got, tt.wantRetries)
+			}
+		})
+	}
+}
+
+func TestDo_OptionOverridesFieldForOneCallOnly(t *testing.T) {
+	t.Parallel()
+
+	var optionCalls, fieldCalls atomic.Int32
+
+	onRetryField := func(_ int, _ time.Duration, _ error) { fieldCalls.Add(1) }
+	onRetryOption := func(_ int, _ time.Duration, _ error) { optionCalls.Add(1) }
+
+	cfg := fastConfig()
+	cfg.OnRetry = onRetryField
+	cfg.MaxAttempts = 2 // one retry per call: exactly one OnRetry fire
+
+	custom := retry.Option(func(c *retry.Config) { c.OnRetry = onRetryOption })
+
+	fail := func(_ context.Context, _ int) error {
+		return errorfamily.NewTransient("test.transient", "fail")
+	}
+
+	if err := retry.Do(context.Background(), cfg, fail, custom); err == nil {
+		t.Fatal("expected exhaustion error")
+	}
+
+	if optionCalls.Load() == 0 {
+		t.Fatal("option callback never fired; option did not override the field")
+	}
+
+	if fieldCalls.Load() != 0 {
+		t.Fatalf("field callback fired %d times despite option override", fieldCalls.Load())
+	}
+
+	optionCallsAfterFirst := optionCalls.Load()
+
+	if err := retry.Do(context.Background(), cfg, fail); err == nil {
+		t.Fatal("expected exhaustion error")
+	}
+
+	if fieldCalls.Load() == 0 {
+		t.Fatal("field callback never fired on the option-free call; the field must keep working")
+	}
+
+	if optionCalls.Load() != optionCallsAfterFirst {
+		t.Fatalf(
+			"option callback fired on the option-free call (%d -> %d); an option must apply to one call only",
+			optionCallsAfterFirst,
+			optionCalls.Load(),
+		)
+	}
+}
+
+func TestDo_OptionsComposeLeftToRight(t *testing.T) {
+	t.Parallel()
+
+	var attempts atomic.Int32
+
+	err := retry.Do(context.Background(), fastConfig(),
+		func(_ context.Context, _ int) error {
+			attempts.Add(1)
+
+			return errorfamily.NewTransient("test.transient", "fail")
+		},
+		func(c *retry.Config) { c.MaxAttempts = 5 },
+		func(c *retry.Config) { c.MaxAttempts = 2 },
+	)
+	if err == nil {
+		t.Fatal("expected exhaustion error")
+	}
+
+	if got := attempts.Load(); got != 2 {
+		t.Fatalf("later option must win: fn ran %d times, want 2", got)
+	}
+}
+
+func TestDoWithValue_OptionsTail(t *testing.T) {
+	t.Parallel()
+
+	got, err := retry.DoWithValue(context.Background(), fastConfig(),
+		func(_ context.Context, attempt int) (string, error) {
+			if attempt < 3 {
+				return "", errorfamily.NewTransient("test.transient", "fail twice")
+			}
+
+			return "ok", nil
+		},
+		func(c *retry.Config) { c.MaxAttempts = 3 },
+	)
+	if err != nil {
+		t.Fatalf("DoWithValue() error = %v", err)
+	}
+
+	if got != "ok" {
+		t.Fatalf("DoWithValue() = %q, want %q", got, "ok")
+	}
+}
+
+func TestWithIsRetryable(t *testing.T) {
+	t.Parallel()
+
+	nonRetryable := errorfamily.NewRejection("test.rejection", "do not retry")
+
+	err := retry.Do(context.Background(), fastConfig(), func(_ context.Context, _ int) error {
+		return nonRetryable
+	}, retry.WithIsRetryable(func(error) bool { return false }))
+	if err != nonRetryable { //nolint:errorlint // identity is the assertion: not wrapped, not retried
+		t.Fatalf("non-retryable error must come back unwrapped and unretried, got %v", err)
+	}
+
+	var retried atomic.Int32
+
+	err = retry.Do(context.Background(), fastConfig(), func(_ context.Context, _ int) error {
+		retried.Add(1)
+
+		return errorfamily.NewRejection("test.rejection", "retry me anyway")
+	}, retry.WithIsRetryable(func(error) bool { return true }))
+	if err == nil {
+		t.Fatal("expected exhaustion error")
+	}
+
+	if got := int(retried.Load()); got != fastConfig().MaxAttempts {
+		t.Fatalf("WithIsRetryable(true) must drive retries to exhaustion, got %d calls", got)
+	}
+}
+
+func TestWithDelayFunc(t *testing.T) {
+	t.Parallel()
+
+	t.Run("positive return overrides the backoff delay", func(t *testing.T) {
+		t.Parallel()
+
+		retry.Do(context.Background(), fastConfig(), func(_ context.Context, _ int) error {
+			return errorfamily.NewTransient("test.transient", "fail")
+		}, retry.WithDelayFunc(func(_ int, _ error) time.Duration {
+			return 42 * time.Millisecond
+		}), retry.WithOnRetry(func(_ int, delay time.Duration, _ error) {
+			if delay != 42*time.Millisecond {
+				t.Fatalf("OnRetry saw delay %s, want the DelayFunc override 42ms", delay)
+			}
+		}))
+	})
+
+	t.Run("zero return falls back to exponential backoff", func(t *testing.T) {
+		t.Parallel()
+
+		retry.Do(context.Background(), fastConfig(), func(_ context.Context, _ int) error {
+			return errorfamily.NewTransient("test.transient", "fail")
+		}, retry.WithDelayFunc(func(_ int, _ error) time.Duration { return 0 }))
+	})
+}
+
+func TestWithOnRetryAndWithExhausted(t *testing.T) {
+	t.Parallel()
+
+	var retries, exhausted atomic.Int32
+
+	err := retry.Do(context.Background(), fastConfig(), func(_ context.Context, attempt int) error {
+		if attempt < fastConfig().MaxAttempts {
+			return errorfamily.NewTransient("test.transient", "fail early")
+		}
+
+		return nil // succeed on the last attempt
+	},
+		retry.WithOnRetry(func(attempt int, _ time.Duration, _ error) {
+			retries.Add(1)
+
+			if attempt != int(retries.Load()) {
+				t.Fatalf("OnRetry saw attempt %d out of order (fire #%d)", attempt, retries.Load())
+			}
+		}),
+		retry.WithExhausted(func(int, error) {
+			exhausted.Add(1)
+
+			t.Error("WithExhausted must not fire when the loop succeeds")
+		}))
+	if err != nil {
+		t.Fatalf("expected success on the final attempt, got %v", err)
+	}
+
+	if got := retries.Load(); got != 2 {
+		t.Fatalf("OnRetry fired %d times, want 2 (once per failed attempt, before the sleep)", got)
+	}
+}
+
+func TestOptions_FieldAndOptionCoexistence(t *testing.T) {
+	t.Parallel()
+
+	var fieldRetries, optionRetries atomic.Int32
+
+	cfg := fastConfig()
+	cfg.OnRetry = func(_ int, _ time.Duration, _ error) { fieldRetries.Add(1) }
+
+	fail := func(_ context.Context, _ int) error {
+		return errorfamily.NewTransient("test.transient", "fail")
+	}
+
+	// Option set, field set: option wins for that call.
+	_ = retry.Do(context.Background(), cfg, fail, retry.WithOnRetry(func(_ int, _ time.Duration, _ error) {
+		optionRetries.Add(1)
+	}))
+
+	if optionRetries.Load() == 0 || fieldRetries.Load() != 0 {
+		t.Fatalf("option must win when both are set (option=%d field=%d)", optionRetries.Load(), fieldRetries.Load())
+	}
+
+	// Field set, no option: field keeps working.
+	_ = retry.Do(context.Background(), cfg, fail)
+
+	if fieldRetries.Load() == 0 {
+		t.Fatal("field callback must keep working without options")
+	}
+
+	// Field unset, option set: option alone drives behavior.
+	cfgNoField := fastConfig()
+	cfgNoField.OnRetry = nil
+
+	optionOnly := atomic.Int32{}
+
+	_ = retry.Do(context.Background(), cfgNoField, fail, retry.WithOnRetry(func(_ int, _ time.Duration, _ error) {
+		optionOnly.Add(1)
+	}))
+
+	if optionOnly.Load() == 0 {
+		t.Fatal("option must work when the field is unset")
+	}
+}

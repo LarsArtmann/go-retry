@@ -80,7 +80,12 @@ type AttemptFunc func(ctx context.Context, attempt int) error
 // If all attempts fail, Do calls config.OnExhausted (if set) and returns
 // an error wrapping [ErrExhausted] with the last error as its cause, so
 // errors.Is and errors.AsType reach the final attempt's error.
-func Do(ctx context.Context, config Config, fn AttemptFunc) error {
+//
+// The optional opts tail overrides Config fields for this call only — the
+// passed Config is not modified. See [Option].
+func Do(ctx context.Context, config Config, fn AttemptFunc, opts ...Option) error {
+	applyOptions(&config, opts)
+
 	if err := config.Validate(); err != nil {
 		return err
 	}
@@ -133,7 +138,10 @@ type ResultFunc[T any] func(ctx context.Context, attempt int) (T, error)
 // error. On any failure (non-retryable error, exhaustion, or a context
 // end during backoff) the zero T is returned with the same error [Do]
 // would produce.
-func DoWithValue[T any](ctx context.Context, config Config, fn ResultFunc[T]) (T, error) {
+//
+// Like [Do], DoWithValue accepts an optional opts tail that overrides
+// Config fields for this call only. See [Option].
+func DoWithValue[T any](ctx context.Context, config Config, fn ResultFunc[T], opts ...Option) (T, error) {
 	var zero T
 
 	var out T
@@ -145,7 +153,7 @@ func DoWithValue[T any](ctx context.Context, config Config, fn ResultFunc[T]) (T
 		}
 
 		return attemptErr
-	})
+	}, opts...)
 	if err != nil {
 		return zero, err
 	}
