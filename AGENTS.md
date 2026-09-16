@@ -182,12 +182,12 @@ Error codes follow a `retry.<snake_case_event>` convention
 - **Go files use tabs** (`.editorconfig`); YAML/JSON/Nix use 2 spaces.
 - **actionlint validates structure, not remote-action inputs.** Cron formats,
   expressions, and workflow schema errors die in seconds (the gate is the first
-  lint-job step), but a typo'd *input key* on a `uses:` action passes silently
+  lint-job step), but a typo'd _input key_ on a `uses:` action passes silently
   — the runner ignores unknown inputs. The 2026-09-13 `namee:` incident proved
   a broken-but-green master window is possible. Treat remote-action input
   changes as review-only surface.
 - **`setup-go`'s version manifest lags `go.dev` by hours.** A fresh Go patch
-  release can resolve `go-version-file`/`go-version` to the *previous* patch,
+  release can resolve `go-version-file`/`go-version` to the _previous_ patch,
   while Go's own toolchain switching downloads the exact version regardless —
   a tag-CI run can then disagree with the local toolchain. Fix when it bites:
   pin `GOTOOLCHAIN: go1.26.x` at job or workflow level (go-release skill Phase

@@ -255,6 +255,7 @@ styled HTML dashboard — override honored, not propagated).
 28. ~~`[DOC]` Verify the dprint-rewrapped plan file still renders its mermaid
     graph (fenced block survived reflow?).~~ Verified 2026-09-16: the
     ```mermaid fenced block is intact (single open/close pair).
+    ```
 29. ~~`[CI]` Review whether the `ci-${{ github.ref }}` concurrency group should
     share a group across the tag ref and master for identical SHAs.~~ →
     routed to ROADMAP (CI hardening ideas).
