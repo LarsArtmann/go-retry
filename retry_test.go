@@ -2072,3 +2072,27 @@ func TestWithJitter_AdditiveStaysBounded(t *testing.T) {
 		t.Fatalf("additive delay exceeded base+50%%: %v", maxDelay)
 	}
 }
+
+func ExampleBackoff() {
+	// Backoff rejects attempts below 1 with a Rejection-family error
+	// before any delay math runs.
+	_, err := retry.Backoff(retry.DefaultConfig(), 0)
+	fmt.Println(err)
+	// Output: [rejection:retry.invalid_attempt] attempt must be >= 1, got 0
+}
+
+func ExampleComputeDelay() {
+	// The hard cap holds exactly: once the exponential delay reaches
+	// MaxDelay, the result is MaxDelay — never above it, jitter included.
+	initial := 2 * time.Millisecond
+
+	delay, err := retry.ComputeDelay(initial, initial, 2.0, 10) // 2ms * 2^9 >> 2ms
+	if err != nil {
+		fmt.Println("unexpected error:", err)
+
+		return
+	}
+
+	fmt.Println("delay:", delay)
+	// Output: delay: 2ms
+}
