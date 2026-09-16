@@ -107,6 +107,14 @@ backoff" (see [`Backoff`](retry.go) / [`ComputeDelay`](retry.go)). This lets
 callers honor server-provided delays (e.g. HTTP "Retry-After") only when present.
 Both exported helpers return `(time.Duration, error)` and reject attempts below 1.
 
+### Deadline budgets
+
+Budgeting is count-based: `MaxAttempts` is the whole contract, and a deadline
+only terminates the loop (`ErrDeadlineExceeded`). If you need the retries to
+fit inside a remaining time budget, set `MaxDelay` below that budget — then
+the worst case per wait is bounded and an over-deadline run fails fast with
+`ErrDeadlineExceeded` instead of sleeping past your cutoff.
+
 ### Custom retryable predicate and observability hooks
 
 ```go
@@ -190,12 +198,16 @@ inventory.
 go test ./... -race        # tests (always with -race)
 golangci-lint run ./...    # lint
 go vet ./...               # vet
+go test -run '^FuzzComputeDelayNeverPanics$' .   # exercise the committed fuzz corpus (no fuzzing)
+go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12  # workflow schema check
 go test ./... -race -coverprofile=reports/coverage.out \
   && go tool cover -func=reports/coverage.out   # coverage (currently 100%)
 ```
 
-CI (`.github/workflows/ci.yml`) runs `go vet` and the race-detector tests,
-lints, runs a `govulncheck` vulnerability scan, and enforces a **95% coverage
+CI (`.github/workflows/ci.yml`) runs `go vet` and the race-detector tests
+(shuffled with `-shuffle=on`), lints — including an
+[actionlint](https://github.com/rhysd/actionlint) workflow-schema gate — runs
+a `govulncheck` vulnerability scan, and enforces a **95% coverage
 floor** — local coverage sits at 100%, the floor leaves deliberate room for
 hard-to-test edges. A separate daily workflow (`.github/workflows/fuzz.yml`)
 fuzzes `FuzzComputeDelayNeverPanics` for 30 minutes and uploads any crash

@@ -62,6 +62,19 @@ committed corpus without fuzzing). A daily scheduled workflow
 (`.github/workflows/fuzz.yml`) runs a 30-minute campaign in CI; new crashers
 land in the committed corpus, not just in seeds.
 
+## Formatting
+
+Formatting is enforced by the lint gate, not by discipline — a drifted file
+fails `golangci-lint run` / CI:
+
+- **Go** — the `.golangci.yml` `formatters` section enables `gci`, `goimports`,
+  `gofumpt`, and `golines` (max line length 120). Run `golangci-lint run
+  --fix` (or let the editor's golangci integration) to auto-format.
+- **Markdown / JSON / YAML / Dockerfile** — [dprint](https://dprint.dev) with
+  the committed `dprint.json` (the markdown plugin maintains existing line
+  wrapping; `CHANGELOG.md` is excluded). Tabs for Go files, 2 spaces for
+  YAML/JSON (`.editorconfig`).
+
 ## Lint policy
 
 The committed [`.golangci.yml`](.golangci.yml) enables the standard default

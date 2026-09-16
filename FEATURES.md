@@ -123,8 +123,14 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
 - **Fuzz target** — `FuzzComputeDelayNeverPanics` with seeds for ordinary,
   zero-cap, overflow, and near-`MaxInt64` inputs. The seed corpus is also
   committed in `testdata/fuzz/FuzzComputeDelayNeverPanics/`, and a scheduled
-  CI workflow fuzzes daily for 30 minutes. `retry_test.go`, `testdata/fuzz/`,
+  CI workflow fuzzes daily for 30 minutes (schedule-trigger runs verified
+  green 2026-09-14 through 2026-09-16). `retry_test.go`, `testdata/fuzz/`,
   `.github/workflows/fuzz.yml`.
+- **Corpus↔seeds mirror is machine-checked** — `TestFuzzCorpusMirrorsSeeds`
+  parses the `f.Add` seeds and the committed corpus files, normalizes both
+  (including constant expressions), and fails naming the offender when either
+  side drifts (drift-fail proven in both directions).
+  `retry_test.go` (`TestFuzzCorpusMirrorsSeeds`).
 - **Behavioral guarantees** — `OnRetry` not called after the final failure;
   a pre-canceled context yields `ErrCanceled`; a deadline exceeded during
   backoff yields `ErrDeadlineExceeded` matching `context.DeadlineExceeded`
@@ -150,12 +156,14 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
 - **Domain glossary** — `docs/DOMAIN_LANGUAGE.md` defines the retry and
   `error-family` vocabulary and the `retry.<event>` code table.
 - **CI workflow** — `.github/workflows/ci.yml` runs `go vet`,
-  `go test ./... -race`, and a `govulncheck` vulnerability scan, lints via
-  golangci-lint (version pinned in `.github/workflows/ci.yml`), and enforces a 95%
+  `go test ./... -race -shuffle=on`, and a `govulncheck` vulnerability scan,
+  lints via golangci-lint (version pinned in `.github/workflows/ci.yml`)
+  behind an [actionlint](https://github.com/rhysd/actionlint)
+  workflow-schema gate, and enforces a 95%
   coverage floor on every push and pull request; each job carries a
   10-minute timeout and pushes to the same ref cancel superseded runs.
-  Verified green on real runners for the current tip (run 34755167105,
-  2026-09-13).
+  Verified green on real runners for the current tip (run 3479724601,
+  2026-09-14).
 
 ## PARTIALLY_FUNCTIONAL
 
