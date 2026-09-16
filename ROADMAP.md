@@ -112,6 +112,12 @@ v1.0:
   (`WithOnRetry(...)`) so new capabilities don't break the struct literal
   callers already have. Large change; needs a concrete migration story.
 
+  **Landed (2026-09-16, v0.7.0).** The `Option` tail, the four callback
+  mirrors, `WithJitter` (`Additive`/`None`), and `WithRandomSource` shipped
+  exactly per this design. Options live in `options.go`; follow-up strategies
+  (`Full`/`Equal`/`Decorrelated` jitter) are recorded in the jitter scope
+  call below.
+
   **Design (2026-09-13, v1.0 track).** Goals: grow behavior (jitter strategy,
   RNG source, future hooks) without ever breaking `Config` struct literals;
   keep zero-config usage idiomatic. Non-goals: replacing `Config`, runtime
@@ -162,8 +168,9 @@ v1.0:
   public 8-field shape frozen; `Do`/`DoWithValue` apply `opts` after the
   caller's `Config` and before `Validate`.
 
-  **Deterministic RNG decision (2026-09-13).** Resolves the
-  `WORTH_CONSIDERING` item: a pluggable randomness source lands as
+  **Deterministic RNG decision (2026-09-13) — LANDED 2026-09-16 as
+  `WithRandomSource(rand.Source)` (math/rand/v2; nil = global generator).**
+  Resolves the `WORTH_CONSIDERING` item: a pluggable randomness source lands as
   `WithRandomSource(rand.Source)` **with the options migration**, not as a
   `Config` field and not as a package-level test seam. A test seam (mutable
   package var) is rejected — it is shared mutable state under `-race` and

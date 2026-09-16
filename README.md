@@ -148,6 +148,28 @@ cfg.DelayFunc = func(attempt int, err error) time.Duration {
 }
 ```
 
+### Per-call options
+
+`Do` and `DoWithValue` accept an optional options tail that overrides the
+`Config` for that call only — the struct you passed is never modified, and
+the fields keep working forever:
+
+```go
+err := retry.Do(ctx, cfg, fetch,
+	retry.WithOnRetry(func(attempt int, delay time.Duration, err error) {
+		log.Printf("attempt %d failed: %v", attempt, err)
+	}),
+	retry.WithJitter(retry.JitterNone), // deterministic backoff for this call
+)
+```
+
+Available options: `WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`, and
+`WithExhausted` mirror the four `Config` callbacks; `WithJitter` picks the
+jitter strategy (`JitterAdditive` — the default, or `JitterNone`), and
+`WithRandomSource` injects a `math/rand/v2` source so delays become fully
+reproducible in tests. Options compose left-to-right, a later option wins,
+and a nil option is ignored.
+
 ## Errors
 
 `Do` never returns a bare `context.Canceled`. On exhaustion it returns an

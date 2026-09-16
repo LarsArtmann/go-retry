@@ -12,21 +12,9 @@ Priority: **P1** = high impact, do first; **P2** = valuable, not blocking;
 
 ## P1
 
-### T22 — Options-pattern migration (v1.0 track)
-
-Implement the recorded design: a variadic `Option` tail on `Do` /
-`DoWithValue` (proposed type skeleton in `ROADMAP.md`). Land the four
-callback mirrors (`WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`,
-`WithExhausted`), then the two options-only capabilities — `WithJitter`
-(lands the twice-deferred jitter decision as a designed capability) and
-`WithRandomSource` (lets `TestBackoff_IncreasesExponentially` become
-sample-based). No `Config` field changes; struct literals keep compiling.
-Evidence: `ROADMAP.md` (options design + skeleton). Source: 2026-09-14
-report §f.3–6, §c.1–2.
-
 ## P2
 
-### T23 — Consumer sweep: bump `go-cqrs-lite/middleware/v4` to v0.6.0
+### T23 — Consumer sweep: bump `go-cqrs-lite/middleware/v4` to the latest release
 
 Post-release propagation was skipped for v0.6.0; the v1.0 API-freeze claim is
 stronger once ≥1 real consumer pins the current release. Run the

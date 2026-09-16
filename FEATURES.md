@@ -23,6 +23,23 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   with a nil error, and the zero value with the same error `Do` would produce
   on any failure (non-retryable, exhaustion, context end). `retry.go`
   (`DoWithValue`), `retry_test.go`.
+- **Per-call options (`Option` tail)** — `Do` and `DoWithValue` accept a
+  variadic `opts ...Option` tail applied left-to-right after the caller's
+  `Config` and before `Validate`; nil options are ignored; the passed `Config`
+  is never modified. Struct-literal callers keep compiling forever.
+  `options.go`, `retry.go` (`Do`, `DoWithValue`).
+- **Callback mirror options** — `WithIsRetryable`, `WithDelayFunc`,
+  `WithOnRetry`, `WithExhausted` override Config's four callbacks for one
+  call; fields keep working unchanged. `options.go`.
+- **Jitter strategy (`WithJitter`)** — `JitterAdditive` (zero value, the
+  historical default: up to +50%, hard-capped at `MaxDelay`) and `JitterNone`
+  (pure capped exponential, deterministic). Unknown strategy values fall back
+  to additive without panicking. Exported `Backoff`/`ComputeDelay` always
+  preview the additive default. `options.go`, `retry.go` (`computeDelay`).
+- **Deterministic RNG (`WithRandomSource`)** — inject a `math/rand/v2`
+  `Source` (e.g. seeded `rand.NewPCG`) to reproduce exact jittered delay
+  sequences; nil keeps the goroutine-safe global generator.
+  `options.go`, `retry.go` (`jitterValue`).
 - **Exponential backoff with additive jitter, hard-capped** — delay for
   attempt `n` is `min(InitialDelay * Multiplier^(n-1) + jitter, MaxDelay)`
   where jitter is up to 50% of the capped exponential delay; the returned
@@ -187,24 +204,6 @@ _None in code or docs._ (See `WORTH_CONSIDERING` below for candidate work, and
 These are uncommitted ideas — no design, no code. They are candidates for
 graduation into `TODO_LIST.md` once scoped.
 
-- **Configurable jitter factor** — jitter is currently hardcoded to "up to 50%
-  of the capped exponential delay, with the sum hard-capped at `MaxDelay`"
-  (`retry.go`, `computeDelay`). A `Config.JitterFactor` (or
-  `Jitter: none | additive | full | equal`) would let callers disable jitter
-  for deterministic tests or tune spread. **Deferred (2026-08-08, reaffirmed
-  2026-08-22):** `DelayFunc` already covers the custom-delay escape hatch
-  (compute pure exponential in the callback for zero jitter); jitter config
-  will land with the options-pattern migration (see `ROADMAP.md` v1.0
-  section). The v0.4.0 cap fix makes the additive strategy contract-safe —
-  the delay can never exceed `MaxDelay` — which removes the correctness
-  pressure to switch strategies but does not by itself justify a new
-  `Config` field. Tradeoff: another field to validate and freeze.
-- **Deterministic RNG option** — `ComputeDelay` uses `math/rand/v2` globally
-  (`retry.go` imports); a pluggable `rand` source would make delay sequences
-  reproducible in tests without sampling-based assertions (the existing
-  `TestBackoff_IncreasesExponentially` works around this by testing the formula,
-  not sampled values). **Decided (2026-09-13):** lands as `WithRandomSource`
-  with the options-pattern migration — see the `ROADMAP.md` v1.0 section.
 - **Deadline-aware attempt budgeting** — currently `MaxAttempts` is the only
   budget; a caller with a hard deadline cannot ask `Do` to stop retrying when
   the remaining context budget is too small for another attempt. Possibly out of

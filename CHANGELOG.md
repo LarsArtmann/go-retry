@@ -9,11 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- **Per-call options (`Option` tail).** `Do` and `DoWithValue` grow a
+  variadic `opts ...Option` tail — a purely additive, source-compatible
+  change. Options apply left-to-right after the caller's `Config` is copied
+  and before `Validate`; a later option wins over the field and earlier
+  options, nil options are ignored, and the passed `Config` is never
+  modified. `Config`'s public 8-field shape is frozen and pinned by tests.
+  `options.go`, `retry.go`.
+- **Callback mirror options.** `WithIsRetryable`, `WithDelayFunc`,
+  `WithOnRetry`, and `WithExhausted` mirror Config's four callbacks for one
+  call; the fields keep working forever. `options.go`.
+- **Jitter strategy (`WithJitter`).** The twice-deferred jitter question
+  lands as a designed capability: `JitterAdditive` (the zero-value default,
+  byte-identical to the historical behavior) and `JitterNone` (pure capped
+  exponential — deterministic delays for tests and previews). Unknown
+  strategy values fall back to additive without panicking.
+  `Backoff`/`ComputeDelay` always preview the additive default.
+  `options.go`, `retry.go` (`computeDelay`).
+- **Deterministic RNG (`WithRandomSource`).** Inject a `math/rand/v2`
+  `Source` (e.g. seeded `rand.NewPCG`) to reproduce exact jittered delay
+  sequences; nil keeps the goroutine-safe global generator.
+  `options.go`, `retry.go` (`jitterValue`).
 
 ### Changed
 
-- Nothing yet.
+- **`TestBackoff_IncreasesExponentially` asserts real delays.** With
+  `JitterNone` making delays deterministic, the test verifies the exact
+  computed sequence through the public API instead of re-deriving the
+  formula inside the test. `retry_test.go`.
 
 ## [0.6.1] - 2026-09-16
 

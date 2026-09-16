@@ -130,11 +130,15 @@ Error codes follow a `retry.<snake_case_event>` convention
   `errors.Is(err, retry.ErrCanceled)` is false for deadline errors. Do not
   collapse the two branches; operators debug timeouts vs shutdowns
   differently.
-- **Configurable jitter is deliberately deferred.** Do not re-propose a
-  `Jitter` config field: `DelayFunc` is the escape hatch (compute pure
-  exponential in the callback for zero jitter), and jitter strategy lands
-  with the options-pattern migration (see `ROADMAP.md`). This decision has
-  been made twice; do not re-litigate it a third time.
+- **Jitter strategy landed via `WithJitter` — do not regress it to a field.**
+  The twice-deferred jitter question closed in v0.7.0: `JitterAdditive`
+  (zero value = the historical default, byte-identical) and `JitterNone`
+  (deterministic) are options-only, never `Config` fields. `Full`,
+  `Equal`, and `Decorrelated` strategies are recorded ROADMAP follow-ups —
+  no constants exist for them, and an unknown strategy value falls back to
+  additive by design. Do not re-propose `Jitter`/`JitterStrategy` as a
+  public `Config` field, and do not add the deferred strategy constants
+  without implementing them.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
 - **`//nolint:` directives are deliberate**, not leftover, and the referenced
