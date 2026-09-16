@@ -73,7 +73,18 @@ fails `golangci-lint run` / CI:
 - **Markdown / JSON / YAML / Dockerfile** — [dprint](https://dprint.dev) with
   the committed `dprint.json` (the markdown plugin maintains existing line
   wrapping; `CHANGELOG.md` is excluded). Tabs for Go files, 2 spaces for
-  YAML/JSON (`.editorconfig`).
+  YAML/JSON (`.editorconfig`). Canonical invocation (dprint is not pinned in
+  `tools.go` yet):
+
+  ```bash
+  nix run nixpkgs#dprint -- check   # gate: fails on drift
+  nix run nixpkgs#dprint -- fmt     # fix drift in place
+  ```
+
+  dprint's markdown plugin normalizes emphasis to `_underscores_` (not
+  `*asterisks*`) and realigns table columns — when hand-edits introduce
+  `*emphasis*` or ragged tables, `dprint fmt` rewrites them; that drift in a
+  diff you didn't author is dprint at work, not vandalism.
 
 ## Lint policy
 

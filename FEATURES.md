@@ -153,6 +153,10 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   defaults plus ~100 extra linters (`gosec`, `mnd`, `exhaustruct_v5` among
   them); the in-source `//nolint:` markers are verified live.
   `.golangci.yml`.
+- **Committed formatter config** — `dprint.json` formats markdown, JSON, YAML,
+  and Dockerfiles (markdown emphasis normalizes to `_underscores_`;
+  `CHANGELOG.md` excluded); gate via
+  `nix run nixpkgs#dprint -- check`. `dprint.json`, `CONTRIBUTING.md`.
 - **Domain glossary** — `docs/DOMAIN_LANGUAGE.md` defines the retry and
   `error-family` vocabulary and the `retry.<event>` code table.
 - **CI workflow** — `.github/workflows/ci.yml` runs `go vet`,

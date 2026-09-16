@@ -18,7 +18,9 @@ import this package to avoid pulling in those deps. See `doc.go`.
 ## Commands
 
 No `flake.nix`, `Makefile`, or `justfile` exists in this repo — `go` and
-`golangci-lint` are the only tools. Use raw Go commands:
+`golangci-lint` are the only build/test tools; [dprint](https://dprint.dev)
+(committed `dprint.json`) formats markdown/JSON/YAML/Dockerfile and runs via
+nix. Use raw Go commands:
 
 ```bash
 go test ./... -race             # tests (always with -race; backoff uses math/rand/v2)
@@ -28,6 +30,7 @@ go vet ./...
 go test -run '^$' -fuzz '^FuzzComputeDelayNeverPanics$' -fuzztime 5m .   # fuzz campaign
 go test -run '^FuzzComputeDelayNeverPanics$' .                          # seeded corpus run (no fuzzing)
 go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12               # workflow schema gate (also first step of CI lint job)
+nix run nixpkgs#dprint -- check # markdown/JSON/YAML format gate (fmt to fix; CHANGELOG.md excluded)
 ```
 
 `go test` is the only verification gate. There is no build step beyond `go build`
