@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Nothing yet.
+
+### Changed
+
+- Nothing yet.
+
+## [0.6.1] - 2026-09-16
+
+### Added
+
 - **Deadline-budget recipe.** The README's "Deadline budgets" section
   documents the count-based retry contract and the pattern of setting
   `MaxDelay` below a remaining time budget, so an over-deadline run fails
@@ -347,7 +357,8 @@ Initial public release. Signed annotated tag `v0.1.0`.
 - **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
   links resolve against the public GitHub remote.
 
-[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/LarsArtmann/go-retry/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/LarsArtmann/go-retry/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/LarsArtmann/go-retry/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/LarsArtmann/go-retry/compare/v0.3.1...v0.4.0

@@ -42,14 +42,6 @@ throwaway branch, `workflow_dispatch` `fuzz.yml`, and verify the SHA-named
 artifact uploads with `-fuzzminimizetime 5m` inside the 45-minute budget.
 Evidence: `.github/workflows/fuzz.yml`. Source: 2026-09-14 report §f.9, §b.3.
 
-### T25 — Decide the next cut (v0.6.1 vs v0.7.0)
-
-`[Unreleased]` holds 4 entries (corpus↔seeds sync test, fuzz hardening,
-`-shuffle=on`, workflow-schema gate); none is user-visible for library
-consumers, so patch-leaning. Decide when the section grows or at the next
-maintenance window. Evidence: `CHANGELOG.md` `[Unreleased]`. Source:
-2026-09-14 report §f.7, §c.6.
-
 ## P3
 
 ### T26 — Add `workflow_dispatch` to `ci.yml`
