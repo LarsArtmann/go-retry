@@ -142,3 +142,25 @@ User-visible changes (API, behavior, error messages, guarantees, CI-visible
 tooling) get a `[Unreleased]` entry. Pure docs fixes (typos, reformatting)
 and internal status/planning files do not. Doc changes that alter documented
 behavior or guarantees (README snippets, godoc examples) **do** get an entry.
+
+## Release notes
+
+Bodies live **GitHub-only** (decided 2026-09-13): composed at release time
+from the matching `CHANGELOG.md` section — a curated, user-focused summary,
+not a copy. The shape that worked for v0.6.0/v0.6.1:
+
+1. `# vX.Y.Z` heading.
+2. One-line classification opener: what kind of release, "no API changes —
+   everything from vX.Y.Z keeps working", and the exact `go get` command.
+3. Sections by audience, most important first (`User-visible`, `Documentation`,
+   `Guarantees pinned by new tests`, `CI & tooling`) — only the sections that
+   have content.
+4. `**Full changelog:**` compare link (`vPREV...vNEW`).
+
+Pre-tag ritual additions to the `go-release` Phase 4 gate: local
+`govulncheck ./...` (first exercised at v0.6.1: no vulnerabilities) and
+`go mod tidy` producing no diff at the tag.
+
+Post-push verification ritual: proxy `go list -m -versions` shows the tag;
+clean-room `go get` in a scratch module; `pkg.go.dev/fetch/<module>@<tag>`
+returns 200; tag-CI run green.

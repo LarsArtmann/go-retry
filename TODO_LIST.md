@@ -66,16 +66,6 @@ verified by hand on 2026-09-16; keep it that way mechanically. Source:
 
 dprint checks formatting, not 404s. Source: 2026-09-14 report §f.22.
 
-### T30 — Local `govulncheck` in the pre-release ritual
-
-Currently CI-only; the `go-release` skill's Phase 4 gate should mirror CI.
-Source: 2026-09-14 report §f.20.
-
-### T31 — Capture the v0.6.0 release-notes skeleton as the reusable template
-
-The first T14 exercise went well — record the shape (GitHub-only policy;
-composing rules). Source: 2026-09-14 report §f.30.
-
 ### T32 — Coverage floor: raise 95% → 99%?
 
 Local coverage sits at 100% and the sync test guards test-integrity; decide
@@ -89,8 +79,6 @@ whether the floor's deliberate headroom is still worth four points. Source:
   report §f.10.
 - Push twice rapidly to one PR branch and observe the superseded run
   actually cancel (concurrency group). Source: 2026-09-14 report §f.14.
-- At the next tag: `go mod tidy` produces no diff. Source: 2026-09-14
-  report §f.45.
 
 ---
 
