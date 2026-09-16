@@ -5,12 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -966,14 +968,116 @@ func TestBackoff_IncreasesExponentially(t *testing.T) {
 		Multiplier:   2.0,
 	}
 
-	// Base delays (without jitter): attempt 1 = 10ms, attempt 2 = 20ms.
-	// Jitter (up to 50%) can make d1 > d2 in rare cases, so we verify the
-	// exponential formula instead of comparing sampled values.
-	base1 := float64(cfg.InitialDelay)
-	base2 := float64(cfg.InitialDelay) * cfg.Multiplier
+	// JitterNone makes delays deterministic, so the exponential formula is
+	// verified against real computed delays through the public API (no more
+	// re-deriving the formula inside the test).
+	var delays []time.Duration
 
-	if base2 <= base1 {
-		t.Fatalf("expected exponential increase: base1=%v base2=%v", base1, base2)
+	retry.Do(context.Background(), cfg, func(_ context.Context, _ int) error {
+		return errorfamily.NewTransient("test.transient", "fail")
+	}, retry.WithJitter(retry.JitterNone), retry.WithOnRetry(func(_ int, d time.Duration, _ error) {
+		delays = append(delays, d)
+	}))
+
+	// Four sleeps between five attempts: 10ms, 20ms, 40ms, 80ms exactly.
+	want := []time.Duration{
+		10 * time.Millisecond,
+		20 * time.Millisecond,
+		40 * time.Millisecond,
+		80 * time.Millisecond,
+	}
+	if len(delays) != len(want) {
+		t.Fatalf("got %d delays (%v), want %v", len(delays), delays, want)
+	}
+
+	for i := range want {
+		if delays[i] != want[i] {
+			t.Fatalf("delay[%d] = %s, want exactly %s", i, delays[i], want[i])
+		}
+	}
+}
+
+func TestWithRandomSource_DeterministicSequence(t *testing.T) {
+	t.Parallel()
+
+	run := func() []time.Duration {
+		var delays []time.Duration
+
+		retry.Do(context.Background(), fastConfig(), func(_ context.Context, _ int) error {
+			return errorfamily.NewTransient("test.transient", "fail")
+		},
+			retry.WithRandomSource(rand.NewPCG(1, 2)),
+			retry.WithOnRetry(func(_ int, d time.Duration, _ error) { delays = append(delays, d) }),
+		)
+
+		return delays
+	}
+
+	first, second := run(), run()
+
+	if len(first) != 2 {
+		t.Fatalf("expected 2 jittered delays, got %d (%v)", len(first), first)
+	}
+
+	for i := range first {
+		if first[i] != second[i] {
+			t.Fatalf("same seed must reproduce the same sequence: first[%d]=%s second[%d]=%s",
+				i, first[i], i, second[i])
+		}
+	}
+
+	// Additive range per attempt: [base, base+50%] with base 1ms, 2ms.
+	bounds := [][2]time.Duration{
+		{time.Millisecond, 1500 * time.Microsecond},
+		{2 * time.Millisecond, 3 * time.Millisecond},
+	}
+	for i, d := range first {
+		if d < bounds[i][0] || d > bounds[i][1] {
+			t.Fatalf("jittered delay[%d]=%s outside the additive range [%v, %v]",
+				i, d, bounds[i][0], bounds[i][1])
+		}
+	}
+}
+
+func TestWithRandomSource_NilFallsBackToGlobal(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := retry.Do(ctx, fastConfig(), func(_ context.Context, _ int) error {
+		return errorfamily.NewTransient("test.transient", "fail")
+	}, retry.WithRandomSource(nil))
+	if err == nil {
+		t.Fatal("expected the context-end error; nil source must not panic")
+	}
+}
+
+func TestWithRandomSource_ConcurrentCallsShareNoState(t *testing.T) {
+	t.Parallel()
+
+	var callGroup sync.WaitGroup
+
+	errs := make(chan error, 32)
+
+	for range 32 {
+		callGroup.Go(func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			cancel()
+
+			errs <- retry.Do(ctx, fastConfig(), func(_ context.Context, _ int) error {
+				return errorfamily.NewTransient("test.transient", "fail")
+			}, retry.WithRandomSource(rand.NewPCG(uint64(rand.Int64()), uint64(rand.Int64()))))
+		})
+	}
+
+	callGroup.Wait()
+	close(errs)
+
+	for err := range errs {
+		if err == nil {
+			t.Fatal("expected the context-end error from every concurrent call")
+		}
 	}
 }
 
@@ -1794,5 +1898,177 @@ func TestOptions_FieldAndOptionCoexistence(t *testing.T) {
 
 	if optionOnly.Load() == 0 {
 		t.Fatal("option must work when the field is unset")
+	}
+}
+
+func TestWithJitter_NoneIsDeterministic(t *testing.T) {
+	t.Parallel()
+
+	var delays []time.Duration
+
+	cfg := fastConfig() // 1ms base, x2 multiplier, 5ms cap
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // pre-canceled: the loop computes one delay, fires OnRetry, then exits
+
+	err := retry.Do(ctx, cfg, func(_ context.Context, _ int) error {
+		return errorfamily.NewTransient("test.transient", "fail")
+	},
+		retry.WithJitter(retry.JitterNone),
+		retry.WithOnRetry(func(_ int, delay time.Duration, _ error) { delays = append(delays, delay) }),
+	)
+	if err == nil {
+		t.Fatal("expected the context-end error")
+	}
+
+	want := []time.Duration{time.Millisecond} // attempt 1: min(1ms * 2^0, 5ms) = 1ms exactly
+	if len(delays) != len(want) {
+		t.Fatalf("OnRetry fired %d times (%v), want exactly %v", len(delays), delays, want)
+	}
+
+	for i := range want {
+		if delays[i] != want[i] {
+			t.Fatalf("delay[%d] = %s, want exactly %s (jitter must be absent under JitterNone)", i, delays[i], want[i])
+		}
+	}
+}
+
+func TestWithJitter_NoneSequenceAcrossAttempts(t *testing.T) {
+	t.Parallel()
+
+	var delays []time.Duration
+
+	retry.Do(context.Background(), fastConfig(), func(_ context.Context, attempt int) error {
+		return errorfamily.NewTransient("test.transient", "always fail")
+	},
+		retry.WithJitter(retry.JitterNone),
+		retry.WithOnRetry(func(_ int, delay time.Duration, _ error) { delays = append(delays, delay) }),
+	)
+
+	// Two sleeps (after attempts 1 and 2 of 3): 1ms, 2ms exactly.
+	want := []time.Duration{time.Millisecond, 2 * time.Millisecond}
+	if len(delays) != len(want) {
+		t.Fatalf("got %d delays (%v), want %v", len(delays), delays, want)
+	}
+
+	for i := range want {
+		if delays[i] != want[i] {
+			t.Fatalf("delay[%d] = %s, want exactly %s", i, delays[i], want[i])
+		}
+	}
+}
+
+func TestWithJitter_NoneHonorsMaxDelayCap(t *testing.T) {
+	t.Parallel()
+
+	var delays []time.Duration
+
+	cfg := retry.Config{
+		MaxAttempts:  2,
+		InitialDelay: 6 * time.Millisecond, // attempt 1 already exceeds the 5ms cap
+		MaxDelay:     5 * time.Millisecond,
+		Multiplier:   2.0,
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, _ = retry.DoWithValue(ctx, cfg, func(_ context.Context, _ int) (int, error) {
+		return 0, errorfamily.NewTransient("test.transient", "fail")
+	},
+		retry.WithJitter(retry.JitterNone),
+		retry.WithOnRetry(func(_ int, delay time.Duration, _ error) { delays = append(delays, delay) }),
+	)
+
+	if len(delays) != 1 || delays[0] != 5*time.Millisecond {
+		t.Fatalf("delay = %v, want exactly the 5ms cap (exponential 8ms must saturate)", delays)
+	}
+}
+
+func TestWithJitter_MatrixAcrossStrategiesNeverPanics(t *testing.T) {
+	t.Parallel()
+
+	strategies := []retry.JitterStrategy{
+		retry.JitterAdditive,
+		retry.JitterNone,
+		retry.JitterStrategy(42), // unknown: must fall back to additive, never panic
+	}
+
+	initials := []time.Duration{0, 1, 2, time.Millisecond, 100 * time.Millisecond, time.Second}
+	maxDelays := []time.Duration{0, 1, time.Millisecond, 5 * time.Second}
+	multipliers := []float64{0.5, 1.0, 1.5, 2.0, 10.0}
+
+	for _, strategy := range strategies {
+		for _, initial := range initials {
+			for _, maxDelay := range maxDelays {
+				for _, multiplier := range multipliers {
+					var delay time.Duration
+
+					cfg := retry.Config{
+						MaxAttempts:  2,
+						InitialDelay: initial,
+						MaxDelay:     maxDelay,
+						Multiplier:   multiplier,
+					}
+
+					ctx, cancel := context.WithCancel(context.Background())
+					cancel()
+
+					_ = retry.Do(ctx, cfg, func(_ context.Context, _ int) error {
+						return errorfamily.NewTransient("test.transient", "fail")
+					}, retry.WithJitter(strategy), retry.WithOnRetry(func(_ int, d time.Duration, _ error) {
+						delay = d
+					}))
+
+					upperBound := maxDelay
+					if upperBound <= 0 {
+						upperBound = initial // B1: unset cap degrades to initial
+					}
+
+					if delay < 0 || delay > upperBound {
+						t.Fatalf("strategy=%v initial=%v maxDelay=%v mult=%v: delay %v outside [0, %v]",
+							strategy, initial, maxDelay, multiplier, delay, upperBound)
+					}
+				}
+			}
+		}
+	}
+}
+
+func TestWithJitter_AdditiveStaysBounded(t *testing.T) {
+	t.Parallel()
+
+	var minDelay, maxDelay time.Duration
+
+	minDelay = time.Hour
+
+	for range 200 {
+		var delay time.Duration
+
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		_ = retry.Do(ctx, fastConfig(), func(_ context.Context, _ int) error {
+			return errorfamily.NewTransient("test.transient", "fail")
+		}, retry.WithJitter(retry.JitterAdditive), retry.WithOnRetry(func(_ int, d time.Duration, _ error) {
+			delay = d
+		}))
+
+		if delay < minDelay {
+			minDelay = delay
+		}
+
+		if delay > maxDelay {
+			maxDelay = delay
+		}
+	}
+
+	// Additive range for attempt 1: [1ms, 1.5ms] — jitter only adds, cap is 5ms.
+	if minDelay < time.Millisecond {
+		t.Fatalf("additive delay dipped below the exponential base: %v", minDelay)
+	}
+
+	if maxDelay > 1500*time.Microsecond {
+		t.Fatalf("additive delay exceeded base+50%%: %v", maxDelay)
 	}
 }

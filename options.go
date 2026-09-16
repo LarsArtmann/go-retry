@@ -1,6 +1,9 @@
 package retry
 
-import "time"
+import (
+	"math/rand/v2"
+	"time"
+)
 
 // Option overrides one piece of [Config] for a single [Do] or [DoWithValue]
 // call. Options make new capabilities addable without ever changing Config's
@@ -40,6 +43,49 @@ func WithOnRetry(f func(attempt int, delay time.Duration, err error)) Option {
 // fired once after all attempts have failed (never on context end).
 func WithExhausted(f func(attempts int, err error)) Option {
 	return func(c *Config) { c.OnExhausted = f }
+}
+
+// JitterStrategy selects how jitter is applied to the computed backoff
+// delay. The zero value is [JitterAdditive] — the package's default since
+// v0.1.0 — so callers who never pass options see identical delays.
+type JitterStrategy int
+
+const (
+	// JitterAdditive adds a random value of up to 50% of the capped
+	// exponential delay on top, then caps the sum at MaxDelay. The actual
+	// wait is therefore in [base, min(base*1.5, MaxDelay)] — never above
+	// MaxDelay.
+	JitterAdditive JitterStrategy = iota
+
+	// JitterNone disables jitter entirely: the delay is the pure capped
+	// exponential
+	//
+	//	min(InitialDelay * Multiplier^(n-1), MaxDelay)
+	//
+	// Deterministic, which makes it the right choice for tests that assert
+	// exact delay sequences, for previews, and for callers who need
+	// reproducible timing.
+	JitterNone
+)
+
+// WithJitter overrides the jitter strategy for one call. See
+// [JitterStrategy] for the available strategies; the zero-value default is
+// [JitterAdditive].
+func WithJitter(s JitterStrategy) Option {
+	return func(c *Config) { c.jitterStrategy = s }
+}
+
+// WithRandomSource overrides the randomness used for jitter for one call.
+// Pass a [rand.Source] (e.g. a seeded rand.NewPCG) to make delays
+// reproducible — the foundation for exact jittered-delay assertions in
+// tests. A nil source (the default) uses the package-global
+// math/rand/v2 generator.
+//
+// A source is consumed sequentially by the retry loop of one call. Do not
+// share one non-thread-safe source across concurrently running calls; wrap
+// it in a locking source if you must.
+func WithRandomSource(src rand.Source) Option {
+	return func(c *Config) { c.randSource = src }
 }
 
 // applyOptions applies opts to config left-to-right, skipping nil options.

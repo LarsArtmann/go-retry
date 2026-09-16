@@ -40,6 +40,13 @@ v1.0:
   factor. Defer until options-based configuration, where `WithJitter(...)` can
   land without breaking existing struct literals.
 
+  **Scope call (2026-09-16, landing `WithJitter`):** `JitterAdditive` (zero
+  value = the historical default) and `JitterNone` (pure capped exponential,
+  the deterministic escape hatch) ship with the options migration.
+  `Full`/`Equal`/`Decorrelated` are recorded as follow-ups — no constants are
+  exported for unimplemented strategies (an unknown strategy value today
+  falls back to additive, never panics). Revisit when a consumer asks.
+
 - **Is `AttemptFunc(ctx, attempt)` the signature callers want?** Some retry
   libraries pass the previous error back into `fn`; this one does not. Worth a
   deliberate decision, not an accident.

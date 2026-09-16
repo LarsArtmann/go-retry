@@ -2,6 +2,7 @@ package retry
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"time"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -56,6 +57,16 @@ type Config struct {
 	// Unlike middleware.DeadLetterHandler, this receives no CQRS-specific
 	// types — just the attempt count and the last error.
 	OnExhausted func(attempts int, err error)
+
+	// jitterStrategy is options-only (set via [WithJitter]) and never part
+	// of the public field shape. The zero value is [JitterAdditive], the
+	// package's default behavior.
+	jitterStrategy JitterStrategy
+
+	// randSource is options-only (set via [WithRandomSource]) and never
+	// part of the public field shape. nil means the package-global
+	// math/rand/v2 generator.
+	randSource rand.Source
 }
 
 // DefaultConfig returns sensible defaults for retry.

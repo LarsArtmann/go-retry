@@ -187,11 +187,12 @@ func awaitBackoff(ctx context.Context, config Config, attempt int, lastErr error
 }
 
 // nextDelay computes the delay before the next attempt: exponential backoff
-// with jitter, unless config.DelayFunc returns a positive override (e.g. a
-// server-provided Retry-After). A DelayFunc return of 0 keeps the computed
-// backoff.
+// with the configured jitter strategy, unless config.DelayFunc returns a
+// positive override (e.g. a server-provided Retry-After). A DelayFunc return
+// of 0 keeps the computed backoff.
 func nextDelay(config Config, attempt int, err error) time.Duration {
-	delay := computeDelay(config.InitialDelay, config.MaxDelay, config.Multiplier, attempt)
+	delay := computeDelay(config.InitialDelay, config.MaxDelay, config.Multiplier, attempt,
+		config.jitterStrategy, config.randSource)
 
 	if config.DelayFunc != nil {
 		if d := config.DelayFunc(attempt, err); d > 0 {
@@ -226,8 +227,9 @@ func contextEnded(ctx context.Context, lastErr error) error {
 // where jitter is a random value of up to 50% of the capped exponential
 // delay. The cap applies to the jittered sum, so the returned value never
 // exceeds MaxDelay. Exported so callers can preview or log the planned delay
-// without executing the retry loop. See [ComputeDelay] for the
-// raw-parameter variant.
+// without executing the retry loop. Backoff always previews the additive
+// default; a [WithJitter] strategy applies to the retry loop itself, not to
+// this preview. See [ComputeDelay] for the raw-parameter variant.
 //
 // attempt must be >= 1; passing a lower value returns a Rejection error.
 func Backoff(config Config, attempt int) (time.Duration, error) {
@@ -241,8 +243,10 @@ func Backoff(config Config, attempt int) (time.Duration, error) {
 //
 // where jitter is a random value of up to 50% of the capped exponential
 // delay. The cap applies to the jittered sum, so the returned value never
-// exceeds maxDelay. attempt must be >= 1; passing a lower value returns a
-// Rejection error. See [Backoff] for the Config-based variant.
+// exceeds maxDelay. ComputeDelay always applies the additive default; a
+// [WithJitter] strategy applies to the retry loop itself, not to this
+// preview. attempt must be >= 1; passing a lower value returns a Rejection
+// error. See [Backoff] for the Config-based variant.
 func ComputeDelay(initial, maxDelay time.Duration, multiplier float64, attempt int) (time.Duration, error) {
 	if attempt < 1 {
 		return 0, errorfamily.NewRejection(
@@ -251,14 +255,22 @@ func ComputeDelay(initial, maxDelay time.Duration, multiplier float64, attempt i
 		)
 	}
 
-	return computeDelay(initial, maxDelay, multiplier, attempt), nil
+	return computeDelay(initial, maxDelay, multiplier, attempt, JitterAdditive, nil), nil
 }
 
 // computeDelay is the trusted internal computation. It is hardened so that no
 // combination of inputs can panic: a retry loop sits on the failure path, so a
 // panic here converts a recoverable downstream blip into a process crash.
 // Callers must guarantee attempt >= 1; no attempt validation is performed.
-func computeDelay(initial, maxDelay time.Duration, multiplier float64, attempt int) time.Duration {
+// An unknown strategy falls back to the additive default rather than
+// panicking.
+func computeDelay(
+	initial, maxDelay time.Duration,
+	multiplier float64,
+	attempt int,
+	strategy JitterStrategy,
+	src rand.Source,
+) time.Duration {
 	if initial <= 0 {
 		return 0
 	}
@@ -283,6 +295,10 @@ func computeDelay(initial, maxDelay time.Duration, multiplier float64, attempt i
 		return 0
 	}
 
+	if strategy == JitterNone {
+		return delay
+	}
+
 	// B2: a delay under 2ns has no room for jitter (half == 0); return as-is
 	// rather than calling Int64N(0), which panics.
 	half := int64(delay) / 2
@@ -293,7 +309,7 @@ func computeDelay(initial, maxDelay time.Duration, multiplier float64, attempt i
 	// Jitter is added to the capped exponential delay and the sum is capped
 	// again: capping before jitter would let real sleeps reach 1.5x MaxDelay
 	// while the docs promise a hard cap.
-	jitter := time.Duration(rand.Int64N(half)) //nolint:gosec // jitter divisor; weak rand fine
+	jitter := time.Duration(jitterValue(half, src))
 
 	delayed := delay + jitter
 	if delayed < delay || delayed > maxDelay {
@@ -302,4 +318,15 @@ func computeDelay(initial, maxDelay time.Duration, multiplier float64, attempt i
 	}
 
 	return delayed
+}
+
+// jitterValue draws one uniform value in [0, half) from the given source,
+// falling back to the goroutine-safe package-global generator when src is
+// nil. Kept separate so the jitter cap math above stays readable.
+func jitterValue(half int64, src rand.Source) int64 {
+	if src == nil {
+		return rand.Int64N(half) //nolint:gosec // jitter divisor; weak rand fine
+	}
+
+	return rand.New(src).Int64N(half) //nolint:gosec // jitter divisor; weak rand fine
 }
