@@ -75,68 +75,68 @@ Sorted by impact; P1 = do next, P2 = valuable, P3 = polish. Most P3 items are RO
 
 **P1 — urgent / high impact**
 
-| # | Thing                                                                                                                                       | Notes                                         |
-| - | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| 1 | Resolve the `go 1.27.1` regression: revert to `go 1.26` per owner decision or bless 1.27 + upgrade the local toolchain                      | blocks the local gate ritual RIGHT NOW (§d.1) |
-| 2 | Add a guard test pinning the go directive (proven-failing first), so no external writer can silently re-pin it                              | pairs with #1                                 |
-| 3 | Investigate which external tool wrote `go 1.27.1` (daemon config? repo tooling?) and stop it from touching go.mod                           | root cause, not surface                       |
-| 4 | Watch the CI run for the go.mod change (if the daemon commits it) — a red tag-CI or broken-but-green master is the known failure class      | §d.1 follow-through                           |
-| 5 | Run the next `go-ecosystem-upgrade` sweep on go-cqrs-lite after any future go-retry release (M9 is now a repeatable path, owner-authorized) | keeps "Imported by ≥1" honest                 |
+| # | Thing                                                                                                                                       | Notes | Verdict |
+| - | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |--------- |
+| ~~1~~ | ~~Resolve the `go 1.27.1` regression: revert to `go 1.26` per owner decision or bless 1.27 + upgrade the local toolchain~~ | blocks the local gate ritual RIGHT NOW (§d.1) | done at `e2eb9f1` |
+| ~~2~~ | ~~Add a guard test pinning the go directive (proven-failing first), so no external writer can silently re-pin it~~ | pairs with #1 | done at `e2eb9f1` |
+| 3 | Investigate which external tool wrote `go 1.27.1` (daemon config? repo tooling?) and stop it from touching go.mod | root cause, not surface | Open — external writer not identifiable in-repo (→ `ROADMAP.md`) |
+| ~~4~~ | ~~Watch the CI run for the go.mod change (if the daemon commits it) — a red tag-CI or broken-but-green master is the known failure class~~ | §d.1 follow-through | done — CI green through `000a479` |
+| 5 | Run the next `go-ecosystem-upgrade` sweep on go-cqrs-lite after any future go-retry release (M9 is now a repeatable path, owner-authorized) | keeps "Imported by ≥1" honest | Open — recurring after each release |
 
 **P2 — valuable, not blocking**
 
-| #  | Thing                                                                                                                                                                                           | Notes                                           |
-| -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| 6  | Add `dprint check` to the CI lint job (pin the version)                                                                                                                                         | closes c.2                                      |
-| 7  | Land `tools.go` with pinned actionlint + govulncheck (+ dprint config reference); drop the three ad-hoc mechanisms                                                                              | owner-blessed; ROADMAP seed                     |
-| 8  | Harvest this report's §f into TODO_LIST/ROADMAP per docs-health (this report is point-in-time)                                                                                                  | skill-mandated follow-up                        |
-| 9  | Annotate the 16:55 docs-health report's remaining §f items against today's plan file (M-numbers already cross-referenced)                                                                       | keeps the ANNOTATE chain mechanical             |
-| 10 | Delete-or-keep call on `reports/coverage.out` reference in FEATURES (mentions `go tool cover -func=reports/coverage.out`; the file is not committed)                                            | doc-accuracy nit spotted while writing FEATURES |
-| 11 | Re-verify the v0.7.0 pkg.go.dev page renders the NEW examples (`ExampleBackoff`/`ExampleComputeDelay` landed post-tag in `4c48d13` — they are NOT in v0.7.0; they will surface in the next cut) | known: examples missed the release train        |
-| 12 | Decide whether the next patch (v0.7.1) should carry the post-tag doc commits or fold into a later minor                                                                                         | release cadence call                            |
-| 13 | Add `dprint.json` schema pin + `golangci-lint config verify`-style offline check for it                                                                                                         | mirror the .golangci.yml lesson                 |
-| 14 | Write the bump-trace audit-trail seed (ROADMAP idea): one line per go-error-family bump linking the Dependabot PR + SHA-verification evidence                                                   | ROADMAP seed from M16                           |
-| 15 | T33a retry: observe Dependabot post-merge rebase when the next actions-group PR opens (weekly watcher)                                                                                          | watchlist                                       |
-| 16 | Consumer sweep for `commandlifecycle`, `integration`, `example/taskmanager` modules (indirect pins at v0.5.0/v0.6.0) — their own builds will MVS-resolve; verify their suites on next touch     | follow-on from M9.5                             |
-| 17 | Consider `concurrency` group sharing for tag-vs-master duplicate runs (ROADMAP CI idea, deliberate call still open)                                                                             | ROADMAP has the analysis                        |
-| 18 | Remote-action input-allowlist test (ROADMAP CI idea from 2026-09-16 harvest) — would have caught the `namee:` class                                                                             | weigh maintenance first                         |
-| 19 | Auto-PR crash-corpus loop (ROADMAP: design done, build when first crasher appears — the drill proved the artifact path works)                                                                   | readiness now proven                            |
-| 20 | Coverage-floor revisit trigger: only if local coverage ever dips below 100% (decision recorded: keep 95)                                                                                        | decided; do not re-open                         |
+| #  | Thing                                                                                                                                                                                           | Notes | Verdict |
+| -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |--------- |
+| ~~6~~ | ~~Add `dprint check` to the CI lint job (pin the version)~~ | closes c.2 | → TODO_LIST T34 |
+| ~~7~~ | ~~Land `tools.go` with pinned actionlint + govulncheck (+ dprint config reference); drop the three ad-hoc mechanisms~~ | owner-blessed; ROADMAP seed | → TODO_LIST T35 |
+| ~~8~~ | ~~Harvest this report's §f into TODO_LIST/ROADMAP per docs-health (this report is point-in-time)~~ | skill-mandated follow-up | done at `3848e60` |
+| ~~9~~ | ~~Annotate the 16:55 docs-health report's remaining §f items against today's plan file (M-numbers already cross-referenced)~~ | keeps the ANNOTATE chain mechanical | done — this docs-health pass |
+| ~~10~~ | ~~Delete-or-keep call on `reports/coverage.out` reference in FEATURES (mentions `go tool cover -func=reports/coverage.out`; the file is not committed)~~ | doc-accuracy nit spotted while writing FEATURES | done at `000a479` |
+| ~~11~~ | ~~Re-verify the v0.7.0 pkg.go.dev page renders the NEW examples (`ExampleBackoff`/`ExampleComputeDelay` landed post-tag in `4c48d13` — they are NOT in v0.7.0; they will surface in the next cut)~~ | known: examples missed the release train | → TODO_LIST T37 |
+| ~~12~~ | ~~Decide whether the next patch (v0.7.1) should carry the post-tag doc commits or fold into a later minor~~ | release cadence call | done — owner chose to accumulate `[Unreleased]` (entry at `3848e60`) |
+| 13 | Add `dprint.json` schema pin + `golangci-lint config verify`-style offline check for it | mirror the .golangci.yml lesson | Open |
+| ~~14~~ | ~~Write the bump-trace audit-trail seed (ROADMAP idea): one line per go-error-family bump linking the Dependabot PR + SHA-verification evidence~~ | ROADMAP seed from M16 | → TODO_LIST T40 |
+| ~~15~~ | ~~T33a retry: observe Dependabot post-merge rebase when the next actions-group PR opens (weekly watcher)~~ | watchlist | → TODO_LIST T42 |
+| ~~16~~ | ~~Consumer sweep for `commandlifecycle`, `integration`, `example/taskmanager` modules (indirect pins at v0.5.0/v0.6.0) — their own builds will MVS-resolve; verify their suites on next touch~~ | follow-on from M9.5 | → TODO_LIST T41 |
+| 17 | Consider `concurrency` group sharing for tag-vs-master duplicate runs (ROADMAP CI idea, deliberate call still open) | ROADMAP has the analysis | Open (→ `ROADMAP.md` CI ideas) |
+| ~~18~~ | ~~Remote-action input-allowlist test (ROADMAP CI idea from 2026-09-16 harvest) — would have caught the `namee:` class~~ | weigh maintenance first | → TODO_LIST T36 |
+| 19 | Auto-PR crash-corpus loop (ROADMAP: design done, build when first crasher appears — the drill proved the artifact path works) | readiness now proven | Open — build on first real crasher |
+| ~~20~~ | ~~Coverage-floor revisit trigger: only if local coverage ever dips below 100% (decision recorded: keep 95)~~ | decided; do not re-open | Won't implement — decided keep 95 (`ROADMAP.md`) |
 
 **P3 — polish / long-tail**
 
-| #  | Thing                                                                                                                                                               | Notes                       |
-| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| 21 | Jitter `Full`/`Equal`/`Decorrelated` strategies if a consumer asks (ROADMAP scope call)                                                                             | additive API, safe later    |
-| 22 | Godoc example for the options tail (`ExampleDo_withOptions`) — the README snippet is verified but not yet a godoc example                                           | natural next-cut item       |
-| 23 | `ExampleComputeDelay`/`ExampleBackoff` into the next release's CHANGELOG                                                                                            | they landed post-v0.7.0     |
-| 24 | README "Options" section: mention `WithRandomSource` requires `math/rand/v2` explicitly in the snippet imports                                                      | micro-doc                   |
-| 25 | Consider `errors.AsType[E]` migration sweep (go-error-modernization skill) — retry.go doc comments already mention `errors.AsType`                                  | Go 1.26+ hygiene            |
-| 26 | Bench re-check on next toolchain upgrade (1.27 when adopted): re-run `BenchmarkComputeDelay`, update FEATURES numbers                                               | FEATURES note added         |
-| 27 | Squash-helper script for daemon races (see §e.6)                                                                                                                    | QoL                         |
-| 28 | Fuzz target for the strategy dimension (M6.6 was covered by the matrix test instead — a fuzz param for strategy would strengthen it, but changes the corpus format) | recorded deviation, revisit |
-| 29 | docs-site preconditions review (M11 completed #3: examples; API stability now credible post-options) — the Astro/Starlight site may be closer than "not before"     | ROADMAP item                |
-| 30 | v1.0 checklist draft when the owner is ready: compat-contract tests already exist (M4.6), freeze audit would be small                                               | future                      |
-| 31 | CHANGELOG: consider a "Compatibility" section convention for minors with additive API (v0.7.0 did it in release notes only)                                         | consistency nit             |
-| 32 | CONTRIBUTING: link `scripts/check-compare-links.sh` from the Development commands block (currently only in the ritual text)                                         | discoverability             |
-| 33 | AGENTS gotcha-cap review (13.3): 20 gotchas, jitter one rewritten — next addition should trigger the prune-before-21st policy review                                | standing policy             |
-| 34 | Archive index row for this report (docs/status/README.md) at next docs-health pass                                                                                  | convention                  |
-| 35 | Bench: add `-count=10` stability note or move bench numbers to a range in FEATURES (already ranged 20–35 ns/op — adequate)                                          | low priority                |
-| 36 | Consider `workflow_dispatch` on the fuzz drill path documented in AGENTS (the drill is now runner-proven; a one-line gotcha would preserve the knowledge)           | AGENTS candidate            |
-| 37 | dependabot.yml: confirm weekly watchers still target gomod + github-actions after the v0.7.0 dependency surface change                                              | config hygiene              |
-| 38 | `middleware/v4` retry wrapper: check whether it should expose the new options tail to CQRS consumers (cross-repo feature, owner-gated)                              | future value                |
-| 39 | Pin the dprint plugin versions audit (markdown 0.22.1 etc.) into tools.go when #7 lands                                                                             | pairs with #7               |
-| 40 | Verify `go.work` absence assumptions in this repo (none exists; fine) — no action, recorded for completeness                                                        | none needed                 |
-| 41 | Examples: `ExampleComputeDelay` uses `initial == maxDelay` cap trick; a second example showing Rejection from `ComputeDelay` would mirror Backoff's                 | optional                    |
-| 42 | GitHub Release for v0.7.0: verify the "latest" flag resolution after v0.6.1/v0.7.0 same-day cuts (`gh release view --json isLatest`)                                | 1-min check                 |
-| 43 | ROADMAP CI idea: share concurrency group tag-vs-master (still open, same as #17 — listed once here for the 50-count honesty)                                        | duplicate marker            |
-| 44 | Add the annotate-as-you-land ritual to CONTRIBUTING (AGENTS has it; contributors don't read AGENTS)                                                                 | audience split              |
-| 45 | `docs/status/README.md` index: add the 16:55 report row (added) + this report's row (pending next pass)                                                             | convention                  |
-| 46 | Consider tagging the drill branch artifact evidence into the fuzz.yml job summary (artifact link in the run summary for faster triage)                              | CI QoL                      |
-| 47 | Review `.gitignore` for `/tmp` scratch test files pattern (scratch verify tests were created and deleted; a pattern prevents accidental commits)                    | hygiene                     |
-| 48 | `features` sweep: WORTH_CONSIDERING now has only 2 items — re-harvest candidates from ROADMAP ideas next docs-health pass                                           | process                     |
-| 49 | micro: fix FEATURES.md "Documentation & DX row" cross-reference to name `options.go` in the source-files list if one exists                                         | nit                         |
-| 50 | Celebrate: options migration landed with zero compat breaks, two clean releases, and a runner-proven fuzz failure path — the v1.0 track is unblocked                | morale                      |
+| #  | Thing                                                                                                                                                               | Notes | Verdict |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |--------- |
+| 21 | Jitter `Full`/`Equal`/`Decorrelated` strategies if a consumer asks (ROADMAP scope call) | additive API, safe later | Open (→ `ROADMAP.md` scope call) |
+| ~~22~~ | ~~Godoc example for the options tail (`ExampleDo_withOptions`) — the README snippet is verified but not yet a godoc example~~ | natural next-cut item | → TODO_LIST T38 |
+| ~~23~~ | ~~`ExampleComputeDelay`/`ExampleBackoff` into the next release's CHANGELOG~~ | they landed post-v0.7.0 | done at `3848e60` |
+| ~~24~~ | ~~README "Options" section: mention `WithRandomSource` requires `math/rand/v2` explicitly in the snippet imports~~ | micro-doc | → TODO_LIST T45 |
+| ~~25~~ | ~~Consider `errors.AsType[E]` migration sweep (go-error-modernization skill) — retry.go doc comments already mention `errors.AsType`~~ | Go 1.26+ hygiene | → TODO_LIST T39 |
+| 26 | Bench re-check on next toolchain upgrade (1.27 when adopted): re-run `BenchmarkComputeDelay`, update FEATURES numbers | FEATURES note added | Open — trigger: next toolchain upgrade |
+| 27 | Squash-helper script for daemon races (see §e.6) | QoL | Open |
+| 28 | Fuzz target for the strategy dimension (M6.6 was covered by the matrix test instead — a fuzz param for strategy would strengthen it, but changes the corpus format) | recorded deviation, revisit | Open — revisit |
+| ~~29~~ | ~~docs-site preconditions review (M11 completed #3: examples; API stability now credible post-options) — the Astro/Starlight site may be closer than "not before"~~ | ROADMAP item | → `ROADMAP.md` |
+| 30 | v1.0 checklist draft when the owner is ready: compat-contract tests already exist (M4.6), freeze audit would be small | future | Open — owner-timed |
+| 31 | CHANGELOG: consider a "Compatibility" section convention for minors with additive API (v0.7.0 did it in release notes only) | consistency nit | Open |
+| ~~32~~ | ~~CONTRIBUTING: link `scripts/check-compare-links.sh` from the Development commands block (currently only in the ritual text)~~ | discoverability | → TODO_LIST T44 |
+| ~~33~~ | ~~AGENTS gotcha-cap review (13.3): 20 gotchas, jitter one rewritten — next addition should trigger the prune-before-21st policy review~~ | standing policy | done — reviewed this pass; stayed at 20 (guard note went to Testing Patterns) |
+| ~~34~~ | ~~Archive index row for this report (docs/status/README.md) at next docs-health pass~~ | convention | done — this docs-health pass |
+| 35 | Bench: add `-count=10` stability note or move bench numbers to a range in FEATURES (already ranged 20–35 ns/op — adequate) | low priority | Open |
+| 36 | Consider `workflow_dispatch` on the fuzz drill path documented in AGENTS (the drill is now runner-proven; a one-line gotcha would preserve the knowledge) | AGENTS candidate | Open — `AGENTS.md` candidate |
+| 37 | dependabot.yml: confirm weekly watchers still target gomod + github-actions after the v0.7.0 dependency surface change | config hygiene | Open |
+| 38 | `middleware/v4` retry wrapper: check whether it should expose the new options tail to CQRS consumers (cross-repo feature, owner-gated) | future value | Open — owner-gated cross-repo |
+| 39 | Pin the dprint plugin versions audit (markdown 0.22.1 etc.) into tools.go when #7 lands | pairs with #7 | Open — pairs with T35 |
+| ~~40~~ | ~~Verify `go.work` absence assumptions in this repo (none exists; fine) — no action, recorded for completeness~~ | none needed | Won't implement — no `go.work` exists; recorded for completeness |
+| 41 | Examples: `ExampleComputeDelay` uses `initial == maxDelay` cap trick; a second example showing Rejection from `ComputeDelay` would mirror Backoff's | optional | Open |
+| ~~42~~ | ~~GitHub Release for v0.7.0: verify the "latest" flag resolution after v0.6.1/v0.7.0 same-day cuts (`gh release view --json isLatest`)~~ | 1-min check | done — `gh release list` shows v0.7.0 = Latest |
+| 43 | ROADMAP CI idea: share concurrency group tag-vs-master (still open, same as #17 — listed once here for the 50-count honesty) | duplicate marker | Open — duplicate of #17 |
+| ~~44~~ | ~~Add the annotate-as-you-land ritual to CONTRIBUTING (AGENTS has it; contributors don't read AGENTS)~~ | audience split | → TODO_LIST T44 |
+| ~~45~~ | ~~`docs/status/README.md` index: add the 16:55 report row (added) + this report's row (pending next pass)~~ | convention | done — this docs-health pass |
+| 46 | Consider tagging the drill branch artifact evidence into the fuzz.yml job summary (artifact link in the run summary for faster triage) | CI QoL | Open |
+| ~~47~~ | ~~Review `.gitignore` for `/tmp` scratch test files pattern (scratch verify tests were created and deleted; a pattern prevents accidental commits)~~ | hygiene | → TODO_LIST T43 |
+| ~~48~~ | ~~`features` sweep: WORTH_CONSIDERING now has only 2 items — re-harvest candidates from ROADMAP ideas next docs-health pass~~ | process | done — FEATURES `WORTH_CONSIDERING` reviewed this pass |
+| ~~49~~ | ~~micro: fix FEATURES.md "Documentation & DX row" cross-reference to name `options.go` in the source-files list if one exists~~ | nit | → TODO_LIST T45 |
+| ~~50~~ | ~~Celebrate: options migration landed with zero compat breaks, two clean releases, and a runner-proven fuzz failure path — the v1.0 track is unblocked~~ | morale | done — morale noted |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 

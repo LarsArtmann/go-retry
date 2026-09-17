@@ -331,7 +331,7 @@ status report.
   section (the `go-release` skill flow — a curated user-focused summary, not a
   copy). No `docs/releases/` directory: the CHANGELOG is the single in-repo
   copy and GitHub Releases is the presentation layer; a third copy would
-  drift. (Resolves TODO_LIST T14.)
+  drift. (Decided 2026-09-13.)
 
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —
