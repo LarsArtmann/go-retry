@@ -404,8 +404,7 @@ Sorted by impact, Pareto-style.
 16. ~~**`doc.go` package examples** — consider adding a full-file example that~~ **Won't implement — covered by README quick start + ExampleDo.**
     ~~shows a realistic retry scenario (HTTP call with backoff).~~
 17. ~~**Backoff visualization in docs** — a table or chart showing actual delay~~ **Won't implement — delay formula documented in doc comments; no chart demanded.**
-    ~~sequences for common configs (e.g., `InitialDelay=100ms, Multiplier=2,~~
-~~MaxDelay=5s` → 100ms, 200ms, 400ms, 800ms, 1.6s, 3.2s, 5s, 5s...).~~
+    ~~sequences for common configs (e.g., `InitialDelay=100ms, Multiplier=2, MaxDelay=5s` → 100ms, 200ms, 400ms, 800ms, 1.6s, 3.2s, 5s, 5s...).~~
 18. ~~**`CONTRIBUTING.md` PR workflow** — document the branch/PR/review process~~ **Won't implement — solo repo; fork-PR flow already in CONTRIBUTING.**
     ~~now that the repo is public and could accept external contributions.~~
 19. ~~**Issue templates** — `.github/ISSUE_TEMPLATE/` for bug reports and~~ **Won't implement — no external contributors yet.**
