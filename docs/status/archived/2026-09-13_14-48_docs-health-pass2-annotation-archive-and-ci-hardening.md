@@ -67,7 +67,7 @@ commits); all gates green; both status reports annotated and archived;
 ## c) NOT STARTED
 
 1. ~~**T16** — runner verification of the whole batch: the session's changes ARE
-   pushed (daemon) and went red (`exhaustruct_v5` settings bug, fixed ~14:55);
+   pushed (daemon) and went red (`exhaustruct_v5` settings bug, fixed ≈14:55);
    the fix itself needs a green run, plus the first `fuzz.yml` run (next
    scheduled 2026-09-14 03:17 UTC; `workflow_dispatch` could trigger earlier).~~ **— done** (all three runs green, config-verify gate included).
 2. ~~**T21** — release cut v0.5.1/v0.6.0 (owner-gated): `[Unreleased]` carries

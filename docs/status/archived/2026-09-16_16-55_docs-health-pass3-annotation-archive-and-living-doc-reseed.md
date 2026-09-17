@@ -49,7 +49,7 @@ styled HTML dashboard — override honored, not propagated).
    `v0.10.1` (`9eb87ee`). The matrix's own rule accepts within-v0.x patch
    bumps "ad hoc", so no minor bump is required — but the row/note update is
    pending. My "DOMAIN_LANGUAGE verified" claim from mid-session was true for
-   ~10 minutes.~~ **— done** (M1, `047f075`): matrix + version cite updated after the v0.10.1 bump.
+   ≈10 minutes.~~ **— done** (M1, `047f075`): matrix + version cite updated after the v0.10.1 bump.
 3. ~~**pkg.go.dev "Latest" banner oddity.** The live versioned fetch rendered
    v0.6.0 completely (5/5 examples) but displayed "This package is not in the
    latest version of its module" — likely a versioned-URL quirk (the 03:30

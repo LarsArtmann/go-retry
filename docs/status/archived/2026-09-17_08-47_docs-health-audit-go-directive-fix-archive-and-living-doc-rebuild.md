@@ -168,14 +168,16 @@ Ordered by impact. Accounted for by the open TODO_LIST (T34–T44) unless marked
 5. ~~**`[NEW]`** — Verify GitHub renders this session's struck multi-line items and new table columns; fix if the multi-line `~~` does not render.~~ done (2026-09-17 docs-health pass — verified via GitHub's GFM API renderer; 3 rendering-bug classes found and repaired across 8 archived files; rules recorded in `docs/status/README.md`)
 6. ~~**T36** — Remote-action input-allowlist test (the `namee:` class).~~ done (2026-09-17 session — TestRemoteActionInputsAreAllowlisted in workflows_test.go, allowlists verified per pinned SHA; namee-probe drift-fail proven)
 7. ~~**`[NEW]`** — Decide and document the commit-message policy for daemon-dominated sessions (see g.1); make `done at` citations honest.~~ → routed to ROADMAP → Open questions (owner call)
-8. **T37** — Re-verify at the next cut that pkg.go.dev renders `ExampleBackoff`/`ExampleComputeDelay`.
+8. ~~**T37** — Re-verify at the next cut that pkg.go.dev renders `ExampleBackoff`/`ExampleComputeDelay`.~~
+   done (2026-09-17 — the v0.7.1 page renders all three examples; TODO row closed)
 9. ~~**T38** — `ExampleDo_withOptions` godoc example.~~ done (2026-09-17 session — ExampleDo_withOptions landed, output-pinned)
 10. ~~**`[NEW]`** — Prune AGENTS gotchas to <20 and spend the freed budget on the go-directive/daemon-files invariant.~~ → routed to TODO_LIST T49
 11. ~~**T39** — `errors.AsType[E]` migration sweep (`go-error-modernization`).~~ done (2026-09-17 session — swept: zero migrations; every errors.Is is sentinel/value matching, no errors.As exists)
 12. ~~**T40** — Bump-trace audit trail for `go-error-family` bumps.~~ done (2026-09-17 session — bump-trace table in ROADMAP compat matrix; v0.10.1 attribution corrected to daemon commit 9eb87ee)
 13. ~~**T44** — CONTRIBUTING: link `check-compare-links.sh` + annotate-as-you-land.~~ done (2026-09-17 session — CONTRIBUTING links check-compare-links.sh + annotate-as-you-land)
 14. ~~**T41** — Consumer sweep for `commandlifecycle`, `integration`, `example/taskmanager`.~~ done (2026-09-17 session — commandlifecycle, integration, example/taskmanager suites green against current master via go-cqrs-lite go.work)
-15. **T42** — Dependabot watchlist (post-merge rebase observation).
+15. **T42** — Dependabot watchlist (post-merge rebase observation). → routed to
+    TODO_LIST (T42, still open)
 16. ~~**T43** — `.gitignore` scratch-file pattern.~~ done (2026-09-17 session — *_scratch_test.go pattern added outside the buildflow block)
 17. ~~**`[NEW]`** — Sweep CONTRIBUTING for the same drift classes (coverage command, version citations) even though grep found none this pass.~~ → routed to TODO_LIST T48
 18. ~~**`[NEW]`** — Add `reports/coverage.out` guidance consistency: README/CONTRIBUTING generate it, FEATURES now cites the canonical command — decide one canonical recipe and link it.~~ → routed to TODO_LIST T48
