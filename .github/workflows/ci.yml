@@ -63,10 +63,14 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - name: Lint workflows (actionlint)
+      - name: Lint workflows (actionlint, version pinned in tools/go.mod)
         run: |
-          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
-          actionlint -verbose
+          go -C tools install github.com/rhysd/actionlint/cmd/actionlint
+          "$(go env GOPATH)/bin/actionlint" -verbose
+      - name: Check formatting (dprint)
+        uses: dprint/check@7dc032d8874778fc024f6f9b4a7e6d896782c330 # v2.5
+        with:
+          dprint-version: 0.57.4
       - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
         with:
           version: v2.13.2
