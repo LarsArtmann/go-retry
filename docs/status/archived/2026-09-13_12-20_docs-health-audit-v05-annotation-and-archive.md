@@ -379,7 +379,7 @@ most P2/P3 tail items are ROADMAP fuel, not commitments.
 3. ~~**Annotation vocabulary going forward:** are `done (tracked in ROADMAP.md
    …)` markers acceptable for re-homed items, or should future passes use the
    strictly-correct `NOT-DO/DUPLICATE` form (requires extending the skill's
-   annotate scripts with a new kind)? I used the former ~100 times this pass
+   annotate scripts with a new kind)? I used the former ≈100 times this pass
    for tooling simplicity.~~ → decided 2026-09-13: explicit hand-written
    variants (`routed to …` / `**Won't implement**`); recorded in
    `docs/status/README.md`.

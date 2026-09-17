@@ -41,7 +41,7 @@ styled HTML dashboard — override honored, not propagated).
 
 1. ~~**pkg.go.dev verification loop** — resolved for v0.6.0 (renders, examples
    indexed, "Latest" badge correct), but the check itself remains a manual
-   fetch-retry ritual with a ~1–9 h lag window. The loop closes per release;
+   fetch-retry ritual with a ≈1–9 h lag window. The loop closes per release;
    it is not automated. (§f.1.) **— done**: the canonical-page-is-truth rule
    is recorded in CONTRIBUTING (M3.8/M12.7); the per-release loop stays manual
    by design.

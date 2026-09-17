@@ -62,7 +62,7 @@ both workflow YAMLs parse ✅.
 4. **Lint-config description.** Partially corrected: AGENTS.md nolint
    inventory updated (3 markers), but the "enables gosec/mnd/exhaustruct +
    defaults" phrasing survives at `AGENTS.md:26` and `FEATURES.md:143-144` —
-   the config actually enables ~70 linters (I read the list when fighting
+   the config actually enables ≈70 linters (I read the list when fighting
    errorlint). Understatement, not a lie; ~~unfixed.~~ → Fixed in the
    same-day docs-health pass (AGENTS.md Commands line, FEATURES lint row,
    CONTRIBUTING lint policy — all now state the ~100-linter truth).
@@ -190,7 +190,7 @@ _content_, only of _reference_.
    (`.golangci.yml` enable/settings/exclusions, `config.go` marker, CI
    golangci pinned v2.13.2; lint 0 issues, warning gone).
 7. ~~`[DOC]` Fix `FEATURES.md:143` + `AGENTS.md:26`: describe `.golangci.yml`
-   accurately (~70 enabled linters, not "defaults + gosec/mnd/exhaustruct").~~
+   accurately (≈70 enabled linters, not "defaults + gosec/mnd/exhaustruct").~~
    → done (2026-09-13 pass; AGENTS.md, FEATURES.md, CONTRIBUTING.md).
 8. ~~`[DOC]` ANNOTATE the archived 2026-08-22 report §f: T9–T15 `done at` with
    this session's hashes (docs-health ANNOTATE, inline, not appendix).~~ →
@@ -245,7 +245,7 @@ _content_, only of _reference_.
     — fuzz.yml has one, ci.yml doesn't.~~ → done at `28fe7e4`
     (`ci-${{ github.ref }}`, cancel-in-progress).
 25. ~~`[ROADMAP]` Re-run `BenchmarkComputeDelay` after the const extraction;
-    update the FEATURES ns/op figure if drifted (FEATURES claims ~32 ns/op).~~
+    update the FEATURES ns/op figure if drifted (FEATURES claims ≈32 ns/op).~~
     → done (2026-09-13: 21.3 / 34.9 ns/op across two runs — machine-noise
     band, 0 allocs; FEATURES now states the range, killing the recurring
     re-check).
