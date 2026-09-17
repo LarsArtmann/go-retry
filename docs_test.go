@@ -35,13 +35,16 @@ func repoMarkdownFiles(t *testing.T) []string {
 				if path != "." {
 					return filepath.SkipDir
 				}
+
 				return nil
 			}
+
 			return nil
 		}
 		if strings.HasSuffix(path, ".md") {
 			files = append(files, path)
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -51,6 +54,7 @@ func repoMarkdownFiles(t *testing.T) []string {
 	if len(files) == 0 {
 		t.Fatalf("no markdown files found; the walk is broken")
 	}
+
 	return files
 }
 
@@ -64,21 +68,23 @@ func stripInlineCode(line string) string {
 		if line[i] != '`' {
 			out.WriteByte(line[i])
 			i++
+
 			continue
 		}
-		j := i
-		for j < len(line) && line[j] == '`' {
-			j++
+		runEnd := i
+		for runEnd < len(line) && line[runEnd] == '`' {
+			runEnd++
 		}
-		run := line[i:j]
-		if closeIdx := strings.Index(line[j:], run); closeIdx >= 0 {
+		run := line[i:runEnd]
+		if closeIdx := strings.Index(line[runEnd:], run); closeIdx >= 0 {
 			out.WriteByte(0)
-			i = j + closeIdx + len(run)
+			i = runEnd + closeIdx + len(run)
 		} else {
 			out.WriteString(run)
-			i = j
+			i = runEnd
 		}
 	}
+
 	return out.String()
 }
 
@@ -92,21 +98,26 @@ func splitTableCells(line string) []string {
 		if trimmed[i] == '\\' && i+1 < len(trimmed) && trimmed[i+1] == '|' {
 			cell.WriteString(`\|`)
 			i++
+
 			continue
 		}
 		if trimmed[i] == '|' {
 			cells = append(cells, cell.String())
 			cell.Reset()
+
 			continue
 		}
 		cell.WriteByte(trimmed[i])
 	}
+
 	return append(cells, cell.String())
 }
 
-var docFenceLine = regexp.MustCompile("^\\s*(`{3,}|~{3,})")
-var docHeaderLine = regexp.MustCompile(`^#{1,6}\s`)
-var docHRLine = regexp.MustCompile(`^\s*(-{3,}|\*{3,}|_{3,})\s*$`)
+var (
+	docFenceLine  = regexp.MustCompile("^\\s*(`{3,}|~{3,})")
+	docHeaderLine = regexp.MustCompile(`^#{1,6}\s`)
+	docHRLine     = regexp.MustCompile(`^\s*(-{3,}|\*{3,}|_{3,})\s*$`)
+)
 
 func isTableLine(line string) bool {
 	return strings.HasPrefix(strings.TrimSpace(line), "|")
@@ -120,6 +131,7 @@ func scanSpanText(text string, file string, baseLine int, issues *[]docIssue) {
 	for i := 0; i < len(text); {
 		if text[i] != '~' {
 			i++
+
 			continue
 		}
 		if i+1 < len(text) && text[i+1] == '~' {
@@ -140,6 +152,7 @@ func scanSpanText(text string, file string, baseLine int, issues *[]docIssue) {
 				openPos = -1
 			}
 			i += 2
+
 			continue
 		}
 		if openPos >= 0 {
@@ -162,12 +175,13 @@ func scanSpanText(text string, file string, baseLine int, issues *[]docIssue) {
 	}
 }
 
-func clip(s string) string {
-	s = strings.ReplaceAll(s, "\n", " ")
+func clip(raw string) string {
+	s := strings.ReplaceAll(raw, "\n", " ")
 	s = strings.Join(strings.Fields(s), " ")
 	if len(s) > 70 {
 		return s[:70] + "…"
 	}
+
 	return s
 }
 
@@ -183,6 +197,7 @@ func scanMarkdownFile(path string, lines []string) []docIssue {
 				i++
 			}
 			i++
+
 			continue
 		}
 		if isTableLine(line) {
@@ -199,10 +214,13 @@ func scanMarkdownFile(path string, lines []string) []docIssue {
 				scanSpanText(clean, path, i+1, &issues)
 			}
 			i++
+
 			continue
 		}
-		if strings.TrimSpace(line) == "" || docHeaderLine.MatchString(strings.TrimLeft(line, " ")) || docHRLine.MatchString(line) {
+		if strings.TrimSpace(line) == "" || docHeaderLine.MatchString(strings.TrimLeft(line, " ")) ||
+			docHRLine.MatchString(line) {
 			i++
+
 			continue
 		}
 		paraStart := i
@@ -215,6 +233,7 @@ func scanMarkdownFile(path string, lines []string) []docIssue {
 		}
 		scanSpanText(strings.Join(para, "\n"), path, paraStart+1, &issues)
 	}
+
 	return issues
 }
 
@@ -295,16 +314,18 @@ func collectNumberedItems(path string, lines []string) []archivedItem {
 		}
 		item = nil
 	}
-	for idx := 0; idx < len(lines); idx++ {
+	for idx := range len(lines) {
 		line := lines[idx]
 		if match := archivedSection.FindStringSubmatch(line); match != nil {
 			flush()
 			section = match[1]
+
 			continue
 		}
 		if numberedItem.MatchString(line) {
 			flush()
 			item = &archivedItem{file: path, line: idx + 1, section: section, text: strings.TrimSpace(line)}
+
 			continue
 		}
 		if item == nil {
@@ -329,6 +350,7 @@ func collectNumberedItems(path string, lines []string) []archivedItem {
 		}
 	}
 	flush()
+
 	return items
 }
 
@@ -358,14 +380,13 @@ func itemCarriesVerdict(text string) bool {
 	if strings.Contains(clean, "~~") {
 		return true
 	}
-	normalized := strings.Join(strings.FieldsFunc(clean, func(r rune) bool {
-		return unicode.IsSpace(r)
-	}), " ")
+	normalized := strings.Join(strings.FieldsFunc(clean, unicode.IsSpace), " ")
 	for _, pattern := range verdictPatterns {
 		if pattern.MatchString(normalized) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -393,6 +414,7 @@ func checkVerdictTables(path string, lines []string, section string, issues *[]d
 			name := strings.ToLower(strings.TrimSpace(cell))
 			if name == "verdict" || name == "status" {
 				verdictIdx = cellIdx
+
 				break
 			}
 		}

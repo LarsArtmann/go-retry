@@ -9,11 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- **Documentation guard tests.** Four gates now read the repo's markdown:
+  `TestMarkdownStrikethroughSpansRender` (the three strikethrough bug classes
+  from the 2026-09-17 catastrophe: space-preceded closers, lone `~` inside a
+  span, unclosed spans), `TestMarkdownTableCellsCloseCodeSpans` (unclosed
+  backticks per table cell, `\|`-aware), `TestArchivedReportItemsCarryVerdicts`
+  (every numbered item in archived `§b`/`§c`/`§f`/`§g` sections and every
+  Verdict/Status-column table row carries a verdict), and
+  `TestStatusIndexCoversArchive` (archive↔index consistency, non-empty State
+  cells). Each proven failing on injected drift. `docs_test.go`.
+- **`scripts/check-docs.sh`.** One command for the doc battery: guard tests
+  (`-count=1` — a data-file mutation is not part of Go's test cache key, so a
+  cached PASS can hide it), dprint check, compare-links. Wired into the AGENTS
+  Session Ritual.
+- **`tools/` module vetting.** `go -C tools vet ./...` added to the CI lint job
+  and the Session Ritual — the nested module was invisible to root `./...` and
+  stood outside every quality gate.
 
 ### Fixed
 
-- Nothing yet.
+- **Rendering repairs caught by the guard prototype.** AGENTS.md's architecture
+  table carried an unclosed code span (`ErrDeadlineExceeded` rendered with a
+  literal backtick); the status index's 13:19 row ended in an unclosed
+  backtick; two archived strike spans carried lone tildes (`~14:55`,
+  `~10 minutes` — class-B survivors of the same-day repair pass); the 05:53
+  report's `§d.3` cell had mangled backticks around an escaped pipe.
+- **Two archive annotations.** The 08:47 report's `§f.8` (T37) is now struck
+  done (v0.7.1 pkg.go.dev page verified) and `§f.15` (T42) carries its
+  `→ routed to` pointer — the two items the marker gate found genuinely
+  unannotated.
 
 ## [0.7.1] - 2026-09-17
 

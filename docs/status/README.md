@@ -36,6 +36,13 @@ repaired; verified via GitHub's GFM API renderer):
    inside backticks is inert, which is fine for convention examples like
    `` `~~item~~` ``).
 
+These rules are enforced by the repo-doc guard tests in `docs_test.go`
+(strike classes, per-cell code spans, archive marker completeness,
+index↔archive consistency); run them via `./scripts/check-docs.sh`. The one
+archived HTML report is out of scope by design: it carries no strikethrough
+or list markup (zero `<del>` spans; its Status column is HTML) and is
+parse-validated instead.
+
 | Report                                                                                                                                                                                     | Session                                                          | State                                                                                                                                                                                                |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [2026-09-17 13:19 — v0.7.1 release half-cut, interrupted](archived/2026-09-17_13-19_v0.7.1-release-half-cut-interrupted-status.md)                                                         | Release cut interrupted mid-flight; split brain documented       | Fully annotated 2026-09-17 (`§b`–`§g` verdicts; `§a`/`§d`/`§e` narrative left as-is) — the release finished the same day (`082842a`, tag `v0.7.1`); open tails routed to `TODO_LIST.md`/`ROADMAP.md` |

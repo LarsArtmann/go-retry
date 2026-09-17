@@ -27,6 +27,8 @@ go test ./... -race             # tests (always with -race; backoff uses math/ra
 go test ./... -race -count=10   # flake-prone jitter/backoff tests
 golangci-lint run ./...         # lint (committed .golangci.yml: standard defaults + ~100 extra linters, incl. gosec/mnd/exhaustruct_v5)
 go vet ./...
+go -C tools vet ./...           # the nested tools module stands outside root ./...
+./scripts/check-docs.sh         # doc battery: guard tests + dprint + compare-links
 go test -run '^$' -fuzz '^FuzzComputeDelayNeverPanics$' -fuzztime 5m .   # fuzz campaign
 go test -run '^FuzzComputeDelayNeverPanics$' .                          # seeded corpus run (no fuzzing)
 go -C tools install github.com/rhysd/actionlint/cmd/actionlint golang.org/x/vuln/cmd/govulncheck  # install pinned dev tools into ~/go/bin (rerun per bump)
@@ -48,19 +50,19 @@ Consumers download none of the tools module.
 
 Flat single-package layout — no internal subpackages:
 
-| File                                         | Responsibility                                                                                                                                                                             |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `retry.go`                                   | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded`       |
-| `config.go`                                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                           |
-| `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                           |
-| `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                       |
-| `workflows_test.go`                          | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA (catches the `namee:` typo class)                        |
-| `tools/`                                     | Nested module pinning dev tools (actionlint, govulncheck) via Go `tool` directives; `tools.go` documents usage and the dprint reference                                                    |
-| `.golangci.yml`                              | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                           |
-| `.github/workflows/ci.yml`                   | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, actionlint (built from `tools/go.mod` pin), dprint check (SHA-pinned `dprint/check`), golangci-lint (version pinned in-repo) |
-| `.github/workflows/fuzz.yml`                 | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                                     |
-| `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                          |
-| `docs/status/`                               | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)                                                    |
+| File                                         | Responsibility                                                                                                                                                                                               |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `retry.go`                                   | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded`                         |
+| `config.go`                                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                                             |
+| `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                                             |
+| `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                                         |
+| `workflows_test.go`                          | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA (catches the `namee:` typo class)                                          |
+| `tools/`                                     | Nested module pinning dev tools (actionlint, govulncheck) via Go `tool` directives; `tools.go` documents usage and the dprint reference                                                                      |
+| `.golangci.yml`                              | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                                             |
+| `.github/workflows/ci.yml`                   | Push/PR CI: vet (root + `tools/`), race tests, govulncheck, 95% coverage floor, actionlint (built from `tools/go.mod` pin), dprint check (SHA-pinned `dprint/check`), golangci-lint (version pinned in-repo) |
+| `.github/workflows/fuzz.yml`                 | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                                                       |
+| `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                                            |
+| `docs/status/`                               | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)                                                                      |
 
 **Control flow of `Do`**: validate config → loop `attempt` from 1 to
 `MaxAttempts` → call `fn(ctx, attempt)` → on `nil` return immediately → if not
@@ -245,20 +247,23 @@ Error codes follow a `retry.<snake_case_event>` convention
 
 ## Session Ritual (self-checks before claiming done)
 
-- **Gate order:** `gofmt -l .` → `go vet ./...` → `go test ./... -race
+- **Gate order:** `gofmt -l .` → `go vet ./...` → `go -C tools vet ./...`
+  (the nested module is invisible to root `./...`) → `go test ./... -race
   -count=10` → `golangci-lint run ./...` → `golangci-lint config verify`
   (mandatory after any `.golangci.yml` touch — plain `run` tolerates schema
   violations the CI action rejects) → coverage if tests changed →
   `govulncheck ./...` (release cuts scan root + `tools/`) →
-  `nix run nixpkgs#dprint -- check` (markdown/JSON/YAML drift) →
-  `./scripts/check-compare-links.sh` (after any CHANGELOG link edit).
+  `./scripts/check-docs.sh` (doc guard tests + dprint + compare-links —
+  run after any doc edit).
 - **Coverage canonical format:** `go test -cover ./...` — read the
   `coverage: 100.0% of statements` line; the CI floor is 95% (decided
   2026-09-16: keep 95 — rationale in `ROADMAP.md`). Never quote coverage from `go tool cover`
   output without the `go test -cover` line as source.
 - **Test-failure proof:** a new guard test must be shown to FAIL on the drift
   it guards (temporarily break the fixture, observe the named failure,
-  restore). A test that was never seen failing is unverified.
+  restore). A test that was never seen failing is unverified. Drill with
+  `-count=1`: a mutation in a data file is not part of Go's test cache key,
+  so a cached PASS can hide it (bit 2026-09-17 during the docs-gate drills).
 - **Hash verification:** every commit hash cited as evidence is verified with
   `git show`/`git log` before writing it into a report; status-report claims
   are re-verified against fresh CLI runs, never trusted (reports are

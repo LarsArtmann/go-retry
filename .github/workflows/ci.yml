@@ -67,6 +67,8 @@ jobs:
         run: |
           go -C tools install github.com/rhysd/actionlint/cmd/actionlint
           "$(go env GOPATH)/bin/actionlint" -verbose
+      - name: Vet the tools module (invisible to root ./...)
+        run: go -C tools vet ./...
       - name: Check formatting (dprint)
         uses: dprint/check@7dc032d8874778fc024f6f9b4a7e6d896782c330 # v2.5
         with:
