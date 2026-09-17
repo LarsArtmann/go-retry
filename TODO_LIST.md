@@ -25,7 +25,6 @@ not archaeology.
 | T42 | Dependabot watchlist: observe the post-merge auto-rebase when the next actions-group PR opens, then retire this row                                                     | P3 | No Dependabot PR was open during the v0.7.0 window; behavior still unobserved                                                 | 2026-09-17 `§f.15`         |
 | T43 | Add a `.gitignore` pattern for scratch verification test files                                                                                                          | P3 | Scratch tests were created and deleted by hand during the fuzz drill; a pattern prevents an accidental commit                 | 2026-09-17 `§f.47`         |
 | T44 | Link `scripts/check-compare-links.sh` from CONTRIBUTING's Development block and add the annotate-as-you-land ritual there                                               | P3 | Both exist in `AGENTS.md`/the ritual text but not where contributors look                                                     | 2026-09-17 `§f.32`/`§f.44` |
-| T45 | Documentation nits: name the `math/rand/v2` import in the README options snippet, and label the `options.go` row in FEATURES' source list                               | P3 | Micro-accuracy pass over the options surface                                                                                  | 2026-09-17 `§f.24`/`§f.49` |
 
 Nothing else is open. New findings enter through the docs-health HARVEST route
 (`TODO_LIST.md` ← status reports / session discoveries); long-term bets and
