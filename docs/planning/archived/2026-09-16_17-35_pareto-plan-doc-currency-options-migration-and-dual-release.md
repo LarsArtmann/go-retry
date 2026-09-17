@@ -52,26 +52,26 @@ close every open item from the 2026-09-16 status report §f + TODO_LIST T22–T3
 
 ## Medium plan (17 tasks, 30–100 min each, impact-sorted)
 
-| M                                                                                         | Task                             | Tier | Effort  | Depends    | Outcome (why it matters)                                                                                                                                                                                                                                                       |
-| ----------------------------------------------------------------------------------------- | -------------------------------- | ---- | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ~~M1~~ | ~~**Doc-currency hotfix**~~ | 1 | 45 min | — | Every published claim true again post-v0.10.1: CHANGELOG entry, matrix note + bump-decider trace, DOMAIN_LANGUAGE cite fix, corpus proof — done at 047f075 |
-| ~~M2~~ | ~~**Formatter canonicalization**~~ | 1 | 60 min | — | The mystery formatter identified (dprint, committed dprint.json), documented, run — done at f65ee77 |
-| ~~M3~~ | ~~**Cut v0.6.1**~~ | 1 | 60 min | M1, M2 | 5 non-API entries shipped; T30 (local govulncheck), T31 (notes skeleton), T33c (tidy no-diff) all exercised; deck cleared for v0.7.0 done at c0d174f; tag v0.6.1, release verified |
-| ~~M4~~ | ~~**Options core**~~ | 2 | 100 min | M1 | `Option` type + variadic tails on `Do`/`DoWithValue`, compat pinned, precedence tested — the purely additive foundation done at a0a3968 |
-| ~~M5~~ | ~~**Callback mirrors**~~ | 2 | 60 min | M4 | `WithIsRetryable`/`WithDelayFunc`/`WithOnRetry`/`WithExhausted` + coexistence tests done at ab6e97c |
-| ~~M6~~ | ~~**WithJitter**~~ | 2 | 100 min | M4 | The twice-deferred jitter question LANDS as a designed capability: seam + `None`/`Additive` strategies (full/equal/decorrelated explicitly scoped) done at 936d62d |
-| ~~M7~~ | ~~**WithRandomSource**~~ | 2 | 60 min | M4 | Deterministic RNG seam; `TestBackoff_IncreasesExponentially` becomes sample-based done at 936d62d |
-| ~~M8~~ | ~~**Options docs + cut v0.7.0**~~ | 2 | 100 min | M5–M7 | FEATURES/README/ROADMAP/AGENTS updated (jitter gotcha retired), CHANGELOG curated, v0.7.0 tagged + verified done at 5330df5+91a732c; tag v0.7.0, release verified |
-| ~~M9~~ | ~~**Consumer sweep**~~ | 3 | 60 min | M8, M14 ☁ | `go-cqrs-lite/middleware/v4` pins current go-retry; kills "Imported by: 0"; strengthens the v1.0 freeze claim (owner-gated) done at go-cqrs-lite 680f2d4d0 (owner-authorized, pushed) |
-| ~~M10~~ | ~~**CI parity + crash drill**~~ | 3 | 100 min | M2 (gates) | `workflow_dispatch` on ci.yml; FIRST execution of the fuzz failure path (artifact + minimization budget); cancel check; run watch done at 75a4816; drill verified (SHA artifact, 34s, minimization inside budget); cancel check verified; 10.9 deferred: no Dependabot PR open |
-| ~~M11~~ | ~~**Godoc examples**~~ | 3 | 60 min | M7, M8 | `Backoff`/`ComputeDelay` exampled deterministically (Rejection path + RNG-pinned happy path); docs-site precondition #3 complete done at 4c48d13 |
-| ~~M12~~ | ~~**Doc-hygiene bundle**~~ | 3 | 100 min | M3 | Compare-link guard, link-rot sweep, GitHub render check, pkg.go.dev canonical check, coverage-format note — doc rot becomes mechanical done at d11703b |
-| ~~M13~~ | ~~**Process institutionalization**~~ | 4 | 60 min | M1 | §f→M mapping table in TODO_LIST, ritual updated (formatter + link guard), gotcha-cap policy, annotation-process notes done at f7f1bfb |
-| ~~M14~~ | ~~**Owner questions packet**~~ | 4 | 30 min | — | 8 open decisions asked ONCE, in one message; ROADMAP marked "asked"; doc alignment queued on answers done: all 8 asked+recorded in ROADMAP (2026-09-16) |
-| ~~M15~~ | ~~**Decisions bundle**~~ | 4 | 45 min | M13 | Coverage-floor 95→99 decision (+CI change if raised); supply-chain-triggered fuzz priced and recorded (likely deferred) done at f7f1bfb (floor stays 95; fuzz trigger deferred) |
-| ~~M16~~ | ~~**Long-tail hygiene**~~ | 4 | 60 min | M13 | Marker-coverage sweep, Dependabot-rebase observation, §b/§c routing pointers, bench trigger note, ROADMAP idea seeds done at f7f1bfb; 16.3 skipped: archives already carry inline verdicts |
-| ~~M17~~ | ~~**Final verification sweep**~~ | 4 | 30 min | all | Full ritual end-to-end, plan-vs-done reconciliation with `done at` hashes, next-plan seeds — done at this commit; ritual green end-to-end (gofmt/vet/race x10/lint/coverage 100/dprint/compare-links/actionlint) |
-| ☁ = owner-gated (cannot start without the M14 answer; prepare everything up to the gate). |                                  |      |         |            |                                                                                                                                                                                                                                                                                |
+| M                                                                                         | Task                                 | Tier | Effort  | Depends    | Outcome (why it matters)                                                                                                                                                                                                                                                       |
+| ----------------------------------------------------------------------------------------- | ------------------------------------ | ---- | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ~~M1~~                                                                                    | ~~**Doc-currency hotfix**~~          | 1    | 45 min  | —          | Every published claim true again post-v0.10.1: CHANGELOG entry, matrix note + bump-decider trace, DOMAIN_LANGUAGE cite fix, corpus proof — done at 047f075                                                                                                                     |
+| ~~M2~~                                                                                    | ~~**Formatter canonicalization**~~   | 1    | 60 min  | —          | The mystery formatter identified (dprint, committed dprint.json), documented, run — done at f65ee77                                                                                                                                                                            |
+| ~~M3~~                                                                                    | ~~**Cut v0.6.1**~~                   | 1    | 60 min  | M1, M2     | 5 non-API entries shipped; T30 (local govulncheck), T31 (notes skeleton), T33c (tidy no-diff) all exercised; deck cleared for v0.7.0 done at c0d174f; tag v0.6.1, release verified                                                                                             |
+| ~~M4~~                                                                                    | ~~**Options core**~~                 | 2    | 100 min | M1         | `Option` type + variadic tails on `Do`/`DoWithValue`, compat pinned, precedence tested — the purely additive foundation done at a0a3968                                                                                                                                        |
+| ~~M5~~                                                                                    | ~~**Callback mirrors**~~             | 2    | 60 min  | M4         | `WithIsRetryable`/`WithDelayFunc`/`WithOnRetry`/`WithExhausted` + coexistence tests done at ab6e97c                                                                                                                                                                            |
+| ~~M6~~                                                                                    | ~~**WithJitter**~~                   | 2    | 100 min | M4         | The twice-deferred jitter question LANDS as a designed capability: seam + `None`/`Additive` strategies (full/equal/decorrelated explicitly scoped) done at 936d62d                                                                                                             |
+| ~~M7~~                                                                                    | ~~**WithRandomSource**~~             | 2    | 60 min  | M4         | Deterministic RNG seam; `TestBackoff_IncreasesExponentially` becomes sample-based done at 936d62d                                                                                                                                                                              |
+| ~~M8~~                                                                                    | ~~**Options docs + cut v0.7.0**~~    | 2    | 100 min | M5–M7      | FEATURES/README/ROADMAP/AGENTS updated (jitter gotcha retired), CHANGELOG curated, v0.7.0 tagged + verified done at 5330df5+91a732c; tag v0.7.0, release verified                                                                                                              |
+| ~~M9~~                                                                                    | ~~**Consumer sweep**~~               | 3    | 60 min  | M8, M14 ☁  | `go-cqrs-lite/middleware/v4` pins current go-retry; kills "Imported by: 0"; strengthens the v1.0 freeze claim (owner-gated) done at go-cqrs-lite 680f2d4d0 (owner-authorized, pushed)                                                                                          |
+| ~~M10~~                                                                                   | ~~**CI parity + crash drill**~~      | 3    | 100 min | M2 (gates) | `workflow_dispatch` on ci.yml; FIRST execution of the fuzz failure path (artifact + minimization budget); cancel check; run watch done at 75a4816; drill verified (SHA artifact, 34s, minimization inside budget); cancel check verified; 10.9 deferred: no Dependabot PR open |
+| ~~M11~~                                                                                   | ~~**Godoc examples**~~               | 3    | 60 min  | M7, M8     | `Backoff`/`ComputeDelay` exampled deterministically (Rejection path + RNG-pinned happy path); docs-site precondition #3 complete done at 4c48d13                                                                                                                               |
+| ~~M12~~                                                                                   | ~~**Doc-hygiene bundle**~~           | 3    | 100 min | M3         | Compare-link guard, link-rot sweep, GitHub render check, pkg.go.dev canonical check, coverage-format note — doc rot becomes mechanical done at d11703b                                                                                                                         |
+| ~~M13~~                                                                                   | ~~**Process institutionalization**~~ | 4    | 60 min  | M1         | §f→M mapping table in TODO_LIST, ritual updated (formatter + link guard), gotcha-cap policy, annotation-process notes done at f7f1bfb                                                                                                                                          |
+| ~~M14~~                                                                                   | ~~**Owner questions packet**~~       | 4    | 30 min  | —          | 8 open decisions asked ONCE, in one message; ROADMAP marked "asked"; doc alignment queued on answers done: all 8 asked+recorded in ROADMAP (2026-09-16)                                                                                                                        |
+| ~~M15~~                                                                                   | ~~**Decisions bundle**~~             | 4    | 45 min  | M13        | Coverage-floor 95→99 decision (+CI change if raised); supply-chain-triggered fuzz priced and recorded (likely deferred) done at f7f1bfb (floor stays 95; fuzz trigger deferred)                                                                                                |
+| ~~M16~~                                                                                   | ~~**Long-tail hygiene**~~            | 4    | 60 min  | M13        | Marker-coverage sweep, Dependabot-rebase observation, §b/§c routing pointers, bench trigger note, ROADMAP idea seeds done at f7f1bfb; 16.3 skipped: archives already carry inline verdicts                                                                                     |
+| ~~M17~~                                                                                   | ~~**Final verification sweep**~~     | 4    | 30 min  | all        | Full ritual end-to-end, plan-vs-done reconciliation with `done at` hashes, next-plan seeds — done at this commit; ritual green end-to-end (gofmt/vet/race x10/lint/coverage 100/dprint/compare-links/actionlint)                                                               |
+| ☁ = owner-gated (cannot start without the M14 answer; prepare everything up to the gate). |                                      |      |         |            |                                                                                                                                                                                                                                                                                |
 
 **Parallelization:** M1 ∥ M2 ∥ M14 start immediately. M4 starts after M1 (docs
 stable). M6 ∥ M7 after M4 — both touch `computeDelay`, so sequential rebase
@@ -85,205 +85,205 @@ link checks). M9/M11 after M8.
 
 ### M1 — Doc-currency hotfix (7 micros, 45 min)
 
-| #   | Task                                                                                       | Min | Status |
-| --- | ------------------------------------------------------------------------------------------ | --- |--------- |
-| ~~1.1~~ | ~~CHANGELOG `[Unreleased]`: entry for README deadline-budgets guidance (CONTRIBUTING policy)~~ | 8 | done — with M1 |
-| ~~1.2~~ | ~~ROADMAP compat matrix: v0.10.1 note row + "who bumps go-error-family" trace sentence~~ | 10 | done — with M1 |
-| ~~1.3~~ | ~~DOMAIN_LANGUAGE: replace hardcoded `v0.10.0` with symbol + "see `go.mod`" cite~~ | 5 | done — with M1 |
-| ~~1.4~~ | ~~AGENTS error-family section: confirm API-surface wording survives v0.10.1 (gates say yes)~~ | 5 | done — with M1 |
-| ~~1.5~~ | ~~TODO_LIST: post-`9eb87ee` formatter-drift eyeball (tables/emphasis render correctly)~~ | 5 | done — with M1 |
-| ~~1.6~~ | ~~Corpus proof post-bump: `go test -run '^FuzzComputeDelayNeverPanics$' .` green~~ | 4 | done — with M1 |
-| ~~1.7~~ | ~~Full gates + commit~~ | 8 | done — with M1 |
+| #       | Task                                                                                           | Min | Status         |
+| ------- | ---------------------------------------------------------------------------------------------- | --- | -------------- |
+| ~~1.1~~ | ~~CHANGELOG `[Unreleased]`: entry for README deadline-budgets guidance (CONTRIBUTING policy)~~ | 8   | done — with M1 |
+| ~~1.2~~ | ~~ROADMAP compat matrix: v0.10.1 note row + "who bumps go-error-family" trace sentence~~       | 10  | done — with M1 |
+| ~~1.3~~ | ~~DOMAIN_LANGUAGE: replace hardcoded `v0.10.0` with symbol + "see `go.mod`" cite~~             | 5   | done — with M1 |
+| ~~1.4~~ | ~~AGENTS error-family section: confirm API-surface wording survives v0.10.1 (gates say yes)~~  | 5   | done — with M1 |
+| ~~1.5~~ | ~~TODO_LIST: post-`9eb87ee` formatter-drift eyeball (tables/emphasis render correctly)~~       | 5   | done — with M1 |
+| ~~1.6~~ | ~~Corpus proof post-bump: `go test -run '^FuzzComputeDelayNeverPanics$' .` green~~             | 4   | done — with M1 |
+| ~~1.7~~ | ~~Full gates + commit~~                                                                        | 8   | done — with M1 |
 
 ### M2 — Formatter canonicalization (7 micros, 60 min)
 
-| #   | Task                                                                                                                                                | Min | Status |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --- |--------- |
-| ~~2.1~~ | ~~Fingerprint the tool: diff `9eb87ee`'s rewrites (`*x*`→`_x_`, table alignment) against dprint/prettier/markdownlint behaviors; inspect nix profiles~~ | 12 | done — with M2 |
-| ~~2.2~~ | ~~Locate/run the binary (`nix run nixpkgs#dprint -- check` or identified equivalent) over docs~~ | 10 | done — with M2 |
-| ~~2.3~~ | ~~CONTRIBUTING: canonical invocation + `_emphasis_` convention documented~~ | 8 | done — with M2 |
-| ~~2.4~~ | ~~Format all session markdown; commit drift fixes separately~~ | 12 | done — with M2 |
-| ~~2.5~~ | ~~AGENTS commands: add the formatter one-liner~~ | 5 | done — with M2 |
-| ~~2.6~~ | ~~FEATURES Documentation & DX row: formatter entry~~ | 5 | done — with M2 |
-| ~~2.7~~ | ~~Gates + commit~~ | 8 | done — with M2 |
+| #       | Task                                                                                                                                                    | Min | Status         |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | -------------- |
+| ~~2.1~~ | ~~Fingerprint the tool: diff `9eb87ee`'s rewrites (`*x*`→`_x_`, table alignment) against dprint/prettier/markdownlint behaviors; inspect nix profiles~~ | 12  | done — with M2 |
+| ~~2.2~~ | ~~Locate/run the binary (`nix run nixpkgs#dprint -- check` or identified equivalent) over docs~~                                                        | 10  | done — with M2 |
+| ~~2.3~~ | ~~CONTRIBUTING: canonical invocation + `_emphasis_` convention documented~~                                                                             | 8   | done — with M2 |
+| ~~2.4~~ | ~~Format all session markdown; commit drift fixes separately~~                                                                                          | 12  | done — with M2 |
+| ~~2.5~~ | ~~AGENTS commands: add the formatter one-liner~~                                                                                                        | 5   | done — with M2 |
+| ~~2.6~~ | ~~FEATURES Documentation & DX row: formatter entry~~                                                                                                    | 5   | done — with M2 |
+| ~~2.7~~ | ~~Gates + commit~~                                                                                                                                      | 8   | done — with M2 |
 
 ### M3 — Cut v0.6.1 (10 micros, 60 min)
 
-| #    | Task                                                                                | Min | Status |
-| ---- | ----------------------------------------------------------------------------------- | --- |--------- |
-| ~~3.1~~ | ~~T25 decision recorded: v0.6.1 patch (5 entries, none consumer-visible) in TODO_LIST~~ | 8 | done — with M3 |
-| ~~3.2~~ | ~~CHANGELOG: promote `[Unreleased]` → `[0.6.1] - 2026-09-16` + compare links~~ | 8 | done — with M3 |
-| ~~3.3~~ | ~~ROADMAP: current-release line → v0.6.1~~ | 5 | done — with M3 |
-| ~~3.4~~ | ~~Full gate + `go mod tidy`/`go mod verify`~~ | 10 | done — with M3 |
-| ~~3.5~~ | ~~Local `govulncheck ./...` (T30 — first ritual exercise)~~ | 10 | done — with M3 |
-| ~~3.6~~ | ~~SSH-signed annotated tag `v0.6.1`~~ | 5 | done — with M3 |
-| ~~3.7~~ | ~~GitHub Release composed from the CHANGELOG section~~ | 10 | done — with M3 |
-| ~~3.8~~ | ~~pkg.go.dev render verify — canonical URL (also resolves §f.19's banner question)~~ | 8 | done — with M3 |
-| ~~3.9~~ | ~~Capture release-notes skeleton → CONTRIBUTING (T31)~~ | 8 | done — with M3 |
-| ~~3.10~~ | ~~`go mod tidy` no-diff confirm at tag (T33c)~~ | 3 | done — with M3 |
+| #        | Task                                                                                    | Min | Status         |
+| -------- | --------------------------------------------------------------------------------------- | --- | -------------- |
+| ~~3.1~~  | ~~T25 decision recorded: v0.6.1 patch (5 entries, none consumer-visible) in TODO_LIST~~ | 8   | done — with M3 |
+| ~~3.2~~  | ~~CHANGELOG: promote `[Unreleased]` → `[0.6.1] - 2026-09-16` + compare links~~          | 8   | done — with M3 |
+| ~~3.3~~  | ~~ROADMAP: current-release line → v0.6.1~~                                              | 5   | done — with M3 |
+| ~~3.4~~  | ~~Full gate + `go mod tidy`/`go mod verify`~~                                           | 10  | done — with M3 |
+| ~~3.5~~  | ~~Local `govulncheck ./...` (T30 — first ritual exercise)~~                             | 10  | done — with M3 |
+| ~~3.6~~  | ~~SSH-signed annotated tag `v0.6.1`~~                                                   | 5   | done — with M3 |
+| ~~3.7~~  | ~~GitHub Release composed from the CHANGELOG section~~                                  | 10  | done — with M3 |
+| ~~3.8~~  | ~~pkg.go.dev render verify — canonical URL (also resolves §f.19's banner question)~~    | 8   | done — with M3 |
+| ~~3.9~~  | ~~Capture release-notes skeleton → CONTRIBUTING (T31)~~                                 | 8   | done — with M3 |
+| ~~3.10~~ | ~~`go mod tidy` no-diff confirm at tag (T33c)~~                                         | 3   | done — with M3 |
 
 ### M4 — Options core (10 micros, 100 min)
 
-| #    | Task                                                                                      | Min | Status |
-| ---- | ----------------------------------------------------------------------------------------- | --- |--------- |
-| ~~4.1~~ | ~~Add unexported `jitterStrategy`/`randSource` fields to `Config` + doc comments~~ | 10 | done — with M4 |
-| ~~4.2~~ | ~~`Option func(*Config)` type + `applyOptions` helper (left-to-right, per ROADMAP skeleton)~~ | 10 | done — with M4 |
-| ~~4.3~~ | ~~`Do` grows variadic tail; options applied AFTER caller Config, BEFORE `Validate`~~ | 10 | done — with M4 |
-| ~~4.4~~ | ~~`DoWithValue` grows the same tail~~ | 8 | done — with M4 |
-| ~~4.5~~ | ~~Precedence test: option overrides the field for that call only~~ | 10 | done — with M4 |
-| ~~4.6~~ | ~~Compat test: every existing struct-literal call pattern compiles + behaves identically~~ | 8 | done — with M4 |
-| ~~4.7~~ | ~~Zero-option equivalence table test (new signature vs old semantics)~~ | 10 | done — with M4 |
-| ~~4.8~~ | ~~Edge cases: nil option in slice (panic or skip — decide, document), Validate interaction~~ | 10 | done — with M4 |
-| ~~4.9~~ | ~~Godoc for `Option` + entry points mention the tail~~ | 10 | done — with M4 |
-| ~~4.10~~ | ~~Gates `-race -count=10` + lint + coverage 100% + commit~~ | 12 | done — with M4 |
+| #        | Task                                                                                          | Min | Status         |
+| -------- | --------------------------------------------------------------------------------------------- | --- | -------------- |
+| ~~4.1~~  | ~~Add unexported `jitterStrategy`/`randSource` fields to `Config` + doc comments~~            | 10  | done — with M4 |
+| ~~4.2~~  | ~~`Option func(*Config)` type + `applyOptions` helper (left-to-right, per ROADMAP skeleton)~~ | 10  | done — with M4 |
+| ~~4.3~~  | ~~`Do` grows variadic tail; options applied AFTER caller Config, BEFORE `Validate`~~          | 10  | done — with M4 |
+| ~~4.4~~  | ~~`DoWithValue` grows the same tail~~                                                         | 8   | done — with M4 |
+| ~~4.5~~  | ~~Precedence test: option overrides the field for that call only~~                            | 10  | done — with M4 |
+| ~~4.6~~  | ~~Compat test: every existing struct-literal call pattern compiles + behaves identically~~    | 8   | done — with M4 |
+| ~~4.7~~  | ~~Zero-option equivalence table test (new signature vs old semantics)~~                       | 10  | done — with M4 |
+| ~~4.8~~  | ~~Edge cases: nil option in slice (panic or skip — decide, document), Validate interaction~~  | 10  | done — with M4 |
+| ~~4.9~~  | ~~Godoc for `Option` + entry points mention the tail~~                                        | 10  | done — with M4 |
+| ~~4.10~~ | ~~Gates `-race -count=10` + lint + coverage 100% + commit~~                                   | 12  | done — with M4 |
 
 ### M5 — Callback mirrors (6 micros, 60 min)
 
-| #   | Task                                                                     | Min | Status |
-| --- | ------------------------------------------------------------------------ | --- |--------- |
-| ~~5.1~~ | ~~`WithIsRetryable` + override test~~ | 10 | done — with M5 |
-| ~~5.2~~ | ~~`WithDelayFunc` + test (0-fallback semantics preserved)~~ | 10 | done — with M5 |
-| ~~5.3~~ | ~~`WithOnRetry` + test~~ | 10 | done — with M5 |
-| ~~5.4~~ | ~~`WithExhausted` + test~~ | 10 | done — with M5 |
-| ~~5.5~~ | ~~Field+option coexistence test (field set, option overrides; option only)~~ | 8 | done — with M5 |
-| ~~5.6~~ | ~~Gates + commit~~ | 10 | done — with M5 |
+| #       | Task                                                                         | Min | Status         |
+| ------- | ---------------------------------------------------------------------------- | --- | -------------- |
+| ~~5.1~~ | ~~`WithIsRetryable` + override test~~                                        | 10  | done — with M5 |
+| ~~5.2~~ | ~~`WithDelayFunc` + test (0-fallback semantics preserved)~~                  | 10  | done — with M5 |
+| ~~5.3~~ | ~~`WithOnRetry` + test~~                                                     | 10  | done — with M5 |
+| ~~5.4~~ | ~~`WithExhausted` + test~~                                                   | 10  | done — with M5 |
+| ~~5.5~~ | ~~Field+option coexistence test (field set, option overrides; option only)~~ | 8   | done — with M5 |
+| ~~5.6~~ | ~~Gates + commit~~                                                           | 10  | done — with M5 |
 
 ### M6 — WithJitter (9 micros, 100 min)
 
-| #   | Task                                                                                       | Min | Status |
-| --- | ------------------------------------------------------------------------------------------ | --- |--------- |
-| ~~6.1~~ | ~~`JitterStrategy` type + constants (`JitterAdditive` zero-value = today's default)~~ | 10 | done — with M6 |
-| ~~6.2~~ | ~~`computeDelay` threads the strategy through; Additive path byte-identical behavior~~ | 12 | done — with M6 |
-| ~~6.3~~ | ~~`JitterNone`: pure capped exponential (the escape hatch, finally first-class)~~ | 10 | done — with M6 |
-| ~~6.4~~ | ~~Deterministic `None` assertions (exact delay sequence)~~ | 12 | done — with M6 |
-| ~~6.5~~ | ~~Scope call: implement full/equal/decorrelated now vs record as follow-ups in ROADMAP~~ | 12 | done — scope call: Full/Equal/Decorrelated recorded as ROADMAP follow-ups |
-| ~~6.6~~ | ~~Fuzz target coverage for the strategy dimension (keep `FuzzComputeDelayNeverPanics` green)~~ | 10 | done — deviation: strategy covered by the matrix test, not a fuzz dimension |
-| ~~6.7~~ | ~~Matrix property test extended across strategies (never panics, never negative, ≤ MaxDelay)~~ | 10 | done — with M6 |
-| ~~6.8~~ | ~~Godoc: `Backoff`/`ComputeDelay` document strategy interaction~~ | 8 | done — with M6 |
-| ~~6.9~~ | ~~Gates + commit~~ | 12 | done — with M6 |
+| #       | Task                                                                                           | Min | Status                                                                      |
+| ------- | ---------------------------------------------------------------------------------------------- | --- | --------------------------------------------------------------------------- |
+| ~~6.1~~ | ~~`JitterStrategy` type + constants (`JitterAdditive` zero-value = today's default)~~          | 10  | done — with M6                                                              |
+| ~~6.2~~ | ~~`computeDelay` threads the strategy through; Additive path byte-identical behavior~~         | 12  | done — with M6                                                              |
+| ~~6.3~~ | ~~`JitterNone`: pure capped exponential (the escape hatch, finally first-class)~~              | 10  | done — with M6                                                              |
+| ~~6.4~~ | ~~Deterministic `None` assertions (exact delay sequence)~~                                     | 12  | done — with M6                                                              |
+| ~~6.5~~ | ~~Scope call: implement full/equal/decorrelated now vs record as follow-ups in ROADMAP~~       | 12  | done — scope call: Full/Equal/Decorrelated recorded as ROADMAP follow-ups   |
+| ~~6.6~~ | ~~Fuzz target coverage for the strategy dimension (keep `FuzzComputeDelayNeverPanics` green)~~ | 10  | done — deviation: strategy covered by the matrix test, not a fuzz dimension |
+| ~~6.7~~ | ~~Matrix property test extended across strategies (never panics, never negative, ≤ MaxDelay)~~ | 10  | done — with M6                                                              |
+| ~~6.8~~ | ~~Godoc: `Backoff`/`ComputeDelay` document strategy interaction~~                              | 8   | done — with M6                                                              |
+| ~~6.9~~ | ~~Gates + commit~~                                                                             | 12  | done — with M6                                                              |
 
 ### M7 — WithRandomSource (6 micros, 60 min)
 
-| #   | Task                                                                  | Min | Status |
-| --- | --------------------------------------------------------------------- | --- |--------- |
-| ~~7.1~~ | ~~`randSource` field semantics + `WithRandomSource(rand.Source)` option~~ | 10 | done — with M7 |
-| ~~7.2~~ | ~~Delay computation uses injected source; nil → `math/rand/v2` global~~ | 10 | done — with M7 |
-| ~~7.3~~ | ~~Determinism test with a fixed source (exact delay sequence)~~ | 10 | done — with M7 |
-| ~~7.4~~ | ~~Simplify `TestBackoff_IncreasesExponentially` to sampled assertions~~ | 10 | done — with M7 |
-| ~~7.5~~ | ~~Race check: parallel tests, no shared source state~~ | 8 | done — with M7 |
-| ~~7.6~~ | ~~Gates + commit~~ | 10 | done — with M7 |
+| #       | Task                                                                      | Min | Status         |
+| ------- | ------------------------------------------------------------------------- | --- | -------------- |
+| ~~7.1~~ | ~~`randSource` field semantics + `WithRandomSource(rand.Source)` option~~ | 10  | done — with M7 |
+| ~~7.2~~ | ~~Delay computation uses injected source; nil → `math/rand/v2` global~~   | 10  | done — with M7 |
+| ~~7.3~~ | ~~Determinism test with a fixed source (exact delay sequence)~~           | 10  | done — with M7 |
+| ~~7.4~~ | ~~Simplify `TestBackoff_IncreasesExponentially` to sampled assertions~~   | 10  | done — with M7 |
+| ~~7.5~~ | ~~Race check: parallel tests, no shared source state~~                    | 8   | done — with M7 |
+| ~~7.6~~ | ~~Gates + commit~~                                                        | 10  | done — with M7 |
 
 ### M8 — Options docs + cut v0.7.0 (10 micros, 100 min)
 
-| #    | Task                                                                                                               | Min | Status |
-| ---- | ------------------------------------------------------------------------------------------------------------------ | --- |--------- |
-| ~~8.1~~ | ~~FEATURES: options rows → FULLY_FUNCTIONAL (post-tests), jitter/RNG WORTH_CONSIDERING rows resolved~~ | 10 | done — with M8 |
-| ~~8.2~~ | ~~README: "Options" section with a verified example~~ | 10 | done — with M8 |
-| ~~8.3~~ | ~~ROADMAP: graduate the raw idea; jitter-deferral + deterministic-RNG decision records → "landed"~~ | 10 | done — with M8 |
-| ~~8.4~~ | ~~AGENTS: rewrite the jitter-deferral gotcha (landed via `WithJitter`; do-not-re-propose now covers strategy fields)~~ | 8 | done — with M8 |
-| ~~8.5~~ | ~~CHANGELOG `[Unreleased]`: curated entries for the whole options surface~~ | 10 | done — with M8 |
-| ~~8.6~~ | ~~Full gate + coverage 100%~~ | 12 | done — with M8 |
-| ~~8.7~~ | ~~Promote `[Unreleased]` → `[0.7.0] - <date>` (minor: new API) + compare links~~ | 8 | done — with M8 |
-| ~~8.8~~ | ~~Signed annotated tag `v0.7.0` + GitHub Release + tidy no-diff~~ | 10 | done — with M8 |
-| ~~8.9~~ | ~~pkg.go.dev verify (options + `With*` docs render)~~ | 8 | done — with M8 |
-| ~~8.10~~ | ~~TODO_LIST T22/T25 close-out notes (for the next ANNOTATE pass)~~ | 8 | done — with M8 |
+| #        | Task                                                                                                                   | Min | Status         |
+| -------- | ---------------------------------------------------------------------------------------------------------------------- | --- | -------------- |
+| ~~8.1~~  | ~~FEATURES: options rows → FULLY_FUNCTIONAL (post-tests), jitter/RNG WORTH_CONSIDERING rows resolved~~                 | 10  | done — with M8 |
+| ~~8.2~~  | ~~README: "Options" section with a verified example~~                                                                  | 10  | done — with M8 |
+| ~~8.3~~  | ~~ROADMAP: graduate the raw idea; jitter-deferral + deterministic-RNG decision records → "landed"~~                    | 10  | done — with M8 |
+| ~~8.4~~  | ~~AGENTS: rewrite the jitter-deferral gotcha (landed via `WithJitter`; do-not-re-propose now covers strategy fields)~~ | 8   | done — with M8 |
+| ~~8.5~~  | ~~CHANGELOG `[Unreleased]`: curated entries for the whole options surface~~                                            | 10  | done — with M8 |
+| ~~8.6~~  | ~~Full gate + coverage 100%~~                                                                                          | 12  | done — with M8 |
+| ~~8.7~~  | ~~Promote `[Unreleased]` → `[0.7.0] - <date>` (minor: new API) + compare links~~                                       | 8   | done — with M8 |
+| ~~8.8~~  | ~~Signed annotated tag `v0.7.0` + GitHub Release + tidy no-diff~~                                                      | 10  | done — with M8 |
+| ~~8.9~~  | ~~pkg.go.dev verify (options + `With*` docs render)~~                                                                  | 8   | done — with M8 |
+| ~~8.10~~ | ~~TODO_LIST T22/T25 close-out notes (for the next ANNOTATE pass)~~                                                     | 8   | done — with M8 |
 
 ### M9 — Consumer sweep (6 micros, 60 min) ☁ owner-gated
 
-| #   | Task                                                                   | Min | Status |
-| --- | ---------------------------------------------------------------------- | --- |--------- |
-| ~~9.1~~ | ~~Enumerate consumers: `go-cqrs-lite` go.mod grep + Sourcegraph sweep~~ | 10 | done — with M9 |
-| ~~9.2~~ | ~~Confirm the ROADMAP Open-question answer authorizes cross-repo writes~~ | 5 | done — with M9 |
-| ~~9.3~~ | ~~Consumer branch: bump `go-retry` to v0.7.0~~ | 10 | done — with M9 |
-| ~~9.4~~ | ~~Consumer suite `-race` green~~ | 12 | done — with M9 |
-| ~~9.5~~ | ~~Compat-matrix rule check (surface unchanged → no extra go-retry minor)~~ | 8 | done — with M9 |
-| ~~9.6~~ | ~~PR + evidence comment; report back~~ | 10 | done — with M9 |
+| #       | Task                                                                       | Min | Status         |
+| ------- | -------------------------------------------------------------------------- | --- | -------------- |
+| ~~9.1~~ | ~~Enumerate consumers: `go-cqrs-lite` go.mod grep + Sourcegraph sweep~~    | 10  | done — with M9 |
+| ~~9.2~~ | ~~Confirm the ROADMAP Open-question answer authorizes cross-repo writes~~  | 5   | done — with M9 |
+| ~~9.3~~ | ~~Consumer branch: bump `go-retry` to v0.7.0~~                             | 10  | done — with M9 |
+| ~~9.4~~ | ~~Consumer suite `-race` green~~                                           | 12  | done — with M9 |
+| ~~9.5~~ | ~~Compat-matrix rule check (surface unchanged → no extra go-retry minor)~~ | 8   | done — with M9 |
+| ~~9.6~~ | ~~PR + evidence comment; report back~~                                     | 10  | done — with M9 |
 
 ### M10 — CI parity + crash drill (10 micros, 100 min)
 
-| #     | Task                                                                                                | Min | Status |
-| ----- | --------------------------------------------------------------------------------------------------- | --- |--------- |
-| ~~10.1~~ | ~~ci.yml: add `workflow_dispatch` (T26)~~ | 5 | done — with M10 |
-| ~~10.2~~ | ~~actionlint one-liner green + commit~~ | 8 | done — with M10 |
-| ~~10.3~~ | ~~Watch push CI green (incl. the pending `9eb87ee` run — §f.3)~~ | 10 | done — with M10 |
-| ~~10.4~~ | ~~Throwaway branch: inject a panic into the delay path~~ | 10 | done — with M10 |
-| ~~10.5~~ | ~~`workflow_dispatch` fuzz on the branch; confirm the job FAILS~~ | 10 | done — with M10 |
-| ~~10.6~~ | ~~Verify `fuzz-crash-corpus-<sha>` artifact uploaded with real crashers~~ | 10 | done — with M10 |
-| ~~10.7~~ | ~~Log-math check: minimization stayed inside the 45-min budget~~ | 8 | done — with M10 |
-| ~~10.8~~ | ~~Concurrency cancel check: double-push a PR branch, observe superseded run cancel (T33b)~~ | 10 | done — with M10 |
-| ~~10.9~~ | ~~Dependabot rebase observation if an actions-group PR arrived (T33a)~~ | 8 | deferred — no Dependabot PR open in the window (→ TODO_LIST T42) |
-| ~~10.10~~ | ~~Delete drill branch; record failure-path evidence (AGENTS gotcha update: path is now runner-proven)~~ | 10 | done — with M10 |
+| #         | Task                                                                                                    | Min | Status                                                           |
+| --------- | ------------------------------------------------------------------------------------------------------- | --- | ---------------------------------------------------------------- |
+| ~~10.1~~  | ~~ci.yml: add `workflow_dispatch` (T26)~~                                                               | 5   | done — with M10                                                  |
+| ~~10.2~~  | ~~actionlint one-liner green + commit~~                                                                 | 8   | done — with M10                                                  |
+| ~~10.3~~  | ~~Watch push CI green (incl. the pending `9eb87ee` run — §f.3)~~                                        | 10  | done — with M10                                                  |
+| ~~10.4~~  | ~~Throwaway branch: inject a panic into the delay path~~                                                | 10  | done — with M10                                                  |
+| ~~10.5~~  | ~~`workflow_dispatch` fuzz on the branch; confirm the job FAILS~~                                       | 10  | done — with M10                                                  |
+| ~~10.6~~  | ~~Verify `fuzz-crash-corpus-<sha>` artifact uploaded with real crashers~~                               | 10  | done — with M10                                                  |
+| ~~10.7~~  | ~~Log-math check: minimization stayed inside the 45-min budget~~                                        | 8   | done — with M10                                                  |
+| ~~10.8~~  | ~~Concurrency cancel check: double-push a PR branch, observe superseded run cancel (T33b)~~             | 10  | done — with M10                                                  |
+| ~~10.9~~  | ~~Dependabot rebase observation if an actions-group PR arrived (T33a)~~                                 | 8   | deferred — no Dependabot PR open in the window (→ TODO_LIST T42) |
+| ~~10.10~~ | ~~Delete drill branch; record failure-path evidence (AGENTS gotcha update: path is now runner-proven)~~ | 10  | done — with M10                                                  |
 
 ### M11 — Godoc examples (6 micros, 60 min)
 
-| #    | Task                                                                                      | Min | Status |
-| ---- | ----------------------------------------------------------------------------------------- | --- |--------- |
-| ~~11.1~~ | ~~Determinism design: `Rejection` path for `attempt < 1` + RNG-pinned happy path (needs M7)~~ | 10 | done — with M11 |
-| ~~11.2~~ | ~~`ExampleBackoff` with `// Output:`~~ | 12 | done — with M11 |
-| ~~11.3~~ | ~~`ExampleComputeDelay` with `// Output:`~~ | 12 | done — with M11 |
-| ~~11.4~~ | ~~Output-pins pass locally (`go test`)~~ | 8 | done — with M11 |
-| ~~11.5~~ | ~~pkg.go.dev render check~~ | 8 | done — with M11 |
-| ~~11.6~~ | ~~CHANGELOG entry + gates + commit~~ | 10 | done — with M11 |
+| #        | Task                                                                                          | Min | Status          |
+| -------- | --------------------------------------------------------------------------------------------- | --- | --------------- |
+| ~~11.1~~ | ~~Determinism design: `Rejection` path for `attempt < 1` + RNG-pinned happy path (needs M7)~~ | 10  | done — with M11 |
+| ~~11.2~~ | ~~`ExampleBackoff` with `// Output:`~~                                                        | 12  | done — with M11 |
+| ~~11.3~~ | ~~`ExampleComputeDelay` with `// Output:`~~                                                   | 12  | done — with M11 |
+| ~~11.4~~ | ~~Output-pins pass locally (`go test`)~~                                                      | 8   | done — with M11 |
+| ~~11.5~~ | ~~pkg.go.dev render check~~                                                                   | 8   | done — with M11 |
+| ~~11.6~~ | ~~CHANGELOG entry + gates + commit~~                                                          | 10  | done — with M11 |
 
 ### M12 — Doc-hygiene bundle (8 micros, 100 min)
 
-| #    | Task                                                                                                        | Min | Status |
-| ---- | ----------------------------------------------------------------------------------------------------------- | --- |--------- |
-| ~~12.1~~ | ~~Compare-link guard: check script validating every CHANGELOG compare-link tag pair exists in `git tag` (T28)~~ | 20 | done — with M12 |
-| ~~12.2~~ | ~~Wire the guard into Session Ritual + CONTRIBUTING~~ | 8 | done — with M12 |
-| ~~12.3~~ | ~~Link-rot sweep: extract every external link from README/CONTRIBUTING (T29)~~ | 20 | done — with M12 |
-| ~~12.4~~ | ~~Fix any dead links found~~ | 12 | done — with M12 |
-| ~~12.5~~ | ~~GitHub render check of session-era tables/fences (§f.20)~~ | 10 | done — with M12 |
-| ~~12.6~~ | ~~Coverage canonical-format note in AGENTS ritual (§f.49)~~ | 5 | done — with M12 |
-| ~~12.7~~ | ~~pkg.go.dev canonical-URL check recorded in the release ritual (with M3.8 evidence)~~ | 8 | done — with M12 |
-| ~~12.8~~ | ~~Gates + commit~~ | 10 | done — with M12 |
+| #        | Task                                                                                                            | Min | Status          |
+| -------- | --------------------------------------------------------------------------------------------------------------- | --- | --------------- |
+| ~~12.1~~ | ~~Compare-link guard: check script validating every CHANGELOG compare-link tag pair exists in `git tag` (T28)~~ | 20  | done — with M12 |
+| ~~12.2~~ | ~~Wire the guard into Session Ritual + CONTRIBUTING~~                                                           | 8   | done — with M12 |
+| ~~12.3~~ | ~~Link-rot sweep: extract every external link from README/CONTRIBUTING (T29)~~                                  | 20  | done — with M12 |
+| ~~12.4~~ | ~~Fix any dead links found~~                                                                                    | 12  | done — with M12 |
+| ~~12.5~~ | ~~GitHub render check of session-era tables/fences (§f.20)~~                                                    | 10  | done — with M12 |
+| ~~12.6~~ | ~~Coverage canonical-format note in AGENTS ritual (§f.49)~~                                                     | 5   | done — with M12 |
+| ~~12.7~~ | ~~pkg.go.dev canonical-URL check recorded in the release ritual (with M3.8 evidence)~~                          | 8   | done — with M12 |
+| ~~12.8~~ | ~~Gates + commit~~                                                                                              | 10  | done — with M12 |
 
 ### M13 — Process institutionalization (6 micros, 60 min)
 
-| #    | Task                                                                                      | Min | Status |
-| ---- | ----------------------------------------------------------------------------------------- | --- |--------- |
-| ~~13.1~~ | ~~TODO_LIST header: §f-report-item → T# → M# mapping table (mechanical ANNOTATE navigation)~~ | 10 | done — with M13 |
-| ~~13.2~~ | ~~AGENTS Session Ritual: formatter + link-guard join the gate order~~ | 8 | done — with M13 |
-| ~~13.3~~ | ~~Gotcha load-bearing review (cap policy: prune before the 21st lands)~~ | 10 | done — with M13 |
-| ~~13.4~~ | ~~Ritual notes: final-hash citation before reporting; per-section annotation commits~~ | 8 | done — with M13 |
-| ~~13.5~~ | ~~Next-annotate prep: this plan's M-numbers cross-referenced in TODO_LIST~~ | 8 | done — with M13 |
-| ~~13.6~~ | ~~Gates + commit~~ | 10 | done — with M13 |
+| #        | Task                                                                                          | Min | Status          |
+| -------- | --------------------------------------------------------------------------------------------- | --- | --------------- |
+| ~~13.1~~ | ~~TODO_LIST header: §f-report-item → T# → M# mapping table (mechanical ANNOTATE navigation)~~ | 10  | done — with M13 |
+| ~~13.2~~ | ~~AGENTS Session Ritual: formatter + link-guard join the gate order~~                         | 8   | done — with M13 |
+| ~~13.3~~ | ~~Gotcha load-bearing review (cap policy: prune before the 21st lands)~~                      | 10  | done — with M13 |
+| ~~13.4~~ | ~~Ritual notes: final-hash citation before reporting; per-section annotation commits~~        | 8   | done — with M13 |
+| ~~13.5~~ | ~~Next-annotate prep: this plan's M-numbers cross-referenced in TODO_LIST~~                   | 8   | done — with M13 |
+| ~~13.6~~ | ~~Gates + commit~~                                                                            | 10  | done — with M13 |
 
 ### M14 — Owner questions packet (3 micros, 30 min + wait)
 
-| #    | Task                                                                                                                                                | Min | Status |
-| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --- |--------- |
-| ~~14.1~~ | ~~Draft the 8-question ask (daemon push, formatter, go-directive intent, consumer permission, retention, 0.x full-release, metadata.yaml, third-tool)~~ | 12 | done — with M14 |
-| ~~14.2~~ | ~~Present to owner; ROADMAP entries marked "asked 2026-09-16"~~ | 8 | done — with M14 |
-| ~~14.3~~ | ~~On answers: align AGENTS/ROADMAP/CONTRIBUTING (execution queued on reply)~~ | 10 | done — with M14 |
+| #        | Task                                                                                                                                                    | Min | Status          |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --------------- |
+| ~~14.1~~ | ~~Draft the 8-question ask (daemon push, formatter, go-directive intent, consumer permission, retention, 0.x full-release, metadata.yaml, third-tool)~~ | 12  | done — with M14 |
+| ~~14.2~~ | ~~Present to owner; ROADMAP entries marked "asked 2026-09-16"~~                                                                                         | 8   | done — with M14 |
+| ~~14.3~~ | ~~On answers: align AGENTS/ROADMAP/CONTRIBUTING (execution queued on reply)~~                                                                           | 10  | done — with M14 |
 
 ### M15 — Decisions bundle (4 micros, 45 min)
 
-| #    | Task                                                                                         | Min | Status |
-| ---- | -------------------------------------------------------------------------------------------- | --- |--------- |
-| ~~15.1~~ | ~~Coverage-floor analysis: 100% local vs 95% floor vs proposed 99% (T32) — decide~~ | 12 | done — with M15 |
-| ~~15.2~~ | ~~If raised: ci.yml coverage job edit + verify~~ | 10 | done — with M15 |
-| ~~15.3~~ | ~~Supply-chain-triggered fuzz: price trigger + permissions; record decision in ROADMAP (§f.42)~~ | 12 | done — with M15 |
-| ~~15.4~~ | ~~CHANGELOG entry if CI changed + gates~~ | 8 | done — with M15 |
+| #        | Task                                                                                             | Min | Status          |
+| -------- | ------------------------------------------------------------------------------------------------ | --- | --------------- |
+| ~~15.1~~ | ~~Coverage-floor analysis: 100% local vs 95% floor vs proposed 99% (T32) — decide~~              | 12  | done — with M15 |
+| ~~15.2~~ | ~~If raised: ci.yml coverage job edit + verify~~                                                 | 10  | done — with M15 |
+| ~~15.3~~ | ~~Supply-chain-triggered fuzz: price trigger + permissions; record decision in ROADMAP (§f.42)~~ | 12  | done — with M15 |
+| ~~15.4~~ | ~~CHANGELOG entry if CI changed + gates~~                                                        | 8   | done — with M15 |
 
 ### M16 — Long-tail hygiene (6 micros, 60 min)
 
-| #    | Task                                                                            | Min | Status |
-| ---- | ------------------------------------------------------------------------------- | --- |--------- |
-| ~~16.1~~ | ~~Marker-coverage sweep: `//nolint:` markers vs enabled linters (standing ritual)~~ | 10 | done — with M16 |
-| ~~16.2~~ | ~~Dependabot rebase observation post-merge (T33a, if not covered in M10.9)~~ | 8 | deferred — no Dependabot PR open (→ TODO_LIST T42) |
-| ~~16.3~~ | ~~Archived report §b/§c inline routing pointers (only where a reader benefits)~~ | 12 | skipped — archives already carry inline verdicts per repo convention |
-| ~~16.4~~ | ~~FEATURES bench row: re-check trigger note (toolchain/hardware change)~~ | 5 | done — with M16 |
-| ~~16.5~~ | ~~ROADMAP idea seeds: formatter tool, bump-trace auditability~~ | 10 | done — with M16 |
-| ~~16.6~~ | ~~Gates + commit~~ | 10 | done — with M16 |
+| #        | Task                                                                                | Min | Status                                                               |
+| -------- | ----------------------------------------------------------------------------------- | --- | -------------------------------------------------------------------- |
+| ~~16.1~~ | ~~Marker-coverage sweep: `//nolint:` markers vs enabled linters (standing ritual)~~ | 10  | done — with M16                                                      |
+| ~~16.2~~ | ~~Dependabot rebase observation post-merge (T33a, if not covered in M10.9)~~        | 8   | deferred — no Dependabot PR open (→ TODO_LIST T42)                   |
+| ~~16.3~~ | ~~Archived report §b/§c inline routing pointers (only where a reader benefits)~~    | 12  | skipped — archives already carry inline verdicts per repo convention |
+| ~~16.4~~ | ~~FEATURES bench row: re-check trigger note (toolchain/hardware change)~~           | 5   | done — with M16                                                      |
+| ~~16.5~~ | ~~ROADMAP idea seeds: formatter tool, bump-trace auditability~~                     | 10  | done — with M16                                                      |
+| ~~16.6~~ | ~~Gates + commit~~                                                                  | 10  | done — with M16                                                      |
 
 ### M17 — Final verification sweep (3 micros, 30 min)
 
-| #    | Task                                                                                       | Min | Status |
-| ---- | ------------------------------------------------------------------------------------------ | --- |--------- |
-| ~~17.1~~ | ~~Full ritual end-to-end (gofmt/vet/`-race -count=10`/lint/config-verify/coverage/formatter)~~ | 12 | done — with M17 |
-| ~~17.2~~ | ~~Plan-vs-done reconciliation: annotate this plan's tables with `done at <hash>` verdicts~~ | 12 | done — with M17 |
-| ~~17.3~~ | ~~Seed the next plan/TODO updates; final commit + push~~ | 8 | done — with M17 |
+| #        | Task                                                                                           | Min | Status          |
+| -------- | ---------------------------------------------------------------------------------------------- | --- | --------------- |
+| ~~17.1~~ | ~~Full ritual end-to-end (gofmt/vet/`-race -count=10`/lint/config-verify/coverage/formatter)~~ | 12  | done — with M17 |
+| ~~17.2~~ | ~~Plan-vs-done reconciliation: annotate this plan's tables with `done at <hash>` verdicts~~    | 12  | done — with M17 |
+| ~~17.3~~ | ~~Seed the next plan/TODO updates; final commit + push~~                                       | 8   | done — with M17 |
 
 **Totals:** 17 medium tasks (~19.5 h), 117 micro tasks, 100% of open TODO_LIST
 T22–T33 + status-report §f items + owner questions mapped (see coverage map).

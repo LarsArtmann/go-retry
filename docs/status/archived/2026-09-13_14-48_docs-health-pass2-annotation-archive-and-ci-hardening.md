@@ -44,47 +44,47 @@ commits); all gates green; both status reports annotated and archived;
 
 ## b) PARTIALLY DONE
 
-1. **Runner verification for THIS session's changes** — exhaustruct_v5, golangci
+1. ~~**Runner verification for THIS session's changes** — exhaustruct_v5, golangci
    v2.13.2, timeouts, concurrency, new tests: all locally verified, never on a
-   runner (local master is unpushed). Tracked as TODO T16. **— done** (T16 closed; green runs `34766471885`/`34766604503`/`34766960403`).
-2. **Hash attributions in annotations** — `258c1fd`, `a89ad17`, `28fe7e4`
+   runner (local master is unpushed). Tracked as TODO T16. ~~**— done** (T16 closed; green runs `34766471885`/`34766604503`/`34766960403`).
+2. ~~**Hash attributions in annotations** — `258c1fd`, `a89ad17`, `28fe7e4`
    verified via `git show` (diff-level); `9d7efa1`, `3ec60b0`, `23192cd`
-   verified at stat level only (right files, right shape — not per-hunk). **— accepted limitation**: stat-level where diff-level was unavailable; standing convention.
-3. **Fuzz smoke ran 20 s**, not the 1 minute the source item asked. Economy,
-   not capability; the daily 30-minute campaign subsumes it. **— accepted**: the daily 30-minute campaign subsumes the shortened smoke.
-4. **dprint** — `dprint.json` configures markdown; this session's new/edited
-   `.md` files (incl. hand-aligned tables) were never run through it. **— done** (M2, `f65ee77`): dprint identified, documented, gated.
-5. **AGENTS gotchas at 18/20** — added 2 this session (line-citation ban,
-   manual-bumps policy). Prune pass due at 20. **— done** (prune pass landed; reviewed again 2026-09-17).
-6. **Doc-work verdicts in annotations cite "the 2026-09-13 pass"** or `23192cd`
+   verified at stat level only (right files, right shape — not per-hunk). ~~**— accepted limitation**: stat-level where diff-level was unavailable; standing convention.
+3. ~~**Fuzz smoke ran 20 s**, not the 1 minute the source item asked. Economy,
+   not capability; the daily 30-minute campaign subsumes it. ~~**— accepted**: the daily 30-minute campaign subsumes the shortened smoke.
+4. ~~**dprint** — `dprint.json` configures markdown; this session's new/edited
+   `.md` files (incl. hand-aligned tables) were never run through it. ~~**— done** (M2, `f65ee77`): dprint identified, documented, gated.
+5. ~~**AGENTS gotchas at 18/20** — added 2 this session (line-citation ban,
+   manual-bumps policy). Prune pass due at 20. ~~**— done** (prune pass landed; reviewed again 2026-09-17).
+6. ~~**Doc-work verdicts in annotations cite "the 2026-09-13 pass"** or `23192cd`
    where code — the doc edits themselves landed inside multi-file daemon
    "chore" commits; per-edit hash attribution is impractical there. Accepted,
-   noted here. **— accepted limitation**: doc edits rode batched daemon commits; the pass label is the honest attribution.
-7. **`docs/status/README.md` State column** for the two new archives was
+   noted here. ~~**— accepted limitation**: doc edits rode batched daemon commits; the pass label is the honest attribution.
+7. ~~**`docs/status/README.md` State column** for the two new archives was
    written by the same session that annotated them — self-graded (though the
-   marker-coverage checker backs it). **— done**: the State column stays current (this pass added the 16:55 and 17:53 rows).
+   marker-coverage checker backs it). ~~**— done**: the State column stays current (this pass added the 16:55 and 17:53 rows).
 
 ## c) NOT STARTED
 
-1. **T16** — runner verification of the whole batch: the session's changes ARE
+1. ~~**T16** — runner verification of the whole batch: the session's changes ARE
    pushed (daemon) and went red (`exhaustruct_v5` settings bug, fixed ~14:55);
    the fix itself needs a green run, plus the first `fuzz.yml` run (next
-   scheduled 2026-09-14 03:17 UTC; `workflow_dispatch` could trigger earlier). **— done** (all three runs green, config-verify gate included).
-2. **T21** — release cut v0.5.1/v0.6.0 (owner-gated): `[Unreleased]` carries
+   scheduled 2026-09-14 03:17 UTC; `workflow_dispatch` could trigger earlier). ~~**— done** (all three runs green, config-verify gate included).
+2. ~~**T21** — release cut v0.5.1/v0.6.0 (owner-gated): `[Unreleased]` carries
    the user-visible exhaustion-message change; at tag time also update
    ROADMAP's "current release" line + CHANGELOG compare links + re-check
-   pkg.go.dev (now incl. `ExampleDoWithValue`). **— done**: v0.6.0 cut 2026-09-13 (`6105848`); ROADMAP line + compare links updated.
-3. **T17 residual** — review Dependabot PR #1 (merge or close) and explain the
+   pkg.go.dev (now incl. `ExampleDoWithValue`). ~~**— done**: v0.6.0 cut 2026-09-13 (`6105848`); ROADMAP line + compare links updated.
+3. ~~**T17 residual** — review Dependabot PR #1 (merge or close) and explain the
    sudden first fire after a history of silence; then decide the ongoing
-   policy. **— done**: PR #1 SHA-verified and squash-merged `e67a70e`.
-4. **T20** — corpus↔seeds sync test. **— done** (`TestFuzzCorpusMirrorsSeeds`, `ba5e97c`).
-5. **T18** — actionlint/schema pre-push gate (must respect the two-tool repo
-   convention or justify a third tool). **— done** (actionlint v1.7.12 in the CI lint job, `ba5e97c`).
-6. **T19** — fuzz artifact SHA naming + `-fuzzminimizetime`. **— done** (`fuzz-crash-corpus-<sha>`, `-fuzzminimizetime 5m`, `ba5e97c`).
-7. **0.x release policy** — owner decision, parked in ROADMAP Open questions. **— done**: answered by the owner 2026-09-16 (full releases for 0.x).
-8. **v1.0 track** — API audit, `AttemptFunc` signature, options migration,
-   compat matrix (ROADMAP-owned). **— done** (API audit, signature survey, options design, compat matrix — all in `ROADMAP.md`, `781fa92`).
-9. **dprint pass** over this session's markdown output (b.4). **— done** (M2, `f65ee77`).
+   policy. ~~**— done**: PR #1 SHA-verified and squash-merged `e67a70e`.
+4. ~~**T20** — corpus↔seeds sync test. ~~**— done** (`TestFuzzCorpusMirrorsSeeds`, `ba5e97c`).
+5. ~~**T18** — actionlint/schema pre-push gate (must respect the two-tool repo
+   convention or justify a third tool). ~~**— done** (actionlint v1.7.12 in the CI lint job, `ba5e97c`).
+6. ~~**T19** — fuzz artifact SHA naming + `-fuzzminimizetime`. ~~**— done** (`fuzz-crash-corpus-<sha>`, `-fuzzminimizetime 5m`, `ba5e97c`).
+7. ~~**0.x release policy** — owner decision, parked in ROADMAP Open questions. ~~**— done**: answered by the owner 2026-09-16 (full releases for 0.x).
+8. ~~**v1.0 track** — API audit, `AttemptFunc` signature, options migration,
+   compat matrix (ROADMAP-owned). ~~**— done** (API audit, signature survey, options design, compat matrix — all in `ROADMAP.md`, `781fa92`).
+9. ~~**dprint pass** over this session's markdown output (b.4). ~~**— done** (M2, `f65ee77`).
 
 ## d) TOTALLY FUCKED UP (honest ledger)
 
@@ -190,8 +190,8 @@ commits); all gates green; both status reports annotated and archived;
    section, user-facing summary).
 9. ~~`[RELEASE]` T21: update ROADMAP's "current release is v0.5.0" line +
    CHANGELOG compare links at tag time.~~ done (`6105848`, pre-tag).
-10. `[RELEASE]` T21: re-check pkg.go.dev rendering post-tag (incl.
-    `ExampleDoWithValue`). **— done** (pkg.go.dev rendered for v0.6.0/v0.6.1/v0.7.0; canonical-URL rule documented).
+10. ~~`[RELEASE]` T21: re-check pkg.go.dev rendering post-tag (incl.
+    `ExampleDoWithValue`). ~~**— done** (pkg.go.dev rendered for v0.6.0/v0.6.1/v0.7.0; canonical-URL rule documented).
 11. ~~`[CI]` T17: review Dependabot PR #1 (bump the actions group with 3
     updates) — merge or close; decide Dependabot-owned vs manual policy.~~
     done (SHA-verified evidence review posted; squash-merged `e67a70e`;
@@ -223,8 +223,8 @@ commits); all gates green; both status reports annotated and archived;
     gotcha extended, `781fa92`).
 20. ~~`[DOC]` AGENTS gotcha prune at 20 (18 now).~~ done (19 → 18 via the
     callback-timing merge after the Dependabot gotcha rewrite).
-21. `[DOC]` docs/status/README.md: keep the State column current as reports
-    land. **— done** (this pass: rows for 2026-09-16 16:55 and 2026-09-17 05:53 added).
+21. ~~`[DOC]` docs/status/README.md: keep the State column current as reports
+    land. ~~**— done** (this pass: rows for 2026-09-16 16:55 and 2026-09-17 05:53 added).
 22. ~~`[PROCESS]` Institutionalize the report-time self-checks (see e.7).~~
     done (AGENTS "Session Ritual" section + CONTRIBUTING cross-link).
 23. ~~`[PROCESS]` Sweep-verify remaining stat-level hash citations (`9d7efa1`,
@@ -264,24 +264,24 @@ commits); all gates green; both status reports annotated and archived;
     callers; FEATURES marked).
 36. ~~`[ROADMAP]` Docs website (Astro/Starlight) — post-API-freeze only.~~
     preconditions priced (ROADMAP checklist); launch remains post-v1.0.
-37. `[WISEGO]` Failsafe→go-retry adoption spike (other repo). **— Won't implement here** (care of the wise-go repo).
-38. `[WISEGO]` wise-go v1.0.0 tag (owner-gated). **— Won't implement here** (care of the wise-go repo).
-39. `[WISEGO]` wise-go sandbox integration tests (API-key-gated). **— Won't implement here** (care of the wise-go repo).
-40. `[WISEGO]` wise-go CI re-enable (nix/GOEXPERIMENT). **— Won't implement here** (care of the wise-go repo).
-41. `[OWNER]` Confirm 0.x release policy (ROADMAP Open question). **— done**: answered 2026-09-16 (full releases for 0.x).
-42. `[OWNER]` Confirm archive retention (default keep-forever is recorded). **— done**: answered 2026-09-16 (keep all forever).
-43. `[OWNER]` Push policy going forward (the daemon pushes; confirm that is
-    intended for master, see g.1). **— done**: answered 2026-09-16 (the daemon keeps committing and pushing).
+37. ~~`[WISEGO]` Failsafe→go-retry adoption spike (other repo). ~~**— Won't implement here** (care of the wise-go repo).
+38. ~~`[WISEGO]` wise-go v1.0.0 tag (owner-gated). ~~**— Won't implement here** (care of the wise-go repo).
+39. ~~`[WISEGO]` wise-go sandbox integration tests (API-key-gated). ~~**— Won't implement here** (care of the wise-go repo).
+40. ~~`[WISEGO]` wise-go CI re-enable (nix/GOEXPERIMENT). ~~**— Won't implement here** (care of the wise-go repo).
+41. ~~`[OWNER]` Confirm 0.x release policy (ROADMAP Open question). ~~**— done**: answered 2026-09-16 (full releases for 0.x).
+42. ~~`[OWNER]` Confirm archive retention (default keep-forever is recorded). ~~**— done**: answered 2026-09-16 (keep all forever).
+43. ~~`[OWNER]` Push policy going forward (the daemon pushes; confirm that is
+    intended for master, see g.1). ~~**— done**: answered 2026-09-16 (the daemon keeps committing and pushing).
 44. ~~`[DOC]` `.config/metadata.yaml` — never read; check whether it's repo
     tooling that docs should mention.~~ done (documented as external-tooling
     metadata, do-not-edit, in AGENTS; `781fa92`-era commit).
 45. ~~`[DOC]` CHANGELOG convention: decide whether doc-only changes get entries
     (current practice: only user-observable ones).~~ done (policy recorded in
     CONTRIBUTING).
-46. `[TEST]` Keep `-race -count=10` in the personal gate for any jitter-adjacent
-    change (standing). **— standing practice** (kept in the Session Ritual).
-47. `[CI]` If T16's timeout of 10 min proves tight on slow runners (coverage
-    job), bump before it bites. **— not triggered**: every run has stayed well inside the 10-minute limit.
+46. ~~`[TEST]` Keep `-race -count=10` in the personal gate for any jitter-adjacent
+    change (standing). ~~**— standing practice** (kept in the Session Ritual).
+47. ~~`[CI]` If T16's timeout of 10 min proves tight on slow runners (coverage
+    job), bump before it bites. ~~**— not triggered**: every run has stayed well inside the 10-minute limit.
 48. `[DOC]` Superseded — the manual-bumps gotcha was updated the same hour
     (Dependabot fired, PR #1).
 49. ~~`[PROCESS]` Next docs-health pass: HARVEST this report's §f (route →
@@ -294,11 +294,11 @@ commits); all gates green; both status reports annotated and archived;
 
 ## g) Questions I can NOT figure out myself
 
-1. **Push policy:** the daemon pushed this session's commits to master
+1. ~~**Push policy:** the daemon pushed this session's commits to master
    unattended (which is how the broken lint config reached CI before I saw
    it). Is daemon-auto-push to `master` intended policy, or should it stop so
    red CI never hits the default branch? Your repo, your call — I won't push
-   manually either way. **— done**: answered 2026-09-16 — the daemon keeps committing and pushing to master; agent commits amend over daemon races only while unpushed.
+   manually either way. ~~**— done**: answered 2026-09-16 — the daemon keeps committing and pushing to master; agent commits amend over daemon races only while unpushed.
 2. ~~**Dependabot policy (T17):** PR #1 (bump the actions group with 3 updates)
    is the first Dependabot PR ever here. Merge it and hand action bumps to
    Dependabot (drop the manual-SHA-bump rule), or close it and stay manual?

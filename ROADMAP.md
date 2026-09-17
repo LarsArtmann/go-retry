@@ -207,14 +207,14 @@ v1.0:
   `Transient`/`Rejection` family constants (tests), and the `RetryPolicy`
   type consumed by `FromPolicy`.
 
-  | go-retry         | go-error-family | Notes                                                                         |
-  | ---------------- | --------------- | ----------------------------------------------------------------------------- |
-  | v0.1.0–v0.3.1    | v0.9.x          | pre-audit; unverified                                                         |
-  | v0.4.0           | v0.10.0         | family/code contract settled                                                  |
-  | v0.5.0           | v0.10.0         | —                                                                             |
-  | v0.6.0           | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc |
-  | v0.6.1           | v0.10.1         | patch bump via Dependabot (2026-09-16); surface unchanged, gates green        |
-  | v0.7.0           | v0.10.1         | options surface added; consumes no new go-error-family symbol                 |
+  | go-retry      | go-error-family | Notes                                                                         |
+  | ------------- | --------------- | ----------------------------------------------------------------------------- |
+  | v0.1.0–v0.3.1 | v0.9.x          | pre-audit; unverified                                                         |
+  | v0.4.0        | v0.10.0         | family/code contract settled                                                  |
+  | v0.5.0        | v0.10.0         | —                                                                             |
+  | v0.6.0        | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc |
+  | v0.6.1        | v0.10.1         | patch bump via Dependabot (2026-09-16); surface unchanged, gates green        |
+  | v0.7.0        | v0.10.1         | options surface added; consumes no new go-error-family symbol                 |
 
   Rule: a go-error-family **major** (post-v1) or any change to the surface
   above requires a go-retry minor bump and a new matrix row; the `RetryPolicy`

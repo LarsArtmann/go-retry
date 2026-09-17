@@ -38,50 +38,50 @@ styled HTML dashboard — override honored, not propagated).
 
 ## b) PARTIALLY DONE
 
-1. **Canonical markdown formatting is unverified by tool.** `dprint` is not on
+1. ~~**Canonical markdown formatting is unverified by tool.** `dprint` is not on
    PATH (nix-only per the 03:30 report) and I stopped at one `which` — yet
    `9eb87ee` contains emphasis rewrites (`*input key*` → `_input key_`) in my
    new AGENTS text, proving SOME formatter automation runs somewhere. Which
    tool, invoked how, is unknown; this session's markdown was hand-checked
-   only. **— done** (M2, `f65ee77`): dprint identified, documented, gated.
-2. **ROADMAP compat matrix + DOMAIN_LANGUAGE version citation are already
+   only. ~~**— done** (M2, `f65ee77`): dprint identified, documented, gated.
+2. ~~**ROADMAP compat matrix + DOMAIN_LANGUAGE version citation are already
    behind.** Both cite go-error-family `v0.10.0`; master now consumes
    `v0.10.1` (`9eb87ee`). The matrix's own rule accepts within-v0.x patch
    bumps "ad hoc", so no minor bump is required — but the row/note update is
    pending. My "DOMAIN_LANGUAGE verified" claim from mid-session was true for
-   ~10 minutes. **— done** (M1, `047f075`): matrix + version cite updated after the v0.10.1 bump.
-3. **pkg.go.dev "Latest" banner oddity.** The live versioned fetch rendered
+   ~10 minutes. ~~**— done** (M1, `047f075`): matrix + version cite updated after the v0.10.1 bump.
+3. ~~**pkg.go.dev "Latest" banner oddity.** The live versioned fetch rendered
    v0.6.0 completely (5/5 examples) but displayed "This package is not in the
    latest version of its module" — likely a versioned-URL quirk (the 03:30
    report verified the badge via its own self-checks on 09-14). Unresolved;
-   canonical-URL re-check queued (§f.19). **— done** (M3.8/M12.7): canonical-URL check recorded in the release ritual.
-4. **Annotation hash attribution is coarse.** Verdicts for ROADMAP/TODO_LIST
+   canonical-URL re-check queued (§f.19). ~~**— done** (M3.8/M12.7): canonical-URL check recorded in the release ritual.
+4. ~~**Annotation hash attribution is coarse.** Verdicts for ROADMAP/TODO_LIST
    work cite "this pass" + TODO IDs rather than per-edit hashes — the daemon
    batches multi-file commits, making per-edit attribution impractical (same
-   accepted limitation as the 14:48 pass, noted there as §b.6). **— accepted limitation**: verdicts cite the pass or a batched commit; per-edit attribution stays impractical (standing repo convention).
-5. **§b.1/§b.3/§c.1–5 of the archived report remain unmarked.** Deliberate
+   accepted limitation as the 14:48 pass, noted there as §b.6). ~~**— accepted limitation**: verdicts cite the pass or a batched commit; per-edit attribution stays impractical (standing repo convention).
+5. ~~**§b.1/§b.3/§c.1–5 of the archived report remain unmarked.** Deliberate
    (still-accurate narrative), but their routing pointers (T22/T23/T24) live
-   only in TODO_LIST, not inline where a skimming reader would see them. **— done** (this pass): the archived report's remaining §b/§c items are resolved inline.
-6. **GitHub-side rendering unverified.** New tables (TODO_LIST harvest, status
+   only in TODO_LIST, not inline where a skimming reader would see them. ~~**— done** (this pass): the archived report's remaining §b/§c items are resolved inline.
+6. ~~**GitHub-side rendering unverified.** New tables (TODO_LIST harvest, status
    index row, ROADMAP additions) and the fenced Go skeleton were verified as
-   text only, not as rendered GitHub markdown. **— done** (M12.5): GitHub-render check ran in the doc-hygiene bundle.
+   text only, not as rendered GitHub markdown. ~~**— done** (M12.5): GitHub-render check ran in the doc-hygiene bundle.
 
 ## c) NOT STARTED
 
-1. **T22 — Options-pattern migration** (design + skeleton exist; zero code). **— done** (M4–M8, v0.7.0).
-2. **T23 — Consumer sweep** to v0.6.0+ (owner-gated; live pkg.go.dev still
-   shows "Imported by: 0", confirming the premise). **— done** (M9; `go-cqrs-lite` 680f2d4d0).
-3. **T24 — Fuzz crash drill** (failure path still never executed). **— done** (M10; run 35142442193).
-4. **T25 — Next-cut decision** (`[Unreleased]` holds 4 entries, no queue). **— done** (M3/M8: v0.6.1 then v0.7.0).
-5. **T26–T33** — the P3 tail (ci.yml workflow_dispatch, Backoff/ComputeDelay
+1. ~~**T22 — Options-pattern migration** (design + skeleton exist; zero code). ~~**— done** (M4–M8, v0.7.0).
+2. ~~**T23 — Consumer sweep** to v0.6.0+ (owner-gated; live pkg.go.dev still
+   shows "Imported by: 0", confirming the premise). ~~**— done** (M9; `go-cqrs-lite` 680f2d4d0).
+3. ~~**T24 — Fuzz crash drill** (failure path still never executed). ~~**— done** (M10; run 35142442193).
+4. ~~**T25 — Next-cut decision** (`[Unreleased]` holds 4 entries, no queue). ~~**— done** (M3/M8: v0.6.1 then v0.7.0).
+5. ~~**T26–T33** — the P3 tail (ci.yml workflow_dispatch, Backoff/ComputeDelay
    godoc examples, compare-link guard, link-rot sweep, local govulncheck,
-   release-notes skeleton, coverage-floor decision, verification watchlist). **— done** (M10–M12, M15–M16; see `CHANGELOG.md` [0.6.1]/[0.7.0]).
-6. **CHANGELOG `[Unreleased]` entry for the README deadline-budgets section**
+   release-notes skeleton, coverage-floor decision, verification watchlist). ~~**— done** (M10–M12, M15–M16; see `CHANGELOG.md` [0.6.1]/[0.7.0]).
+6. ~~**CHANGELOG `[Unreleased]` entry for the README deadline-budgets section**
    — CONTRIBUTING's policy says README changes that alter documented guidance
-   get an entry; found unfinished at report time (§d.3). **— done** (M1.1, `047f075`).
-7. **ROADMAP matrix / DOMAIN_LANGUAGE v0.10.1 note** (§b.2). **— done** (M1, `047f075`).
-8. **Next docs-health pass** to annotate THIS report once §f resolves. **— done** (this pass).
-9. **Docs website** — post-v1.0 preconditions unchanged. **— Open**: docs website stays post-v1.0 (`ROADMAP.md`).
+   get an entry; found unfinished at report time (§d.3). ~~**— done** (M1.1, `047f075`).
+7. ~~**ROADMAP matrix / DOMAIN_LANGUAGE v0.10.1 note** (§b.2). ~~**— done** (M1, `047f075`).
+8. ~~**Next docs-health pass** to annotate THIS report once §f resolves. ~~**— done** (this pass).
+9. ~~**Docs website** — post-v1.0 preconditions unchanged. ~~**— Open**: docs website stays post-v1.0 (`ROADMAP.md`).
 
 ## d) TOTALLY FUCKED UP
 
@@ -144,117 +144,117 @@ styled HTML dashboard — override honored, not propagated).
 > `[RELEASE]` · `[CI]` · `[CODE]` · `[DOC]` · `[ROADMAP]` · `[OWNER]` ·
 > `[PROCESS]`.
 
-1. `[DOC]` Add the `[Unreleased]` CHANGELOG entry for the README
-   deadline-budgets section (CONTRIBUTING policy; §d.3). **— done** (M1.1, `047f075`).
-2. `[VERIFY]` Identify the markdown formatter that rewrote emphasis in
+1. ~~`[DOC]` Add the `[Unreleased]` CHANGELOG entry for the README
+   deadline-budgets section (CONTRIBUTING policy; §d.3). ~~**— done** (M1.1, `047f075`).
+2. ~~`[VERIFY]` Identify the markdown formatter that rewrote emphasis in
    `9eb87ee`; document its canonical invocation in CONTRIBUTING; run it over
-   this session's files (§b.1, §d.4). **— done** (M2, `f65ee77`).
-3. `[VERIFY]` Watch the CI run for `9eb87ee` (pending at write time; only
-   `37f54a2` had a green push run when checked). **— done** (CI green through `000a479`).
-4. `[DOC]` Update ROADMAP's compat matrix for go-error-family v0.10.1 (patch
-   bump, "accepted ad hoc" per the matrix's own rule — add the note/row). **— done** (M1.2, `047f075`).
-5. `[DOC]` Fix DOMAIN_LANGUAGE's hardcoded `v0.10.0` → symbol + "see go.mod"
-   (§e.6). **— done** (M1.3, `047f075`).
-6. `[VERIFY]` Decide whether `go 1.26.7` → `go 1.26` was intentional (§g.3);
-   if float-patch is the policy, note it; if not, restore the pin. **— done** (resolved 2026-09-17: reverted to `go 1.26`; guard test `e2eb9f1`).
-7. `[CODE]` T22 — options migration per the ROADMAP skeleton (WithIsRetryable,
-   WithDelayFunc, WithOnRetry, WithExhausted, WithJitter, WithRandomSource). **— done** (M4–M8, v0.7.0).
-8. `[CODE]` T23 — consumer sweep: bump `go-cqrs-lite/middleware/v4` (owner-
-   gated via ROADMAP → Open questions; kills the "Imported by: 0" weakness). **— done** (M9).
-9. `[VERIFY]` T24 — fuzz crash drill (SHA-named artifact + minimization
-   budget, first execution of the failure path). **— done** (M10).
-10. `[RELEASE]` T25 — decide v0.6.1 vs v0.7.0 ([Unreleased] = 4 entries). **— done** (M3/M8).
-11. `[CI]` T26 — `workflow_dispatch` on ci.yml. **— done** (M10.1, `75a4816`).
-12. `[DOC]` T27 — godoc examples for `Backoff` and `ComputeDelay`. **— done** (M11, `4c48d13`).
-13. `[DOC]` T28 — CHANGELOG compare-link guard (script or test). **— done** (M12.1, `d11703b`).
-14. `[DOC]` T29 — link-rot sweep over README/CONTRIBUTING external links. **— done** (M12.3, `d11703b`).
-15. `[RELEASE]` T30 — local `govulncheck` in the pre-release ritual. **— done** (M3.5).
-16. `[DOC]` T31 — capture the v0.6.0 release-notes skeleton as template. **— done** (M3.9, `6469515`).
-17. `[CODE]` T32 — coverage-floor 95→99 decision. **— done** (M15.1, `f7f1bfb`).
-18. `[VERIFY]` T33 — watchlist (Dependabot rebase behavior; concurrency-group
-    cancel; `go mod tidy` no-diff at next tag). **— done** (M3.10/M10.8/M10.9; the Dependabot tail stays open → TODO_LIST T42).
-19. `[VERIFY]` Re-check pkg.go.dev's "Latest" badge via the canonical URL
-    (§b.3). **— done** (M3.8).
-20. `[VERIFY]` GitHub-render check of this session's new tables/fences (§b.6). **— done** (M12.5).
-21. `[PROCESS]` Next docs-health pass: annotate THIS report (§f-item → T-number
-    mapping is in TODO_LIST source refs). **— done** (this pass).
-22. `[DOC]` AGENTS gotcha cap reached (20/20) — prune pass due before the next
-    addition. **— done** (M13.3, `f7f1bfb`; reviewed again this pass).
-23. `[OWNER]` Daemon push policy — third consecutive report; now it also
-    carries external dependency bumps unattended (§g.1). **— done** (answered (owner 2026-09-16)).
-24. `[OWNER]` Markdown-formatter canonicalization (§g.2). **— done** (answered — dprint).
-25. `[OWNER]` Consumer-bump proactive vs on-request (§g.3, gates T23). **— done** (answered — owner-authorized).
-26. `[OWNER]` Archive retention (12 files, keep-forever vs pruning). **— done** (answered — keep forever).
-27. `[OWNER]` 0.x full-release confirmation (v0.6.0 = third data point). **— done** (answered — full releases for 0.x).
-28. `[OWNER]` `.config/metadata.yaml` keep-or-remove. **— done** (answered — keep).
-29. `[OWNER]` Third-local-tool / `tools.go` blessing (actionlint gate is
-    CI-only today). **— done** (answered — blessed → TODO_LIST T35).
+   this session's files (§b.1, §d.4). ~~**— done** (M2, `f65ee77`).
+3. ~~`[VERIFY]` Watch the CI run for `9eb87ee` (pending at write time; only
+   `37f54a2` had a green push run when checked). ~~**— done** (CI green through `000a479`).
+4. ~~`[DOC]` Update ROADMAP's compat matrix for go-error-family v0.10.1 (patch
+   bump, "accepted ad hoc" per the matrix's own rule — add the note/row). ~~**— done** (M1.2, `047f075`).
+5. ~~`[DOC]` Fix DOMAIN_LANGUAGE's hardcoded `v0.10.0` → symbol + "see go.mod"
+   (§e.6). ~~**— done** (M1.3, `047f075`).
+6. ~~`[VERIFY]` Decide whether `go 1.26.7` → `go 1.26` was intentional (§g.3);
+   if float-patch is the policy, note it; if not, restore the pin. ~~**— done** (resolved 2026-09-17: reverted to `go 1.26`; guard test `e2eb9f1`).
+7. ~~`[CODE]` T22 — options migration per the ROADMAP skeleton (WithIsRetryable,
+   WithDelayFunc, WithOnRetry, WithExhausted, WithJitter, WithRandomSource). ~~**— done** (M4–M8, v0.7.0).
+8. ~~`[CODE]` T23 — consumer sweep: bump `go-cqrs-lite/middleware/v4` (owner-
+   gated via ROADMAP → Open questions; kills the "Imported by: 0" weakness). ~~**— done** (M9).
+9. ~~`[VERIFY]` T24 — fuzz crash drill (SHA-named artifact + minimization
+   budget, first execution of the failure path). ~~**— done** (M10).
+10. ~~`[RELEASE]` T25 — decide v0.6.1 vs v0.7.0 ([Unreleased] = 4 entries). ~~**— done** (M3/M8).
+11. ~~`[CI]` T26 — `workflow_dispatch` on ci.yml. ~~**— done** (M10.1, `75a4816`).
+12. ~~`[DOC]` T27 — godoc examples for `Backoff` and `ComputeDelay`. ~~**— done** (M11, `4c48d13`).
+13. ~~`[DOC]` T28 — CHANGELOG compare-link guard (script or test). ~~**— done** (M12.1, `d11703b`).
+14. ~~`[DOC]` T29 — link-rot sweep over README/CONTRIBUTING external links. ~~**— done** (M12.3, `d11703b`).
+15. ~~`[RELEASE]` T30 — local `govulncheck` in the pre-release ritual. ~~**— done** (M3.5).
+16. ~~`[DOC]` T31 — capture the v0.6.0 release-notes skeleton as template. ~~**— done** (M3.9, `6469515`).
+17. ~~`[CODE]` T32 — coverage-floor 95→99 decision. ~~**— done** (M15.1, `f7f1bfb`).
+18. ~~`[VERIFY]` T33 — watchlist (Dependabot rebase behavior; concurrency-group
+    cancel; `go mod tidy` no-diff at next tag). ~~**— done** (M3.10/M10.8/M10.9; the Dependabot tail stays open → TODO_LIST T42).
+19. ~~`[VERIFY]` Re-check pkg.go.dev's "Latest" badge via the canonical URL
+    (§b.3). ~~**— done** (M3.8).
+20. ~~`[VERIFY]` GitHub-render check of this session's new tables/fences (§b.6). ~~**— done** (M12.5).
+21. ~~`[PROCESS]` Next docs-health pass: annotate THIS report (§f-item → T-number
+    mapping is in TODO_LIST source refs). ~~**— done** (this pass).
+22. ~~`[DOC]` AGENTS gotcha cap reached (20/20) — prune pass due before the next
+    addition. ~~**— done** (M13.3, `f7f1bfb`; reviewed again this pass).
+23. ~~`[OWNER]` Daemon push policy — third consecutive report; now it also
+    carries external dependency bumps unattended (§g.1). ~~**— done** (answered (owner 2026-09-16)).
+24. ~~`[OWNER]` Markdown-formatter canonicalization (§g.2). ~~**— done** (answered — dprint).
+25. ~~`[OWNER]` Consumer-bump proactive vs on-request (§g.3, gates T23). ~~**— done** (answered — owner-authorized).
+26. ~~`[OWNER]` Archive retention (12 files, keep-forever vs pruning). ~~**— done** (answered — keep forever).
+27. ~~`[OWNER]` 0.x full-release confirmation (v0.6.0 = third data point). ~~**— done** (answered — full releases for 0.x).
+28. ~~`[OWNER]` `.config/metadata.yaml` keep-or-remove. ~~**— done** (answered — keep).
+29. ~~`[OWNER]` Third-local-tool / `tools.go` blessing (actionlint gate is
+    CI-only today). ~~**— done** (answered — blessed → TODO_LIST T35).
 30. `[CI]` Remote-action input-allowlist test (the `namee:` class actionlint
     cannot see; ROADMAP CI ideas). → TODO_LIST T36
 31. `[CI]` Concurrency-group shape across tag ref and master (ROADMAP CI
     ideas). Open (→ ROADMAP CI ideas)
 32. `[CI]` Release-workflow vs manual `go-release` skill decision (ROADMAP CI
     ideas). Open (→ ROADMAP CI ideas)
-33. `[DOC]` Consider a FEATURES row for the markdown formatter once identified
-    (tool inventory honesty). **— done** (FEATURES dprint row).
-34. `[DOC]` AGENTS "error-family Dependency" section: confirm surface wording
-    survives v0.10.1 (no API change observed — gates green — but say so once). **— done** (M1.4).
-35. `[PROCESS]` Inline routing pointers for the archived report's remaining
-    unmarked §b/§c items IF a future pass judges them load-bearing (§b.5). **— done** (this pass).
-36. `[ROADMAP]` Revisit "Imported by: 0" after T23 — strengthens the v1.0
-    freeze claim. **— done** (M9).
-37. `[CODE]` With `WithRandomSource` (T22): simplify
-    `TestBackoff_IncreasesExponentially` to sampled assertions. **— done** (M7).
-38. `[DOC]` README: consider linking the ROADMAP skeleton from the options
-    discussion once T22 starts (keep one source of truth). **— done** (M8).
-39. `[VERIFY]` Confirm `exhaustruct_v5` markers still map after any future
-    linter renames (standing marker-coverage ritual; no trigger this session). **— done** (M16.1, `f7f1bfb`).
+33. ~~`[DOC]` Consider a FEATURES row for the markdown formatter once identified
+    (tool inventory honesty). ~~**— done** (FEATURES dprint row).
+34. ~~`[DOC]` AGENTS "error-family Dependency" section: confirm surface wording
+    survives v0.10.1 (no API change observed — gates green — but say so once). ~~**— done** (M1.4).
+35. ~~`[PROCESS]` Inline routing pointers for the archived report's remaining
+    unmarked §b/§c items IF a future pass judges them load-bearing (§b.5). ~~**— done** (this pass).
+36. ~~`[ROADMAP]` Revisit "Imported by: 0" after T23 — strengthens the v1.0
+    freeze claim. ~~**— done** (M9).
+37. ~~`[CODE]` With `WithRandomSource` (T22): simplify
+    `TestBackoff_IncreasesExponentially` to sampled assertions. ~~**— done** (M7).
+38. ~~`[DOC]` README: consider linking the ROADMAP skeleton from the options
+    discussion once T22 starts (keep one source of truth). ~~**— done** (M8).
+39. ~~`[VERIFY]` Confirm `exhaustruct_v5` markers still map after any future
+    linter renames (standing marker-coverage ritual; no trigger this session). ~~**— done** (M16.1, `f7f1bfb`).
 40. `[PROCESS]` Split report-time annotation batches per section AND verify
     daemon commits land between batches where feasible (bisectability; §f.49
     of the archived report, partially followed this session). Open — process suggestion
-41. `[DOC]` Add "who bumps go-error-family and when" to the ROADMAP matrix
-    note — the v0.10.1 bump arrived with no in-repo trace of the decider. **— done** (M1.2).
-42. `[CI]` Evaluate whether the fuzz workflow should also run on the weekly
+41. ~~`[DOC]` Add "who bumps go-error-family and when" to the ROADMAP matrix
+    note — the v0.10.1 bump arrived with no in-repo trace of the decider. ~~**— done** (M1.2).
+42. ~~`[CI]` Evaluate whether the fuzz workflow should also run on the weekly
     cadence for go-error-family bumps (supply-chain-triggered fuzzing; idea,
-    unpriced). **— done** (M15.3 — deferred with pricing).
-43. `[DOC]` CONTRIBUTING: note that `_emphasis_` (not `*emphasis*`) is the
-    formatter-enforced style, once §f.2 identifies the tool. **— done** (M2.3, `f65ee77`).
-44. `[VERIFY]` Re-run the seeded fuzz corpus run after the v0.10.1 bump
+    unpriced). ~~**— done** (M15.3 — deferred with pricing).
+43. ~~`[DOC]` CONTRIBUTING: note that `_emphasis_` (not `*emphasis*`) is the
+    formatter-enforced style, once §f.2 identifies the tool. ~~**— done** (M2.3, `f65ee77`).
+44. ~~`[VERIFY]` Re-run the seeded fuzz corpus run after the v0.10.1 bump
     (`go test -run '^FuzzComputeDelayNeverPanics$' .`) — cheap freshness
-    proof for the new dependency. **— done** (M1.6).
-45. `[DOC]` FEATURES bench row: numbers re-verified this session (20.1–21.1
+    proof for the new dependency. ~~**— done** (M1.6).
+45. ~~`[DOC]` FEATURES bench row: numbers re-verified this session (20.1–21.1
     ns/op, 0 allocs) — no action needed; re-check at next hardware/toolchain
-    change. **— done** (M16.4, `f7f1bfb`).
-46. `[PROCESS]` When harvesting, capture the §f→T mapping as a table in the
-    TODO_LIST header comment (mechanical reverse-navigation for ANNOTATE). **— done** (superseded — TODO_LIST rebuilt with a Source column).
-47. `[ROADMAP]` If T22 lands, delete the "Options-based configuration" raw
-    idea and graduate its decisions into FEATURES rows. **— done** (M8.3).
-48. `[VERIFY]` Spot-check that `9eb87ee`'s formatter pass missed nothing in
+    change. ~~**— done** (M16.4, `f7f1bfb`).
+46. ~~`[PROCESS]` When harvesting, capture the §f→T mapping as a table in the
+    TODO_LIST header comment (mechanical reverse-navigation for ANNOTATE). ~~**— done** (superseded — TODO_LIST rebuilt with a Source column).
+47. ~~`[ROADMAP]` If T22 lands, delete the "Options-based configuration" raw
+    idea and graduate its decisions into FEATURES rows. ~~**— done** (M8.3).
+48. ~~`[VERIFY]` Spot-check that `9eb87ee`'s formatter pass missed nothing in
     TODO_LIST (it touched ROADMAP-adjacent files; TODO_LIST landed in
-    `7aeaae7`, before the formatter ran — possible drift). **— done** (M1.5).
-49. `[DOC]` Add the coverage-command output note ("(statements) 100.0%") to
-    the Session Ritual's gate order as the canonical coverage check format. **— done** (M12.6).
-50. `[PROCESS]` Before the next status report: poll `git log` for daemon
+    `7aeaae7`, before the formatter ran — possible drift). ~~**— done** (M1.5).
+49. ~~`[DOC]` Add the coverage-command output note ("(statements) 100.0%") to
+    the Session Ritual's gate order as the canonical coverage check format. ~~**— done** (M12.6).
+50. ~~`[PROCESS]` Before the next status report: poll `git log` for daemon
     commits made while writing, and cite final hashes, not mid-session ones
-    (this report cites four; a fifth may land before it is read). **— done** (standing practice).
+    (this report cites four; a fifth may land before it is read). ~~**— done** (standing practice).
 
 ## g) Questions I can NOT figure out myself
 
-1. **Daemon push policy (third ask, now with supply-chain teeth):** today the
+1. ~~**Daemon push policy (third ask, now with supply-chain teeth):** today the
    daemon carried my doc blobs AND an external go-error-family v0.10.1 bump +
    `go`-directive relaxation to `master` unattended, with no in-repo trace of
    who decided the bump. Is unattended auto-push to `master` — including
    dependency changes nobody reviewed in-repo — the intended posture, or
-   should the daemon stop pushing (or push to a side branch)? **— done**: answered 2026-09-16 — the daemon keeps committing and pushing; agent commits amend over daemon races only while unpushed.
-2. **Which markdown formatter is canonical?** Something rewrote `*x*` → `_x_`
+   should the daemon stop pushing (or push to a side branch)? ~~**— done**: answered 2026-09-16 — the daemon keeps committing and pushing; agent commits amend over daemon races only while unpushed.
+2. ~~**Which markdown formatter is canonical?** Something rewrote `*x*` → `_x_`
    across my AGENTS text in `9eb87ee`, but `dprint` is not on PATH and no
    config in-repo names the tool that does emphasis normalization. Which tool
    owns markdown formatting here, how is it invoked, and should CONTRIBUTING
-   pin that invocation so agents stop guessing (and hand-formatting wrong)? **— done**: answered — dprint is the canonical markdown formatter (M2, `f65ee77`); `_emphasis_` documented.
-3. **Was `go 1.26.7` → `go 1.26` intentional?** The patch pin was removed in
+   pin that invocation so agents stop guessing (and hand-formatting wrong)? ~~**— done**: answered — dprint is the canonical markdown formatter (M2, `f65ee77`); `_emphasis_` documented.
+3. ~~**Was `go 1.26.7` → `go 1.26` intentional?** The patch pin was removed in
    the same commit as the v0.10.1 bump. If floating patch toolchains is the
    policy, the AGENTS setup-go gotcha should say the repo deliberately floats;
-   if it was collateral, the pin should be restored. Which is it? **— done**: resolved 2026-09-17 — the directive was reverted to `go 1.26` and is now guarded by `TestModuleGoDirectiveStaysPinned`.
+   if it was collateral, the pin should be restored. Which is it? ~~**— done**: resolved 2026-09-17 — the directive was reverted to `go 1.26` and is now guarded by `TestModuleGoDirectiveStaysPinned`.
 
 ---
 
