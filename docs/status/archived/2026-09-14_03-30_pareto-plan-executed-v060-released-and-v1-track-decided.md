@@ -58,7 +58,7 @@ styled HTML dashboard — override honored, not propagated).
    `fuzz-crash-corpus-877a407…` artifact uploaded with real crashers,
    minimization provably inside the budget); now a FEATURES guarantee.
 4. ~~**First scheduled fuzz run** — `workflow_dispatch` is green, but the cron
-   trigger (`17 3 * * *` UTC ≈ 05:17 CEST) fires ~2 h after this report;
+   trigger (`17 3 * * *` UTC ≈ 05:17 CEST) fires ≈2 h after this report;
    schedule-trigger runs have different semantics (default-branch-only,
    token differences).~~ (§f.13-era numbering.) Resolved: the first
    scheduled run fired 2026-09-14 03:33 UTC (run 34802993739) and schedule
