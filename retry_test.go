@@ -1469,6 +1469,36 @@ func ExampleDo_delayFunc() {
 	// error: [infrastructure:retry.exhausted] all retry attempts failed: [transient:example.rate_limited] too many requests
 }
 
+// ExampleDo_withOptions customizes one call through the options tail: the
+// Config itself is never modified, so callers sharing it are unaffected.
+// WithJitter(JitterNone) makes the backoff the pure capped exponential, so
+// the observed delays are deterministic.
+func ExampleDo_withOptions() {
+	cfg := retry.DefaultConfig()
+	cfg.InitialDelay = time.Millisecond
+	cfg.MaxDelay = 4 * time.Millisecond
+
+	var retried []string
+
+	err := retry.Do(
+		context.Background(),
+		cfg,
+		func(ctx context.Context, n int) error {
+			return errorfamily.NewTransient("example.transient", "still failing")
+		},
+		retry.WithOnRetry(func(attempt int, delay time.Duration, err error) {
+			retried = append(retried, fmt.Sprintf("%d:%v", attempt, delay))
+		}),
+		retry.WithJitter(retry.JitterNone),
+	)
+
+	fmt.Println("retried:", retried)
+	fmt.Println("exhausted:", errors.Is(err, retry.ErrExhausted))
+	// Output:
+	// retried: [1:1ms 2:2ms]
+	// exhausted: true
+}
+
 // ExampleFromPolicy converts an error-family retry policy — the advisory
 // defaults for Transient errors — into a Config.
 func ExampleFromPolicy() {
