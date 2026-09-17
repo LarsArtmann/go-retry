@@ -7,7 +7,7 @@ gaps), `BROKEN` (present but failing), `PLANNED` (no code yet), and
 `WORTH_CONSIDERING` (idea, not committed).
 
 _Test status: `go test ./... -race` is green; statement coverage is 100%
-(`go test -cover` / `go tool cover -func=reports/coverage.out`)._
+(`go test -cover ./...` — read the `coverage: 100.0% of statements` line)._
 
 ---
 
@@ -141,13 +141,23 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   zero-cap, overflow, and near-`MaxInt64` inputs. The seed corpus is also
   committed in `testdata/fuzz/FuzzComputeDelayNeverPanics/`, and a scheduled
   CI workflow fuzzes daily for 30 minutes (schedule-trigger runs verified
-  green 2026-09-14 through 2026-09-16). `retry_test.go`, `testdata/fuzz/`,
+  green 2026-09-14 through 2026-09-17). `retry_test.go`, `testdata/fuzz/`,
+  `.github/workflows/fuzz.yml`.
+- **Fuzz failure path is runner-proven** — a deliberate panic injected on a
+  throwaway branch made the dispatch-triggered fuzz job fail as designed,
+  uploaded the SHA-named `fuzz-crash-corpus-<sha>` artifact with real
+  crashers, and kept crash minimization inside the job's timeout budget.
   `.github/workflows/fuzz.yml`.
 - **Corpus↔seeds mirror is machine-checked** — `TestFuzzCorpusMirrorsSeeds`
   parses the `f.Add` seeds and the committed corpus files, normalizes both
   (including constant expressions), and fails naming the offender when either
   side drifts (drift-fail proven in both directions).
   `retry_test.go` (`TestFuzzCorpusMirrorsSeeds`).
+- **Module go-directive is pinned (proven-failing)** —
+  `TestModuleGoDirectiveStaysPinned` asserts `go.mod` still declares the
+  relaxed `go 1.26` that the living docs state, so external tooling cannot
+  re-pin it silently. `retry_test.go`
+  (`TestModuleGoDirectiveStaysPinned`).
 - **Behavioral guarantees** — `OnRetry` not called after the final failure;
   a pre-canceled context yields `ErrCanceled`; a deadline exceeded during
   backoff yields `ErrDeadlineExceeded` matching `context.DeadlineExceeded`
@@ -160,9 +170,11 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
 - **Runnable godoc examples** — `ExampleDo` (success path),
   `ExampleDo_customIsRetryable` (custom predicate), `ExampleDo_delayFunc`
   (server-provided Retry-After), `ExampleFromPolicy` (error-family
-  policy → `Config`), and `ExampleDoWithValue` (value-returning API) are
-  deterministic, carry `// Output:` comments, and render on `pkg.go.dev`.
-  `retry_test.go`.
+  policy → `Config`), `ExampleDoWithValue` (value-returning API),
+  `ExampleBackoff` (the `Rejection` path for `attempt < 1`), and
+  `ExampleComputeDelay` (hard-cap determinism) are deterministic, carry
+  `// Output:` comments, and render on `pkg.go.dev`. The last two landed
+  after the v0.7.0 tag and ride the next release. `retry_test.go`.
 - **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
   (~20–35 ns/op depending on machine load; 0 allocations — the jitter path
   allocates nothing). Re-check when the Go toolchain or the reference machine
@@ -185,8 +197,8 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   workflow-schema gate, and enforces a 95%
   coverage floor on every push and pull request; each job carries a
   10-minute timeout and pushes to the same ref cancel superseded runs.
-  Verified green on real runners for the current tip (run 3479724601,
-  2026-09-14).
+  Verified green on real runners for the current tip (run 35180369905,
+  2026-09-17).
 
 ## PARTIALLY_FUNCTIONAL
 
