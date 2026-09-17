@@ -42,7 +42,7 @@ styled HTML dashboard — override honored, not propagated).
 1. ~~**pkg.go.dev verification loop** — resolved for v0.6.0 (renders, examples
    indexed, "Latest" badge correct), but the check itself remains a manual
    fetch-retry ritual with a ≈1–9 h lag window. The loop closes per release;
-   it is not automated. (§f.1.) **— done**: the canonical-page-is-truth rule
+   it is not automated. (§f.1.)~~ **— done**: the canonical-page-is-truth rule
    is recorded in CONTRIBUTING (M3.8/M12.7); the per-release loop stays manual
    by design.
 2. ~~**Actionlint gate coverage** — proven for the cron/structure/expression
@@ -53,7 +53,7 @@ styled HTML dashboard — override honored, not propagated).
    limitation is now an explicit AGENTS gotcha (`b4efa02`).
 3. ~~**Fuzz failure path** — `fuzz.yml`'s success path is runner-proven; the
    crash-artifact upload + minimization path has never executed (no crasher
-   has ever occurred, which is good news but untested plumbing). (§f.30–31.)
+   has ever occurred, which is good news but untested plumbing). (§f.30–31.)~~
    **— done**: the failure path executed in the M10 drill (throwaway branch,
    `fuzz-crash-corpus-877a407…` artifact uploaded with real crashers,
    minimization provably inside the budget); now a FEATURES guarantee.
@@ -73,19 +73,19 @@ styled HTML dashboard — override honored, not propagated).
 ## c) NOT STARTED
 
 1. ~~**Options-pattern migration implementation** — M16 produced the design
-   (variadic `Option` tail, `With*` inventory); no code exists. **— done**
+   (variadic `Option` tail, `With*` inventory); no code exists.~~ **— done**
    (M4–M8; shipped in v0.7.0, `a0a3968`/`ab6e97c`/`936d62d`).
 2. ~~**`WithJitter` / `WithRandomSource`** — the two options-only capabilities
    are design records, not implementations; the jitter deferral (twice
-   decided) only un-blocks via this work. **— done** (`WithJitter` and
+   decided) only un-blocks via this work.~~ **— done** (`WithJitter` and
    `WithRandomSource` landed `936d62d`; the jitter deferral is retired).
 3. ~~**Auto-PR crash-corpus loop** — designed, deliberately deferred until the
-   first real crasher. **— Open (by design)**: build when the first real
+   first real crasher.~~ **— Open (by design)**: build when the first real
    crasher appears.
 4. ~~**Docs website** — preconditions priced; launch stays post-v1.0.~~ **— Open (by design)**: post-v1.0.
 5. ~~**Consumer propagation for v0.6.0** — `go-cqrs-lite/middleware/v4` (and
    any other consumer) has not been bumped to `go-retry v0.6.0`; the
-   `go-ecosystem-upgrade` flow was not run post-release. (§f.2.) **— done**:
+   `go-ecosystem-upgrade` flow was not run post-release. (§f.2.)~~ **— done**:
    M9 bumped `go-cqrs-lite/middleware/v4` to v0.7.0 (`680f2d4d0`,
    owner-authorized); remaining consumers are routed to TODO_LIST T41.
 6. ~~**v0.6.1/v0.7.0** — `[Unreleased]` already holds 3 entries (sync test,
