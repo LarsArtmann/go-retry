@@ -54,3 +54,8 @@ go.work
 go.work.sum
 /go-retry
 # <<< buildflow-managed (.gitignore) <<<
+
+## Scratch verification tests (temporary, never commit)
+# Convention: name throwaway verification tests <thing>_scratch_test.go so this
+# pattern catches them; promote real coverage into retry_test.go instead.
+*_scratch_test.go
