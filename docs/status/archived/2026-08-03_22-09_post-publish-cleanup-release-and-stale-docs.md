@@ -365,7 +365,7 @@ Sorted by impact, Pareto-style.
 ### P1 — High impact
 
 1. ~~**Add CI workflow** (`.github/workflows/ci.yml`) — `go test ./... -race` +~~ done at `e840c7d`
-   ~~`golangci-lint run ./...` on push/PR. ~20 lines. Fully unblocked.~~
+   ~~`golangci-lint run ./...` on push/PR. ≈20 lines. Fully unblocked.~~
 2. ~~**Concurrency stress test** — prove `Do` invocations share no mutable state~~ done at `e840c7d`
    ~~with a `t.Parallel()` goroutine stress test (T1).~~
 3. ~~**Fuzz `ComputeDelay`** — `go test -fuzz` target for numeric edges (T1).~~ done at `e840c7d`

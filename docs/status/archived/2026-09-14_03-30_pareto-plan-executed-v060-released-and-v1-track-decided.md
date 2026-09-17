@@ -82,8 +82,7 @@ styled HTML dashboard — override honored, not propagated).
 3. ~~**Auto-PR crash-corpus loop** — designed, deliberately deferred until the
    first real crasher. **— Open (by design)**: build when the first real
    crasher appears.
-4. ~~**Docs website** — preconditions priced; launch stays post-v1.0.
-   ~~**— Open (by design)**: post-v1.0.
+4. ~~**Docs website** — preconditions priced; launch stays post-v1.0.~~ **— Open (by design)**: post-v1.0.
 5. ~~**Consumer propagation for v0.6.0** — `go-cqrs-lite/middleware/v4` (and
    any other consumer) has not been bumped to `go-retry v0.6.0`; the
    `go-ecosystem-upgrade` flow was not run post-release. (§f.2.) **— done**:

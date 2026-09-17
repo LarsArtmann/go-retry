@@ -48,7 +48,7 @@
 
 ## c) NOT STARTED
 
-1. ~~**CI (`.github/workflows/`)** — No GitHub Actions workflow exists. Was listed as P3 "blocked on a git remote" — **but the remote now exists**, so this is unblocked and should be re-prioritized. A minimal workflow running `go test ./... -race` and `golangci-lint run ./...` on push/PR is ~20 lines of YAML.~~ done at `e840c7d`
+1. ~~**CI (`.github/workflows/`)** — No GitHub Actions workflow exists. Was listed as P3 "blocked on a git remote" — **but the remote now exists**, so this is unblocked and should be re-prioritized. A minimal workflow running `go test ./... -race` and `golangci-lint run ./...` on push/PR is ≈20 lines of YAML.~~ done at `e840c7d`
 
 2. ~~**`go get` end-to-end verification** — The README example was verified with local `replace` directives (pre-publish). Now that the repo is public, a real `go get github.com/larsartmann/go-retry@latest` in a clean module should be tested to confirm the public import path actually resolves. Likely works (module path matches repo path, `v0.1.0` tag exists), but not proven.~~ done (verified in the 22:09 session (A6))
 
@@ -100,7 +100,7 @@ Pareto-ranked. P1 = highest impact. Items already in `TODO_LIST.md` are marked *
 
 ### P2 — developer experience & CI
 
-6. ~~**Add minimal CI** (`.github/workflows/ci.yml`) — `go test ./... -race` + `golangci-lint run ./...` on push/PR. ~20 lines. The remote exists now.~~ done at `e840c7d`
+6. ~~**Add minimal CI** (`.github/workflows/ci.yml`) — `go test ./... -race` + `golangci-lint run ./...` on push/PR. ≈20 lines. The remote exists now.~~ done at `e840c7d`
 7. ~~**(T1) Close remaining behavioral test gaps** — concurrent `Do` stress test; fuzz `ComputeDelay` for overflow/negative edges.~~ done at `e840c7d`
 8. ~~**(T2) Verify `hierarchical-errors` migration applies** — likely a no-op (this package uses only `errors.Is`), but confirm and close.~~ done (no-op confirmed 2026-08-07 (package uses errors.Is only))
 9. ~~**(T3) Cross-link `Backoff` ↔ `ComputeDelay` doc comments** — one-line "See [ComputeDelay]" / "See [Backoff]" in each.~~ done at `10a5566`
