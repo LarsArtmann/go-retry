@@ -212,6 +212,11 @@ Error codes follow a `retry.<snake_case_event>` convention
 - Assertions use `t.Fatalf` with a descriptive message including the actual value.
 - Validate error identity with `errors.Is`, and family with
   `errorfamily.Classify(err) == errorfamily.<Family>`.
+- **Repo-level doc/code invariants get a guard test.** `go.mod`'s `go`
+  directive is pinned by `TestModuleGoDirectiveStaysPinned` (proven failing on
+  drift before it landed), so external tooling cannot silently re-pin it away
+  from the `go 1.26` every living doc states. Add the same shape when a
+  documented claim has no other enforcement.
 
 ## Session Ritual (self-checks before claiming done)
 
@@ -222,8 +227,8 @@ Error codes follow a `retry.<snake_case_event>` convention
   `nix run nixpkgs#dprint -- check` (markdown/JSON/YAML drift) →
   `./scripts/check-compare-links.sh` (after any CHANGELOG link edit).
 - **Coverage canonical format:** `go test -cover ./...` — read the
-  `coverage: 100.0% of statements` line; the CI floor is 95% (decision
-  pending in TODO_LIST T32). Never quote coverage from `go tool cover`
+  `coverage: 100.0% of statements` line; the CI floor is 95% (decided
+  2026-09-16: keep 95 — rationale in `ROADMAP.md`). Never quote coverage from `go tool cover`
   output without the `go test -cover` line as source.
 - **Test-failure proof:** a new guard test must be shown to FAIL on the drift
   it guards (temporarily break the fixture, observe the named failure,

@@ -194,13 +194,14 @@ v1.0:
   deadline budget should set `MaxDelay` below their remaining time — that
   recipe goes in the README instead of new semantics.
 - **Version-compatibility matrix with `go-error-family`.** This package
-  depends on `go-error-family v0.10.0` (`go.mod`) and leans on
+  depends on `go-error-family` (version pinned in `go.mod`) and leans on
   `errorfamily.IsRetryable` as its default retry predicate. As that library
   evolves, document which `go-retry` versions support which `go-error-family`
   majors.
 
-  **Matrix (2026-09-13).** The `go-error-family` API surface `go-retry`
-  compiles against (extracted from `go.mod`-pinned v0.10.0; grep-verified):
+  **Matrix (2026-09-13; rows updated 2026-09-17).** The `go-error-family` API
+  surface `go-retry` compiles against (extracted from the `go.mod` pin —
+  v0.10.0 at audit time, v0.10.1 since the Dependabot bump; grep-verified):
   `NewInfrastructure`, `NewRejection`, `NewTransient` (tests),
   `WrapInfrastructure`, `IsRetryable`, `Classify` (tests), the
   `Transient`/`Rejection` family constants (tests), and the `RetryPolicy`
@@ -212,7 +213,8 @@ v1.0:
   | v0.4.0           | v0.10.0         | family/code contract settled                                                  |
   | v0.5.0           | v0.10.0         | —                                                                             |
   | v0.6.0           | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc |
-  | master (→v0.6.1) | v0.10.1         | patch bump via Dependabot (2026-09-16); surface unchanged, gates green        |
+  | v0.6.1           | v0.10.1         | patch bump via Dependabot (2026-09-16); surface unchanged, gates green        |
+  | v0.7.0           | v0.10.1         | options surface added; consumes no new go-error-family symbol                 |
 
   Rule: a go-error-family **major** (post-v1) or any change to the surface
   above requires a go-retry minor bump and a new matrix row; the `RetryPolicy`
@@ -278,8 +280,9 @@ v1.0:
   1. v1.0.0 tag cut (API-stability promise in force) — hard gate.
   2. Public-API audit verdicts all "freeze" (done 2026-09-13, see the v1.0
      bar above).
-  3. Godoc examples cover every entry point (`Do`, `DoWithValue` done;
-     `Backoff`/`ComputeDelay` nice-to-have).
+  3. Godoc examples cover every entry point — **done**: all seven exported
+     entry points carry output-pinned examples (`ExampleBackoff` /
+     `ExampleComputeDelay` landed post-v0.7.0).
   4. Launch content decision: demo video per the `website-launch` pattern
      (owner call).
   5. Docs-site content source chosen (README-derived vs dedicated pages) —
@@ -336,6 +339,11 @@ see `AGENTS.md` → Commands. Do not invent nix targets._
 
 _Decided (asked 2026-09-16, owner): the relaxed `go 1.26` directive in
 `go.mod` is intentional — stay on it; do not re-pin to a patch version._
+
+_Reaffirmed (2026-09-17): an external writer re-pinned the directive to
+`go 1.27.1`; it was reverted to `go 1.26` (no dependency or code needs 1.27 —
+the sole dependency declares `go 1.26`) and `TestModuleGoDirectiveStaysPinned`
+now guards the directive, proven failing on drift before it landed._
 
 _Decided (kept for the record, 2026-09-13): no delay-sequence table in the
 README. Proposed repeatedly, never demanded; the formula is already documented
