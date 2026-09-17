@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.7.1] - 2026-09-17
+
+A documentation-and-tooling patch: library code, public API, and dependencies
+are byte-identical to v0.7.0. Cut so pkg.go.dev finally renders the example
+set and the new guarantees ship on a tagged page.
+
+### Added
+
 - **Post-v0.7.0 godoc examples.** `ExampleBackoff` (the `Rejection` path for
   `attempt < 1`) and `ExampleComputeDelay` (the hard-cap determinism case) are
   output-pinned; they landed after the v0.7.0 tag, so v0.7.0's pkg.go.dev page
@@ -429,7 +443,8 @@ Initial public release. Signed annotated tag `v0.1.0`.
 - **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
   links resolve against the public GitHub remote.
 
-[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/LarsArtmann/go-retry/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/LarsArtmann/go-retry/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/LarsArtmann/go-retry/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/LarsArtmann/go-retry/compare/v0.5.0...v0.6.0

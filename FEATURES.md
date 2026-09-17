@@ -182,7 +182,7 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   `ExampleBackoff` (the `Rejection` path for `attempt < 1`), and
   `ExampleComputeDelay` (hard-cap determinism) are deterministic, carry
   `// Output:` comments, and render on `pkg.go.dev`. The last three landed
-  after the v0.7.0 tag and ride the next release. `retry_test.go`.
+  after the v0.7.0 tag and shipped in v0.7.1. `retry_test.go`.
 - **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
   (~20–35 ns/op depending on machine load; 0 allocations — the jitter path
   allocates nothing). Re-check when the Go toolchain or the reference machine
@@ -213,8 +213,9 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   with dprint, and enforces a 95%
   coverage floor on every push and pull request; each job carries a
   10-minute timeout and pushes to the same ref cancel superseded runs.
-  Verified green on real runners for the current tip (run 35180369905,
-  2026-09-17).
+  Verified green on real runners for the current tip (runs 35180369905 and
+  35195364809, 2026-09-17 — the latter exercising the tools-pinned actionlint
+  and dprint steps).
 
 ## PARTIALLY_FUNCTIONAL
 
