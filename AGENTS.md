@@ -249,6 +249,7 @@ Error codes follow a `retry.<snake_case_event>` convention
   -count=10` → `golangci-lint run ./...` → `golangci-lint config verify`
   (mandatory after any `.golangci.yml` touch — plain `run` tolerates schema
   violations the CI action rejects) → coverage if tests changed →
+  `govulncheck ./...` (release cuts scan root + `tools/`) →
   `nix run nixpkgs#dprint -- check` (markdown/JSON/YAML drift) →
   `./scripts/check-compare-links.sh` (after any CHANGELOG link edit).
 - **Coverage canonical format:** `go test -cover ./...` — read the

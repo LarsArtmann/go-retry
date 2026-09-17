@@ -270,6 +270,11 @@ v1.0:
     permissions (today the workflows are `contents: read`), and crasher
     triage is inherently human — the corpus-seeds test keeps the manual
     path cheap.
+- **Doc-freshness scheduled CI job.** Run the doc gates (dprint, the
+  marker/index gate once T45 lands, compare-links) on a schedule rather than
+  only pre-push, so non-session writers cannot leave master stale between
+  releases. Unscoped: schedule choice, failure routing, value vs the already-CI-gated
+  dprint step. (Harvested 2026-09-17 from 08:47 §f.26 / 09:36 §f.12.)
 - **CI hardening ideas (unscoped, harvested 2026-09-16 from the 2026-09-14
   report §f).**
   - Remote-action input-allowlist test: the 6 pinned actions' inputs checked
@@ -355,6 +360,28 @@ status report.
   copy). No `docs/releases/` directory: the CHANGELOG is the single in-repo
   copy and GitHub Releases is the presentation layer; a third copy would
   drift. (Decided 2026-09-13.)
+
+- **Daemon commit-message policy.** Three sessions of `chore: auto-commit`
+  heuristic batches have made `done at <hash>` citations technically true but
+  uninformative (raised 2026-09-17 08:47 §g.1 and again 13:19 §f.18). Owner
+  call: commit explicitly per task when authorized, constrain the daemon, or
+  keep citations as "(daemon batch)". Cannot be decided agent-side.
+
+- **Local dprint pinning posture.** CI pins 0.57.4 (`dprint/check`, version
+  input); local runs float with nixpkgs (`nix run nixpkgs#dprint`) and aligned
+  by coincidence of freshness on 2026-09-17. Pinning locally means either a
+  flake (the repo's recorded anti-stance) or a binary checkout the repo has no
+  convention for. Owner call (raised 2026-09-17 09:36 §g.2 / 13:19 §f.11):
+  accept the float and document the divergence risk, or pick a non-flake pin.
+
+- **Tools-pin topology: keep the nested `tools/` module or fold it in?** The
+  nested module exists because two recorded decisions collide: the blessed
+  tools-pin pattern vs the relaxed `go 1.26` directive (the x/* tool deps
+  declare `go 1.26.0` and would force a patch pin in any module hosting them).
+  The current shape violates neither, but it costs a second module outside the
+  root gates (T47). Owner re-weigh (raised 2026-09-17 09:36 §g.1): keep as-is,
+  or fold the pins into the library module and relax the guard to accept
+  `go 1.26.0`.
 
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —

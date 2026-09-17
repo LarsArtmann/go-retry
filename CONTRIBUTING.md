@@ -43,7 +43,9 @@ tails). Read it once; run it always. Two rituals from it deserve emphasis:
   status report, the row gets its `done at <hash>` verdict **in the same
   change**, citing only the final hash of the work (never an intermediate
   one). Re-check `git status` immediately before `git add` — the auto-commit
-  daemon races explicit commits.
+  daemon races explicit commits, and the daemon may also reformat markdown
+  (dprint realigns tables) mid-session: re-`view` a file before editing it
+  after any formatter or daemon pass.
 
 ### Coverage
 

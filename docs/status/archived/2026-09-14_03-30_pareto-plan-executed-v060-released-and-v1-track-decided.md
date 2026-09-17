@@ -287,7 +287,7 @@ styled HTML dashboard — override honored, not propagated).
     corrected — golines max-len is 120, not 128).
 34. ~~`[CODE]` Distill any NEW interesting fuzz inputs into seeds only if they
     map to new input classes (standing practice; the dispatch run found
-    ~43 new interesting inputs in cache, not corpus).~~ → covered: standing
+    ≈43 new interesting inputs in cache, not corpus).~~ → covered: standing
     practice already pinned by the AGENTS corpus↔seeds gotcha and its
     enforcing test; no new action.
 35. ~~`[DOC]` `docs/status/README.md`: add this report's row with its State

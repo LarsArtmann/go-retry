@@ -215,9 +215,9 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   with dprint, and enforces a 95%
   coverage floor on every push and pull request; each job carries a
   10-minute timeout and pushes to the same ref cancel superseded runs.
-  Verified green on real runners for the current tip (runs 35180369905 and
-  35195364809, 2026-09-17 — the latter exercising the tools-pinned actionlint
-  and dprint steps).
+  Verified green on real runners for the current tip (runs 35244685306 and
+  35246693129, 2026-09-17 — the tag run exercising the tools-pinned actionlint
+  and dprint steps on the v0.7.1 commit).
 
 ## PARTIALLY_FUNCTIONAL
 
