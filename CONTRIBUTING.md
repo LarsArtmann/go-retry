@@ -17,6 +17,8 @@ are the only tools required.
 go test ./... -race        # tests (always with -race; backoff uses math/rand/v2)
 golangci-lint run ./...    # lint (uses the committed .golangci.yml)
 go vet ./...               # vet
+go -C tools vet ./...      # vet the nested tools module (invisible to root ./...)
+./scripts/check-docs.sh    # doc battery: guard tests + dprint + compare-links
 # Development tools (actionlint, govulncheck) are version-pinned in the
 # nested tools module — install them once per bump, then run by name:
 go -C tools install github.com/rhysd/actionlint/cmd/actionlint golang.org/x/vuln/cmd/govulncheck
@@ -35,8 +37,11 @@ change set should pass before claiming done (gate order incl.
 hash verification for cited evidence, raw test summaries over filtered
 tails). Read it once; run it always. Two rituals from it deserve emphasis:
 
-- **Compare-link guard** — after any `CHANGELOG.md` link edit, run
-  [`scripts/check-compare-links.sh`](scripts/check-compare-links.sh); it
+- **Doc battery** — after any documentation edit, run
+  [`scripts/check-docs.sh`](scripts/check-docs.sh); it chains the repo-doc
+  guard tests (strikethrough rendering, archive verdicts, index consistency),
+  the dprint format check, and
+  [`scripts/check-compare-links.sh`](scripts/check-compare-links.sh), which
   fails on a malformed or poisoned compare link and is part of the release
   ritual.
 - **Annotate as you land** — when a change completes an item from a plan or
