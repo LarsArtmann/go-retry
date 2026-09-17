@@ -849,7 +849,11 @@ func TestModuleGoDirectiveStaysPinned(t *testing.T) {
 
 	const want = "1.26"
 	if directive[1] != want {
-		t.Fatalf("go.mod declares `go %s`, want `go %s`: re-pin intentionally and update every doc that states it", directive[1], want)
+		t.Fatalf(
+			"go.mod declares `go %s`, want `go %s`: re-pin intentionally and update every doc that states it",
+			directive[1],
+			want,
+		)
 	}
 }
 
