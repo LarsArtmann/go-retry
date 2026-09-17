@@ -17,11 +17,14 @@ are the only tools required.
 go test ./... -race        # tests (always with -race; backoff uses math/rand/v2)
 golangci-lint run ./...    # lint (uses the committed .golangci.yml)
 go vet ./...               # vet
-go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12  # workflow schema check
+# Development tools (actionlint, govulncheck) are version-pinned in the
+# nested tools module — install them once per bump, then run by name:
+go -C tools install github.com/rhysd/actionlint/cmd/actionlint golang.org/x/vuln/cmd/govulncheck
+actionlint -verbose        # workflow schema check
 ```
 
 The workflow schema check also runs in CI (first step of the `lint` job,
-pinned to the same actionlint version), so invalid workflow YAML fails fast
+built from the same `tools/go.mod` pin), so invalid workflow YAML fails fast
 on the runner instead of surfacing as mysterious job failures.
 
 ### Session ritual (maintainers)
@@ -30,7 +33,17 @@ on the runner instead of surfacing as mysterious job failures.
 change set should pass before claiming done (gate order incl.
 `golangci-lint config verify`, proving new guard tests fail on their drift,
 hash verification for cited evidence, raw test summaries over filtered
-tails). Read it once; run it always.
+tails). Read it once; run it always. Two rituals from it deserve emphasis:
+
+- **Compare-link guard** — after any `CHANGELOG.md` link edit, run
+  [`scripts/check-compare-links.sh`](scripts/check-compare-links.sh); it
+  fails on a malformed or poisoned compare link and is part of the release
+  ritual.
+- **Annotate as you land** — when a change completes an item from a plan or
+  status report, the row gets its `done at <hash>` verdict **in the same
+  change**, citing only the final hash of the work (never an intermediate
+  one). Re-check `git status` immediately before `git add` — the auto-commit
+daemon races explicit commits.
 
 ### Coverage
 
@@ -73,8 +86,9 @@ fails `golangci-lint run` / CI:
 - **Markdown / JSON / YAML / Dockerfile** — [dprint](https://dprint.dev) with
   the committed `dprint.json` (the markdown plugin maintains existing line
   wrapping; `CHANGELOG.md` is excluded). Tabs for Go files, 2 spaces for
-  YAML/JSON (`.editorconfig`). Canonical invocation (dprint is not pinned in
-  `tools.go` yet):
+  YAML/JSON (`.editorconfig`). dprint is a Rust binary, so it is pinned where
+  it runs in CI (the `dprint/check` step in `.github/workflows/ci.yml`, with
+  an attestation-verified download) rather than in `tools/go.mod`:
 
   ```bash
   nix run nixpkgs#dprint -- check   # gate: fails on drift

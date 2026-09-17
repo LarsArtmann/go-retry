@@ -213,17 +213,31 @@ v1.0:
   | v0.4.0        | v0.10.0         | family/code contract settled                                                  |
   | v0.5.0        | v0.10.0         | —                                                                             |
   | v0.6.0        | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc |
-  | v0.6.1        | v0.10.1         | patch bump via Dependabot (2026-09-16); surface unchanged, gates green        |
-  | v0.7.0        | v0.10.1         | options surface added; consumes no new go-error-family symbol                 |
+  | v0.6.1        | v0.10.1         | patch bump, no PR — daemon commit `9eb87ee` (see bump trace below); surface unchanged, gates green |
+  | v0.7.0        | v0.10.1         | options surface added; consumes no new go-error-family symbol |
 
   Rule: a go-error-family **major** (post-v1) or any change to the surface
   above requires a go-retry minor bump and a new matrix row; the `RetryPolicy`
   shape is the riskiest coupling (see the API-audit `FromPolicy` note).
 
-  Who bumps go-error-family (trace, 2026-09-16): Dependabot's weekly gomod
-  watcher opens the PR; the owner (or an agent following the AGENTS
-  verify-then-merge flow) SHA-verifies each action/gomod change, runs the
-  gates, and merges when green. No one edits the pin by hand.
+  **Bump trace (audit trail, one line per bump — append at merge time):**
+
+  | go-error-family | in go-retry | Mechanism                                             | Verification evidence                                                                                          |
+  | --------------- | ----------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+  | v0.10.0         | v0.4.0      | manual bump, 2026-08-22 hardening session             | family/code contract settled that session; matrix row + `CHANGELOG.md` `[0.4.0]`                              |
+  | v0.10.1         | v0.6.1      | daemon auto-commit `9eb87ee` (2026-09-16) — **no Dependabot PR**; the gomod watcher had opened none | gates green + dependency surface grep unchanged, recorded in the 2026-09-17 05:53 v0.6.1 report; doc-currency pass `047f075` |
+
+  Every future bump adds one line here when it merges, linking the Dependabot
+  PR (or naming the mechanism when there is none) and the SHA-verification /
+  gate evidence — no bump lands unrecorded again.
+
+  Who bumps go-error-family (trace, 2026-09-16; corrected 2026-09-17):
+  Dependabot's weekly gomod watcher (now covering `/` and `/tools`) is the
+  intended path — it opens the PR, the owner (or an agent following the
+  AGENTS verify-then-merge flow) SHA-verifies each action/gomod change,
+  runs the gates, merges when green, and appends a bump-trace line above.
+  No one edits the pin by hand. The v0.10.1 bump predates a working gomod
+  PR and landed via the daemon instead (see the trace).
 - **CI hardening ideas (unscoped).** A periodic `-race` fuzz short-run
   (throughput vs concurrency-bug tradeoff); pinning the govulncheck action's
   internal `go install …@latest` posture; an auto-PR loop that lands fuzz
