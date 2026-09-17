@@ -29,13 +29,20 @@ golangci-lint run ./...         # lint (committed .golangci.yml: standard defaul
 go vet ./...
 go test -run '^$' -fuzz '^FuzzComputeDelayNeverPanics$' -fuzztime 5m .   # fuzz campaign
 go test -run '^FuzzComputeDelayNeverPanics$' .                          # seeded corpus run (no fuzzing)
-go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12               # workflow schema gate (also first step of CI lint job)
-nix run nixpkgs#dprint -- check # markdown/JSON/YAML format gate (fmt to fix; CHANGELOG.md excluded)
+go -C tools install github.com/rhysd/actionlint/cmd/actionlint golang.org/x/vuln/cmd/govulncheck  # install pinned dev tools into ~/go/bin (rerun per bump)
+actionlint -verbose             # workflow schema gate (also first step of CI lint job)
+govulncheck ./...               # vulnerability scan (CI uses the official action)
+nix run nixpkgs#dprint -- check # markdown/JSON/YAML format gate (fmt to fix; CHANGELOG.md excluded; also gated in CI via dprint/check)
 ```
 
 `go test` is the only verification gate. There is no build step beyond `go build`
-(the package is consumed as a library). `govulncheck ./...` also runs in CI
-(via the official action); the local `go install` needs network access.
+(the package is consumed as a library). Development tools (actionlint,
+govulncheck) are version-pinned in the nested `tools/` module via Go `tool`
+directives — never suffix `@version` when running them. The classic
+blank-import `tools.go` is dead: Go 1.26 rejects importing main packages, and
+pinning tools in the library module would force `go.mod` off its guarded
+relaxed `go 1.26` directive (current x/* tool versions declare `go 1.26.0`).
+Consumers download none of the tools module.
 
 ## Architecture & Data Flow
 
@@ -47,8 +54,10 @@ Flat single-package layout — no internal subpackages:
 | `config.go`                                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                    |
 | `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                    |
 | `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                |
+| `workflows_test.go`                          | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA (catches the `namee:` typo class)                    |
+| `tools/`                                     | Nested module pinning dev tools (actionlint, govulncheck) via Go `tool` directives; `tools.go` documents usage and the dprint reference                                              |
 | `.golangci.yml`                              | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                    |
-| `.github/workflows/ci.yml`                   | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, golangci-lint (version pinned in-repo)                                                                                |
+| `.github/workflows/ci.yml`                   | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, actionlint (built from `tools/go.mod` pin), dprint check (SHA-pinned `dprint/check`), golangci-lint (version pinned in-repo) |
 | `.github/workflows/fuzz.yml`                 | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                              |
 | `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                   |
 | `docs/status/`                               | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)                                             |
@@ -158,15 +167,18 @@ Error codes follow a `retry.<snake_case_event>` convention
   the symbol (`Classify`, `IsRetryable`) and, when precision matters, the
   dependency version from `go.mod`.
 - **Dependabot PRs are now an expected supply-chain surface — verify, then
-  merge.** Configured weekly (`dependabot.yml`: gomod + github-actions); it
-  stayed silent until 2026-09-13, then opened its first PR (#1, actions
-  group), which was SHA-verified and merged the same day (`e67a70e`).
-  Review flow that worked: fetch each pinned commit **by SHA** from upstream
-  (content-addressed — the hash proves what will run), read its `action.yml`
-  inputs, diff against this repo's `with:` usage, post the evidence, merge.
-  Annotated-tag pins may be re-pinned by Dependabot to the peeled commit
-  (zero code change — `v9` tag object → same commit). The gomod watcher will
-  not touch the `go` directive regardless.
+  merge.** Configured weekly (`dependabot.yml`: gomod at `/` and `/tools` +
+  github-actions); it stayed silent until 2026-09-13, then opened its first
+  PR (#1, actions group), which was SHA-verified and merged the same day
+  (`e67a70e`). Review flow that worked: fetch each pinned commit **by SHA**
+  from upstream (content-addressed — the hash proves what will run), read its
+  `action.yml` inputs, diff against this repo's `with:` usage (the
+  `workflows_test.go` allowlist now fails on unknown keys — update it in the
+  same change), post the evidence, merge. Annotated-tag pins may be re-pinned
+  by Dependabot to the peeled commit (zero code change — `v9` tag object →
+  same commit). The gomod watcher will not touch the `go` directive
+  regardless; go-error-family bumps additionally get one line in the
+  `ROADMAP.md` bump trace when they merge.
 - **After touching `.golangci.yml`, run `golangci-lint config verify`.** Plain
   `golangci-lint run` tolerates settings that strict schema validation (what
   the CI action executes first) rejects. This bit once: `exhaustruct_v5`
@@ -189,10 +201,14 @@ Error codes follow a `retry.<snake_case_event>` convention
 - **Go files use tabs** (`.editorconfig`); YAML/JSON/Nix use 2 spaces.
 - **actionlint validates structure, not remote-action inputs.** Cron formats,
   expressions, and workflow schema errors die in seconds (the gate is the first
-  lint-job step), but a typo'd _input key_ on a `uses:` action passes silently
-  — the runner ignores unknown inputs. The 2026-09-13 `namee:` incident proved
-  a broken-but-green master window is possible. Treat remote-action input
-  changes as review-only surface.
+  lint-job step), but a typo'd _input key_ on a `uses:` action passes actionlint
+  silently — the runner ignores unknown inputs. Since 2026-09-17 the gap is
+  guarded by `TestRemoteActionInputsAreAllowlisted` (`workflows_test.go`):
+  every `with:` key is checked against allowlists verified from each action's
+  `action.yml` at the pinned SHA. Pinning a new action or re-pinning an
+  existing one means re-verifying inputs at the new SHA and updating
+  `actionInputAllowlist` in the same change; the parser is fail-closed on
+  YAML shapes it cannot attribute (flow mappings, anchors, merge keys).
 - **`setup-go`'s version manifest lags `go.dev` by hours.** A fresh Go patch
   release can resolve `go-version-file`/`go-version` to the _previous_ patch,
   while Go's own toolchain switching downloads the exact version regardless —

@@ -17,9 +17,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `go.mod`'s `go` directive drifts from the deliberately relaxed `go 1.26`
   that every living doc states, so external tooling can no longer re-pin it
   silently. `retry_test.go`.
+- **Pinned development-tools module.** A nested `tools/` module pins
+  `actionlint` (v1.7.12) and `govulncheck` (v1.8.0) with Go `tool`
+  directives — the classic blank-import `tools.go` is rejected by the Go
+  1.26 toolchain, and pinning inside the library module would force the
+  guarded `go 1.26` directive to a patch pin. The CI lint job builds
+  actionlint from this pin instead of `go install ...@version`; dprint (a
+  Rust binary) is referenced in `tools/tools.go` and pinned where it runs in
+  CI. Dependabot's gomod watcher now covers `/tools`. `tools/go.mod`,
+  `tools/tools.go`.
+- **Remote-action input-allowlist guard.**
+  `TestRemoteActionInputsAreAllowlisted` extracts every pinned `uses:` step
+  and its `with:` keys from `.github/workflows` and fails when a key is not
+  a real input of that action (allowlists verified from each action.yml at
+  the exact pinned SHA) — the 2026-09-13 `namee:` typo class that
+  actionlint's schema check cannot see. The parser is fail-closed (flow
+  mappings, anchors, and merge keys abort the test), also asserts SHA
+  pinning, and flags stale allowlist rows. `workflows_test.go`.
+- **`ExampleDo_withOptions`.** The options tail gets its output-pinned godoc
+  counterpart to the README's verified snippet: `WithOnRetry` plus
+  `WithJitter(JitterNone)` with deterministic exact delays. `retry_test.go`.
 
 ### Changed
 
+- **dprint check in CI.** The lint job gains a `dprint/check` step
+  (action SHA-pinned, `dprint-version: 0.57.4`, attestation-verified
+  download), so markdown/JSON/YAML drift from non-session writers fails on
+  master instead of only in the local ritual. `.github/workflows/ci.yml`.
 - **`go.mod` directive restored to `go 1.26`.** An external writer had
   re-pinned it to `go 1.27.1`, which contradicted the recorded decision, broke
   the documented local gate ritual under `GOTOOLCHAIN=local`, and drifted every
