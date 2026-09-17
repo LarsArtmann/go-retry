@@ -42,43 +42,56 @@ tidy no-diff).
 
 ## b) PARTIALLY DONE
 
-1. **T37 (pkg.go.dev re-verify) and T42 (Dependabot rebase watch) are
+1. ~~**T37 (pkg.go.dev re-verify) and T42 (Dependabot rebase watch) are
    deliberately open.** T37 can only close at the next release cut; T42 needs
    the next actions-group PR to open. Both remain TODO_LIST rows with their
-   evidence intact.
-2. **The allowlist guard is typo-proof, not rename-proof.** It catches
+   evidence intact.~~ T37: done (2026-09-17 — v0.7.1 cut; the tagged page
+   renders all three examples). T42: stays on TODO_LIST (updated with the
+   `/tools` bump-flow step)
+2. ~~**The allowlist guard is typo-proof, not rename-proof.** It catches
    unknown keys (the `namee:` class) but cannot detect an upstream action
    _renaming_ an input — the allowlist is keyed by action name, not by pinned
    SHA, so a re-pin that keeps old input names passing goes unnoticed until
    someone re-verifies against the new action.yml. Documented in the test,
-   not yet strengthened.
-3. **Local dprint still floats.** CI pins 0.57.4; locally `nix run
+   not yet strengthened.~~ done (2026-09-17 — the allowlist is keyed by
+   `action@SHA`; a re-pin fails the test until re-verified; probe-proven
+   failing, then restored; shipped in `082842a`/v0.7.1)
+3. ~~**Local dprint still floats.** CI pins 0.57.4; locally `nix run
    nixpkgs#dprint` resolved to 0.57.4 today by coincidence of freshness —
    there is no lock keeping them aligned, and the repo has a recorded
-   no-flake stance that blocks the obvious pinning route.
-4. **The 08:47 report's ~40 `[NEW]` §f items remain unrouted.** In scope for
+   no-flake stance that blocks the obvious pinning route.~~ → routed to
+   ROADMAP → Open questions (owner call)
+4. ~~**The 08:47 report's ~40 `[NEW]` §f items remain unrouted.** In scope for
    a future docs-health HARVEST pass, not this session; TODO_LIST was not
-   reseeded from them.
-5. **The `tools/` module itself has no gate.** Root `./...` skips it (nested
+   reseeded from them.~~ done (2026-09-17 docs-health pass — every `[NEW]`
+   item verified and routed to TODO_LIST/ROADMAP or closed with a verdict)
+5. ~~**The `tools/` module itself has no gate.** Root `./...` skips it (nested
    module), so nothing lints or vets `tools/tools.go`; it compiled and its
-   binaries run, but it stands outside every quality gate.
+   binaries run, but it stands outside every quality gate.~~ → routed to
+   TODO_LIST T47
 
 ## c) NOT STARTED
 
-1. **Marker-completeness gate for `docs/status/archived/`** (08:47 §f.2) —
-   still done by hand.
-2. **`scripts/check-docs.sh` orchestrator** (08:47 §f.19) — the doc ritual
-   is still a manual command sequence.
-3. **A local govulncheck scan of root + `tools/`.** I verified the pinned
+1. ~~**Marker-completeness gate for `docs/status/archived/`** (08:47 §f.2) —
+   still done by hand.~~ → routed to TODO_LIST T45
+2. ~~**`scripts/check-docs.sh` orchestrator** (08:47 §f.19) — the doc ritual
+   is still a manual command sequence.~~ → routed to TODO_LIST T46
+3. ~~**A local govulncheck scan of root + `tools/`.** I verified the pinned
    govulncheck binary runs (`-version`) but never executed an actual scan;
-   CI's action covers the root module only, and nothing scans `tools/`.
-4. **README/AGENTS "sole external dependency" phrasing re-audit** — the
+   CI's action covers the root module only, and nothing scans `tools/`.~~
+   done (2026-09-17 — root and `tools/` both scanned during the v0.7.1
+   release battery: no known vulnerabilities; `govulncheck ./...` added to
+   the AGENTS Session Ritual)
+4. ~~**README/AGENTS "sole external dependency" phrasing re-audit** — the
    library module still has exactly one dependency, and the new AGENTS text
    says consumers download none of `tools/`, but I did not sweep every doc
-   for how the tools module reads against that sentence.
-5. **CI observability of the `/tools` Dependabot flow end-to-end** — the
+   for how the tools module reads against that sentence.~~ done (2026-09-17
+   docs-health pass — swept: README/FEATURES/AGENTS phrasing is consistent;
+   the tools module is documented as consumer-invisible)
+5. ~~**CI observability of the `/tools` Dependabot flow end-to-end** — the
    updater workflow ran green; no bump PR has opened yet, so the
-   bump-trace-append step of the new flow is unexercised.
+   bump-trace-append step of the new flow is unexercised.~~ → folded into
+   TODO_LIST T42 (watchlist row)
 
 ## d) TOTALLY FUCKED UP (honest ledger)
 
@@ -146,70 +159,92 @@ session's direct follow-ups; 9+ roll up the 08:47 `[NEW]` backlog worth
 routing (the rest of that list stays available for the next audit pass
 rather than being duplicated here).
 
-1. **T37** — at the next release cut, verify pkg.go.dev renders
+1. ~~**T37** — at the next release cut, verify pkg.go.dev renders
    `ExampleBackoff`, `ExampleComputeDelay`, **and the new
-   `ExampleDo_withOptions`** (all three ride the next tag).
-2. **T42** — observe the next actions-group Dependabot PR's post-merge
-   auto-rebase; retire the watchlist row.
-3. **Key the allowlist to the pinned SHA** — store the verified SHA per
+   `ExampleDo_withOptions`** (all three ride the next tag).~~ done (2026-09-17
+   — v0.7.1 cut; the tagged page renders all three)
+2. ~~**T42** — observe the next actions-group Dependabot PR's post-merge
+   auto-rebase; retire the watchlist row.~~ stays on TODO_LIST T42 (updated
+   with the `/tools` bump-flow step)
+3. ~~**Key the allowlist to the pinned SHA** — store the verified SHA per
    action so any re-pin fails the test until the allowlist is re-verified
-   against the new action.yml (closes the rename blind spot, b.2).
-4. **Gate the `tools/` module** — add `go -C tools vet ./...` (and ideally
-   golangci-lint) to the Session Ritual and the CI lint job.
-5. **Run a local govulncheck scan** over root + `tools/` once, then wire it
+   against the new action.yml (closes the rename blind spot, b.2).~~ done
+   (2026-09-17 — shipped in the v0.7.1 release commit `082842a`; probe-proven
+   failing on a simulated re-pin before it was trusted)
+4. ~~**Gate the `tools/` module** — add `go -C tools vet ./...` (and ideally
+   golangci-lint) to the Session Ritual and the CI lint job.~~ → routed to
+   TODO_LIST T47
+5. ~~**Run a local govulncheck scan** over root + `tools/` once, then wire it
    into the release ritual (the go-release Phase 4 addition already names
-   root).
-6. **First `/tools` Dependabot PR: execute the new bump flow end-to-end** —
+   root).~~ done (2026-09-17 — both scanned during the v0.7.1 battery: no
+   vulnerabilities; `govulncheck ./...` added to the AGENTS Session Ritual)
+6. ~~**First `/tools` Dependabot PR: execute the new bump flow end-to-end** —
    verify, merge, append the bump-trace row; the flow is designed but
-   unexercised.
-7. **Decide the local dprint posture** — accept the nixpkgs float (and
+   unexercised.~~ → folded into TODO_LIST T42
+7. ~~**Decide the local dprint posture** — accept the nixpkgs float (and
    document the divergence risk) or introduce a non-flake pin; local/CI
-   disagreement will eventually bite a markdown-only diff.
-8. **Safe probe fixtures for guard drills** — a gitignored scratch-workflow
+   disagreement will eventually bite a markdown-only diff.~~ → routed to
+   ROADMAP → Open questions
+8. ~~**Safe probe fixtures for guard drills** — a gitignored scratch-workflow
    convention or fixture dir, so proving guards fail never touches
-   `.github/workflows/`.
-9. **HARVEST pass over the 08:47 report's `[NEW]` items** with
+   `.github/workflows/`.~~ → routed to TODO_LIST T51
+9. ~~**HARVEST pass over the 08:47 report's `[NEW]` items** with
    verify-before-routing (the ~40-row backlog; several are stale by now and
-   should be NOT-DO'd, not TODO'd).
-10. **Marker-completeness gate for `docs/status/archived/`** (08:47 §f.2) —
-    script asserting every numbered item carries a verdict.
-11. **`scripts/check-docs.sh`** — one command orchestrating dprint + marker
-    gate + link guards (08:47 §f.19), then add it to the Session Ritual.
-12. **Doc-freshness scheduled CI job** (08:47 §f.26) — run the doc gates on
-    a schedule, not only pre-push.
-13. **AGENTS gotcha prune to <20 rows** (standing policy, overdue — the
-    budget must be refilled before the next gotcha lands).
-14. **Verify GitHub renders the 08:17/08:47 annotations** (multi-line
-    strikethrough + this session's markers) — carried-over b.1 gap.
-15. **TODO_LIST "last harvested" date** (08:47 §f.27) — staleness signal
-    for the backlog itself.
-16. **README quick-start + `DoWithValue` snippets re-execution check**
-    (08:47 §f.41/f.42) — they compile; re-run them.
-17. **SECURITY.md posture audit** against the current dependency/CI surface
-    (08:47 §f.30).
-18. **CONTRIBUTING full drift sweep** (coverage recipe consistency, 08:47
-    §f.17/f.18) — this session only touched the blocks it needed.
-19. **Second docs-health AUDIT measurement** (08:47 §f.46) — one more point
-    gives the drift rate the first baseline lacks.
-20. **Decide the commit-message policy for daemon-dominated sessions**
+   should be NOT-DO'd, not TODO'd).~~ done (2026-09-17 docs-health pass —
+   every item verified, routed, or closed)
+10. ~~**Marker-completeness gate for `docs/status/archived/`** (08:47 §f.2) —
+    script asserting every numbered item carries a verdict.~~ → routed to
+    TODO_LIST T45
+11. ~~**`scripts/check-docs.sh`** — one command orchestrating dprint + marker
+    gate + link guards (08:47 §f.19), then add it to the Session Ritual.~~ →
+    routed to TODO_LIST T46
+12. ~~**Doc-freshness scheduled CI job** (08:47 §f.26) — run the doc gates on
+    a schedule, not only pre-push.~~ → routed to ROADMAP (raw idea)
+13. ~~**AGENTS gotcha prune to <20 rows** (standing policy, overdue — the
+    budget must be refilled before the next gotcha lands).~~ → routed to
+    TODO_LIST T49
+14. ~~**Verify GitHub renders the 08:17/08:47 annotations** (multi-line
+    strikethrough + this session's markers) — carried-over b.1 gap.~~ done
+    (2026-09-17 docs-health pass — verified via GitHub's GFM API renderer;
+    3 rendering-bug classes found and repaired across 8 archived files)
+15. ~~**TODO_LIST "last harvested" date** (08:47 §f.27) — staleness signal
+    for the backlog itself.~~ done (2026-09-17 docs-health pass — "Last
+    harvested" line added; keeping it current is part of T52)
+16. ~~**README quick-start + `DoWithValue` snippets re-execution check**
+    (08:47 §f.41/f.42) — they compile; re-run them.~~ done (2026-09-17 — the
+    v0.7.1 pkg.go.dev page renders both verbatim; they are the output-pinned
+    `ExampleDo`/`ExampleDoWithValue` forms)
+17. ~~**SECURITY.md posture audit** against the current dependency/CI surface
+    (08:47 §f.30).~~ → routed to TODO_LIST T50
+18. ~~**CONTRIBUTING full drift sweep** (coverage recipe consistency, 08:47
+    §f.17/f.18) — this session only touched the blocks it needed.~~ → routed
+    to TODO_LIST T48
+19. ~~**Second docs-health AUDIT measurement** (08:47 §f.46) — one more point
+    gives the drift rate the first baseline lacks.~~ done (2026-09-17
+    docs-health AUDIT — the second point)
+20. ~~**Decide the commit-message policy for daemon-dominated sessions**
     (08:47 §f.7) — until then, `done at <hash>` citations stay weaker than
-    they look.
+    they look.~~ → routed to ROADMAP → Open questions
 
 ## g) QUESTIONS I CAN **NOT** FIGURE OUT MYSELF
 
-1. **Tools-pin topology.** The nested `tools/` module exists because two
+1. ~~**Tools-pin topology.** The nested `tools/` module exists because two
    recorded decisions collide: "blessed tools.go pin" vs "relaxed `go 1.26`
    directive, never a patch pin" (current x/* tool deps force `go 1.26.0`
    in any module hosting them). I chose the shape that violates neither.
    Do you want it kept, or would you rather fold the pins into the library
    module and relax the guard/test to accept `go 1.26.0`? That is a
    trade-off only you can re-weigh (supply-chain surface vs one less
-   module).
-2. **Local dprint pinning.** CI now pins 0.57.4; locally dprint floats with
+   module).~~ → routed to ROADMAP → Open questions (the shipped-and-CI-proven
+   shape stands until you re-weigh)
+2. ~~**Local dprint pinning.** CI now pins 0.57.4; locally dprint floats with
    nixpkgs (aligned today). Pinning it locally means either a flake (the
    repo's recorded anti-stance) or a binary checkout the repo has no
-   convention for. Accept the float, or pick a pinning route?
-3. **Harvest timing.** Should the 08:47 report's `[NEW]` backlog get a
+   convention for. Accept the float, or pick a pinning route?~~ → routed to
+   ROADMAP → Open questions
+3. ~~**Harvest timing.** Should the 08:47 report's `[NEW]` backlog get a
    dedicated docs-health HARVEST pass now (next session), or does it wait
    for the next full AUDIT? Doing it now routes ~10 cheap gates (f.3–f.11
-   above); waiting keeps sessions focused but lets the backlog rot further.
+   above); waiting keeps sessions focused but lets the backlog rot further.~~
+   done (answered 2026-09-17 — the owner commissioned the docs-health pass;
+   the full backlog was harvested with verify-before-routing)
