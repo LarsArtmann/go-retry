@@ -86,7 +86,22 @@ func splitTableCells(line string) []string {
 	trimmed := strings.TrimSpace(line)
 	trimmed = strings.TrimPrefix(trimmed, "|")
 	trimmed = strings.TrimSuffix(trimmed, "|")
-	return strings.Split(trimmed, "|")
+	var cells []string
+	var cell strings.Builder
+	for i := 0; i < len(trimmed); i++ {
+		if trimmed[i] == '\\' && i+1 < len(trimmed) && trimmed[i+1] == '|' {
+			cell.WriteString(`\|`)
+			i++
+			continue
+		}
+		if trimmed[i] == '|' {
+			cells = append(cells, cell.String())
+			cell.Reset()
+			continue
+		}
+		cell.WriteByte(trimmed[i])
+	}
+	return append(cells, cell.String())
 }
 
 var docFenceLine = regexp.MustCompile("^\\s*(`{3,}|~{3,})")
