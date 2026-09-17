@@ -61,7 +61,7 @@ tidy no-diff).
    there is no lock keeping them aligned, and the repo has a recorded
    no-flake stance that blocks the obvious pinning route.~~ → routed to
    ROADMAP → Open questions (owner call)
-4. ~~**The 08:47 report's ~40 `[NEW]` §f items remain unrouted.** In scope for
+4. ~~**The 08:47 report's ≈40 `[NEW]` §f items remain unrouted.** In scope for
    a future docs-health HARVEST pass, not this session; TODO_LIST was not
    reseeded from them.~~ done (2026-09-17 docs-health pass — every `[NEW]`
    item verified and routed to TODO_LIST/ROADMAP or closed with a verdict)
@@ -189,7 +189,7 @@ rather than being duplicated here).
    convention or fixture dir, so proving guards fail never touches
    `.github/workflows/`.~~ → routed to TODO_LIST T51
 9. ~~**HARVEST pass over the 08:47 report's `[NEW]` items** with
-   verify-before-routing (the ~40-row backlog; several are stale by now and
+   verify-before-routing (the ≈40-row backlog; several are stale by now and
    should be NOT-DO'd, not TODO'd).~~ done (2026-09-17 docs-health pass —
    every item verified, routed, or closed)
 10. ~~**Marker-completeness gate for `docs/status/archived/`** (08:47 §f.2) —
@@ -244,7 +244,7 @@ rather than being duplicated here).
    ROADMAP → Open questions
 3. ~~**Harvest timing.** Should the 08:47 report's `[NEW]` backlog get a
    dedicated docs-health HARVEST pass now (next session), or does it wait
-   for the next full AUDIT? Doing it now routes ~10 cheap gates (f.3–f.11
+   for the next full AUDIT? Doing it now routes ≈10 cheap gates (f.3–f.11
    above); waiting keeps sessions focused but lets the backlog rot further.~~
    done (answered 2026-09-17 — the owner commissioned the docs-health pass;
    the full backlog was harvested with verify-before-routing)
