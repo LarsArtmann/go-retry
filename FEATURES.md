@@ -158,6 +158,13 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   relaxed `go 1.26` that the living docs state, so external tooling cannot
   re-pin it silently. `retry_test.go`
   (`TestModuleGoDirectiveStaysPinned`).
+- **Remote-action inputs are allowlist-guarded (proven-failing)** —
+  `TestRemoteActionInputsAreAllowlisted` checks every `with:` key of every
+  pinned `uses:` step against allowlists verified from each action's
+  `action.yml` at the exact pinned SHA (catching the typo'd-input class
+  actionlint cannot see; drift-fail proven with an injected `namee:` probe);
+  the fail-closed parser aborts on YAML shapes it cannot attribute.
+  `workflows_test.go` (`TestRemoteActionInputsAreAllowlisted`).
 - **Behavioral guarantees** — `OnRetry` not called after the final failure;
   a pre-canceled context yields `ErrCanceled`; a deadline exceeded during
   backoff yields `ErrDeadlineExceeded` matching `context.DeadlineExceeded`
@@ -169,11 +176,12 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
 
 - **Runnable godoc examples** — `ExampleDo` (success path),
   `ExampleDo_customIsRetryable` (custom predicate), `ExampleDo_delayFunc`
-  (server-provided Retry-After), `ExampleFromPolicy` (error-family
+  (server-provided Retry-After), `ExampleDo_withOptions` (options tail with
+  deterministic `JitterNone` delays), `ExampleFromPolicy` (error-family
   policy → `Config`), `ExampleDoWithValue` (value-returning API),
   `ExampleBackoff` (the `Rejection` path for `attempt < 1`), and
   `ExampleComputeDelay` (hard-cap determinism) are deterministic, carry
-  `// Output:` comments, and render on `pkg.go.dev`. The last two landed
+  `// Output:` comments, and render on `pkg.go.dev`. The last three landed
   after the v0.7.0 tag and ride the next release. `retry_test.go`.
 - **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
   (~20–35 ns/op depending on machine load; 0 allocations — the jitter path
@@ -186,15 +194,23 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   `.golangci.yml`.
 - **Committed formatter config** — `dprint.json` formats markdown, JSON, YAML,
   and Dockerfiles (markdown emphasis normalizes to `_underscores_`;
-  `CHANGELOG.md` excluded); gate via
-  `nix run nixpkgs#dprint -- check`. `dprint.json`, `CONTRIBUTING.md`.
+  `CHANGELOG.md` excluded); gated locally via
+  `nix run nixpkgs#dprint -- check` and in CI via the SHA-pinned
+  `dprint/check` step (`dprint-version: 0.57.4`, attestation-verified
+  download). `dprint.json`, `.github/workflows/ci.yml`, `CONTRIBUTING.md`.
+- **Pinned development-tools module** — the nested `tools/` module pins
+  `actionlint` and `govulncheck` with Go `tool` directives (bumped via
+  Dependabot's `/tools` gomod watcher); CI builds actionlint from the pin,
+  and `tools/tools.go` documents usage plus the dprint reference.
+  `tools/go.mod`, `tools/tools.go`.
 - **Domain glossary** — `docs/DOMAIN_LANGUAGE.md` defines the retry and
   `error-family` vocabulary and the `retry.<event>` code table.
 - **CI workflow** — `.github/workflows/ci.yml` runs `go vet`,
   `go test ./... -race -shuffle=on`, and a `govulncheck` vulnerability scan,
   lints via golangci-lint (version pinned in `.github/workflows/ci.yml`)
   behind an [actionlint](https://github.com/rhysd/actionlint)
-  workflow-schema gate, and enforces a 95%
+  workflow-schema gate (built from the `tools/go.mod` pin), checks formatting
+  with dprint, and enforces a 95%
   coverage floor on every push and pull request; each job carries a
   10-minute timeout and pushes to the same ref cancel superseded runs.
   Verified green on real runners for the current tip (run 35180369905,

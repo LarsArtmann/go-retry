@@ -273,7 +273,10 @@ v1.0:
   report §f).**
   - Remote-action input-allowlist test: the 6 pinned actions' inputs checked
     against a table — would have caught the 2026-09-13 `namee:` typo that
-    actionlint cannot see. Weigh maintenance against the gate gap.
+    actionlint cannot see. **Landed 2026-09-17** as
+    `TestRemoteActionInputsAreAllowlisted` (`workflows_test.go`), allowlists
+    verified from each action.yml at the pinned SHA; the maintenance-vs-gap
+    weigh-in resolved in favor of the one-table cost.
   - Concurrency-group shape: `ci-${{ github.ref }}` currently separates the
     tag ref from master even at identical SHAs; sharing one group would
     cancel duplicate runs for the same commit. Needs a deliberate call.
@@ -329,8 +332,12 @@ status report.
 
 - **Third local tool: checked-in `tools.go` or two-tool convention?**
   **Decided (asked 2026-09-16, owner): the `tools.go` pattern is blessed** for
-  local-only tools (govulncheck, formatter); landing it is queued (plan M2/M15
-  follow-through), and `actionlint` stays `go run`-pinned until then.
+  local-only tools (govulncheck, formatter); **landed 2026-09-17** as the
+  nested `tools/` module using Go `tool` directives — the literal blank-import
+  `tools.go` form is rejected by the Go 1.26 toolchain ("is a program, not an
+  importable package"), and a main-module pin would force the guarded `go
+  1.26` directive to `1.26.0`. `tools/tools.go` documents usage and the dprint
+  reference; CI builds actionlint from the pin.
 
 - **Cross-repo consumer bumps: proactive or on-request?** **Decided (asked
   2026-09-16, owner): authorized** — after v0.7.0 ships, bump
@@ -377,7 +384,8 @@ trigger-on-dependency-PR fuzz would need `pull-requests: write` and secrets
 on untrusted branches — cost exceeds benefit until a real supply-chain event
 occurs. (Resolves the 2026-09-14 report §f.42 question.)_
 
-_Idea seeds (2026-09-16): pin dprint in a checked-in `tools.go` so the
-markdown format gate works offline (owner blessed the tools.go pattern);
-a bump-trace audit trail — one line in each go-error-family-bump commit
-linking the Dependabot PR and the SHA-verification evidence._
+_Idea seeds (2026-09-16) — both landed 2026-09-17: pin the dev tools in a
+	checked-in module (`tools/` with Go `tool` directives; dprint pinned in CI's
+	`dprint/check` step) and the bump-trace audit trail (one line per
+	go-error-family bump linking the Dependabot PR and the SHA-verification
+	evidence — see the compat-matrix section above)._
