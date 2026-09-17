@@ -50,7 +50,7 @@ Flat single-package layout — no internal subpackages:
 
 | File                                         | Responsibility                                                                                                                                                                             |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `retry.go`                                   | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded`        |
+| `retry.go`                                   | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded`       |
 | `config.go`                                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                           |
 | `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                           |
 | `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                       |
