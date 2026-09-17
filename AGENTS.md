@@ -48,19 +48,19 @@ Consumers download none of the tools module.
 
 Flat single-package layout — no internal subpackages:
 
-| File                                         | Responsibility                                                                                                                                                                      |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `retry.go`                                   | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded |
-| `config.go`                                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                    |
-| `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                    |
-| `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                |
-| `workflows_test.go`                          | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA (catches the `namee:` typo class)                    |
-| `tools/`                                     | Nested module pinning dev tools (actionlint, govulncheck) via Go `tool` directives; `tools.go` documents usage and the dprint reference                                              |
-| `.golangci.yml`                              | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                    |
+| File                                         | Responsibility                                                                                                                                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `retry.go`                                   | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded        |
+| `config.go`                                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                           |
+| `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                           |
+| `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                       |
+| `workflows_test.go`                          | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA (catches the `namee:` typo class)                        |
+| `tools/`                                     | Nested module pinning dev tools (actionlint, govulncheck) via Go `tool` directives; `tools.go` documents usage and the dprint reference                                                    |
+| `.golangci.yml`                              | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                           |
 | `.github/workflows/ci.yml`                   | Push/PR CI: vet, race tests, govulncheck, 95% coverage floor, actionlint (built from `tools/go.mod` pin), dprint check (SHA-pinned `dprint/check`), golangci-lint (version pinned in-repo) |
-| `.github/workflows/fuzz.yml`                 | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                              |
-| `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                   |
-| `docs/status/`                               | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)                                             |
+| `.github/workflows/fuzz.yml`                 | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                                     |
+| `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                          |
+| `docs/status/`                               | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)                                                    |
 
 **Control flow of `Do`**: validate config → loop `attempt` from 1 to
 `MaxAttempts` → call `fn(ctx, attempt)` → on `nil` return immediately → if not
@@ -233,6 +233,12 @@ Error codes follow a `retry.<snake_case_event>` convention
   drift before it landed), so external tooling cannot silently re-pin it away
   from the `go 1.26` every living doc states. Add the same shape when a
   documented claim has no other enforcement.
+- **Consumer sweeps run through go-cqrs-lite's committed `go.work`** — it
+  already lists `/home/lars/projects/go-retry` as a `use` target, so running
+  `commandlifecycle`/`integration`/`example/taskmanager` suites there resolves
+  local go-retry master with no overlay files. Never create a temp `go.work`
+  in that repo: the file is tracked, and an overwrite silently discards its
+  committed module list (recovered once, 2026-09-17).
 
 ## Session Ritual (self-checks before claiming done)
 

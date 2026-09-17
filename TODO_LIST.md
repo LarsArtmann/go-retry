@@ -12,10 +12,10 @@ not archaeology.
 
 ## Open work
 
-| #   | Task                                                                                                                                                                    | P  | Evidence / why                                                                                                                | Source                     |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| T37 | Re-verify at the next release cut that pkg.go.dev renders `ExampleBackoff` and `ExampleComputeDelay` (they landed after v0.7.0, so they are not on the tagged page yet) | P2 | Post-tag doc commits `4c48d13`; known to miss the v0.7.0 train                                                                | 2026-09-17 `§f.11`/`§f.23` |
-| T42 | Dependabot watchlist: observe the post-merge auto-rebase when the next actions-group PR opens, then retire this row                                                     | P3 | No Dependabot PR was open during the v0.7.0 window; behavior still unobserved                                                 | 2026-09-17 `§f.15`         |
+| #   | Task                                                                                                                                                                    | P  | Evidence / why                                                                | Source                     |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -- | ----------------------------------------------------------------------------- | -------------------------- |
+| T37 | Re-verify at the next release cut that pkg.go.dev renders `ExampleBackoff` and `ExampleComputeDelay` (they landed after v0.7.0, so they are not on the tagged page yet) | P2 | Post-tag doc commits `4c48d13`; known to miss the v0.7.0 train                | 2026-09-17 `§f.11`/`§f.23` |
+| T42 | Dependabot watchlist: observe the post-merge auto-rebase when the next actions-group PR opens, then retire this row                                                     | P3 | No Dependabot PR was open during the v0.7.0 window; behavior still unobserved | 2026-09-17 `§f.15`         |
 
 Nothing else is open. New findings enter through the docs-health HARVEST route
 (`TODO_LIST.md` ← status reports / session discoveries); long-term bets and

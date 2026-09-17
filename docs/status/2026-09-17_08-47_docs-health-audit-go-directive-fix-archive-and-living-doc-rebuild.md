@@ -62,10 +62,10 @@ seeded fuzz corpus run green; `git status` clean; full gate battery.
 
 ## c) NOT STARTED
 
-1. **T34–T44 implementation** — the 11 harvested tasks (dprint in CI, tools.go,
-   input-allowlist test, pkg.go.dev re-verify, example, `errors.AsType` sweep,
-   bump-trace, consumer sweep, Dependabot watch, `.gitignore`, CONTRIBUTING
-   links) are recorded, none started.
+1. ~~**T34–T44 implementation** — the 11 harvested tasks (dprint in CI, tools.go,~~ done (2026-09-17 later session — 9 of 11 executed (T34–T36, T38–T41, T43, T44); T37 waits for the next release cut, T42 is a watchlist row — see TODO_LIST)
+   ~~input-allowlist test, pkg.go.dev re-verify, example, `errors.AsType` sweep,~~
+   ~~bump-trace, consumer sweep, Dependabot watch, `.gitignore`, CONTRIBUTING~~
+   ~~links) are recorded, none started.~~
 2. **No CI job for doc drift.** dprint and the compare-link guard still run
    only in the local ritual; master remains exposed to non-session writers.
 3. **No automated checker for the `docs/status` marker convention** (every
@@ -146,22 +146,22 @@ seeded fuzz corpus run green; `git status` clean; full gate battery.
 Ordered by impact. Accounted for by the open TODO_LIST (T34–T44) unless marked
 `[NEW]` — those are things this session noticed and did not route.
 
-1. **T34** — Add `dprint check` to the CI lint job (pin the version); closes the largest remaining doc-drift hole.
+1. ~~**T34** — Add `dprint check` to the CI lint job (pin the version); closes the largest remaining doc-drift hole.~~ done (2026-09-17 session — dprint/check step in CI lint job, dprint-version 0.57.4, action SHA-pinned; CHANGELOG [Unreleased])
 2. **`[NEW]`** — Add a CI (or hook) check that every `docs/status/archived/*.md` numbered item carries a verdict; run it over the existing archive.
 3. **`[NEW]`** — Add a guard test / script asserting the living docs' stated Go version matches `go.mod`'s directive (generalize the guard beyond the test, or keep the test and add a doc check).
-4. **T35** — Land `tools.go` pinning actionlint + govulncheck (+ dprint reference).
+4. ~~**T35** — Land `tools.go` pinning actionlint + govulncheck (+ dprint reference).~~ done (2026-09-17 session — nested tools/ module with Go tool directives (actionlint v1.7.12, govulncheck v1.8.0); blank-import form rejected by Go 1.26; CHANGELOG [Unreleased])
 5. **`[NEW]`** — Verify GitHub renders this session's struck multi-line items and new table columns; fix if the multi-line `~~` does not render.
-6. **T36** — Remote-action input-allowlist test (the `namee:` class).
+6. ~~**T36** — Remote-action input-allowlist test (the `namee:` class).~~ done (2026-09-17 session — TestRemoteActionInputsAreAllowlisted in workflows_test.go, allowlists verified per pinned SHA; namee-probe drift-fail proven)
 7. **`[NEW]`** — Decide and document the commit-message policy for daemon-dominated sessions (see g.1); make `done at` citations honest.
 8. **T37** — Re-verify at the next cut that pkg.go.dev renders `ExampleBackoff`/`ExampleComputeDelay`.
-9. **T38** — `ExampleDo_withOptions` godoc example.
+9. ~~**T38** — `ExampleDo_withOptions` godoc example.~~ done (2026-09-17 session — ExampleDo_withOptions landed, output-pinned)
 10. **`[NEW]`** — Prune AGENTS gotchas to <20 and spend the freed budget on the go-directive/daemon-files invariant.
-11. **T39** — `errors.AsType[E]` migration sweep (`go-error-modernization`).
-12. **T40** — Bump-trace audit trail for `go-error-family` bumps.
-13. **T44** — CONTRIBUTING: link `check-compare-links.sh` + annotate-as-you-land.
-14. **T41** — Consumer sweep for `commandlifecycle`, `integration`, `example/taskmanager`.
+11. ~~**T39** — `errors.AsType[E]` migration sweep (`go-error-modernization`).~~ done (2026-09-17 session — swept: zero migrations; every errors.Is is sentinel/value matching, no errors.As exists)
+12. ~~**T40** — Bump-trace audit trail for `go-error-family` bumps.~~ done (2026-09-17 session — bump-trace table in ROADMAP compat matrix; v0.10.1 attribution corrected to daemon commit 9eb87ee)
+13. ~~**T44** — CONTRIBUTING: link `check-compare-links.sh` + annotate-as-you-land.~~ done (2026-09-17 session — CONTRIBUTING links check-compare-links.sh + annotate-as-you-land)
+14. ~~**T41** — Consumer sweep for `commandlifecycle`, `integration`, `example/taskmanager`.~~ done (2026-09-17 session — commandlifecycle, integration, example/taskmanager suites green against current master via go-cqrs-lite go.work)
 15. **T42** — Dependabot watchlist (post-merge rebase observation).
-16. **T43** — `.gitignore` scratch-file pattern.
+16. ~~**T43** — `.gitignore` scratch-file pattern.~~ done (2026-09-17 session — *_scratch_test.go pattern added outside the buildflow block)
 17. **`[NEW]`** — Sweep CONTRIBUTING for the same drift classes (coverage command, version citations) even though grep found none this pass.
 18. **`[NEW]`** — Add `reports/coverage.out` guidance consistency: README/CONTRIBUTING generate it, FEATURES now cites the canonical command — decide one canonical recipe and link it.
 19. **`[NEW]`** — Extend `scripts/` with a single `scripts/check-docs.sh` orchestrating dprint + marker gate + link guard + compare links, so the ritual is one command.

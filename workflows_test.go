@@ -89,9 +89,12 @@ func TestRemoteActionInputsAreAllowlisted(t *testing.T) {
 		if !known {
 			t.Fatalf(
 				"%s:%d: action %q is pinned but missing from actionInputAllowlist — verify its inputs from action.yml at the pinned SHA and add them",
-				step.workflow, step.line, step.action,
+				step.workflow,
+				step.line,
+				step.action,
 			)
 		}
+
 		seen[step.action] = true
 
 		if !workflowShaRe.MatchString(step.ref) {
@@ -105,7 +108,11 @@ func TestRemoteActionInputsAreAllowlisted(t *testing.T) {
 			if !slices.Contains(allowed, key) {
 				t.Fatalf(
 					"%s:%d: input %q is not a valid input of %s@%s — typo'd key (the 2026-09-13 `namee:` class), or a stale allowlist after a re-pin",
-					step.workflow, step.line, key, step.action, step.ref,
+					step.workflow,
+					step.line,
+					key,
+					step.action,
+					step.ref,
 				)
 			}
 		}
@@ -178,25 +185,15 @@ func parseWorkflowActionUses(t *testing.T, path, content string) []workflowActio
 		if withNest >= 0 {
 			if indent > withNest {
 				parseWithBlockLine(t, path, lineNo, line, current)
+
 				continue
 			}
+
 			withNest = -1 // dedent ends the with: block; fall through
 		}
 
 		if match := workflowUsesRe.FindStringSubmatch(line); match != nil {
-			current = &workflowActionUse{workflow: path, line: lineNo, ref: match[2]}
-			current.action, current.ref, _ = strings.Cut(match[2], "@")
-
-			if current.action == "" || current.ref == "" {
-				t.Fatalf(
-					"%s:%d: `uses: %s` is not owner/repo@ref — local or docker actions need parser support first",
-					path, lineNo, match[2],
-				)
-			}
-			if strings.HasPrefix(current.action, "./") || strings.HasPrefix(current.action, "docker://") {
-				t.Fatalf("%s:%d: unsupported `uses:` form %q — extend the parser", path, lineNo, match[2])
-			}
-
+			current = newWorkflowActionUse(t, path, lineNo, match[2])
 			uses = append(uses, *current)
 
 			continue
@@ -213,6 +210,7 @@ func parseWorkflowActionUses(t *testing.T, path, content string) []workflowActio
 			if current == nil {
 				t.Fatalf("%s:%d: `with:` without a preceding `uses:` in the same step", path, lineNo)
 			}
+
 			withNest = indent
 			current = &uses[len(uses)-1]
 
@@ -222,12 +220,36 @@ func parseWorkflowActionUses(t *testing.T, path, content string) []workflowActio
 		if strings.HasPrefix(trimmed, "with:") {
 			t.Fatalf(
 				"%s:%d: `with:` carries inline content %q (flow mapping?) — rewrite as a block mapping or extend the parser",
-				path, lineNo, trimmed,
+				path,
+				lineNo,
+				trimmed,
 			)
 		}
 	}
 
 	return uses
+}
+
+// newWorkflowActionUse validates one `uses:` reference (owner/repo@sha, no
+// local or docker forms) and returns the recorded step use for it.
+func newWorkflowActionUse(t *testing.T, path string, lineNo int, ref string) *workflowActionUse {
+	t.Helper()
+
+	use := &workflowActionUse{workflow: path, line: lineNo}
+	use.action, use.ref, _ = strings.Cut(ref, "@")
+
+	if use.action == "" || use.ref == "" {
+		t.Fatalf(
+			"%s:%d: `uses: %s` is not owner/repo@ref — local or docker actions need parser support first",
+			path, lineNo, ref,
+		)
+	}
+
+	if strings.HasPrefix(use.action, "./") || strings.HasPrefix(use.action, "docker://") {
+		t.Fatalf("%s:%d: unsupported `uses:` form %q — extend the parser", path, lineNo, ref)
+	}
+
+	return use
 }
 
 // parseWithBlockLine records one `key:` line inside a with: block on the
