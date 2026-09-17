@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Post-v0.7.0 godoc examples.** `ExampleBackoff` (the `Rejection` path for
+  `attempt < 1`) and `ExampleComputeDelay` (the hard-cap determinism case) are
+  output-pinned; they landed after the v0.7.0 tag, so v0.7.0's pkg.go.dev page
+  does not carry them and they surface with the next cut. `retry_test.go`.
+- **Module go-directive guard.** `TestModuleGoDirectiveStaysPinned` fails when
+  `go.mod`'s `go` directive drifts from the deliberately relaxed `go 1.26`
+  that every living doc states, so external tooling can no longer re-pin it
+  silently. `retry_test.go`.
+
+### Changed
+
+- **`go.mod` directive restored to `go 1.26`.** An external writer had
+  re-pinned it to `go 1.27.1`, which contradicted the recorded decision, broke
+  the documented local gate ritual under `GOTOOLCHAIN=local`, and drifted every
+  doc that states the Go version. Nothing here needs 1.27: the sole dependency
+  declares `go 1.26` and the code uses no post-1.26 feature. `go.mod`.
+
+### Fixed
+
 - Nothing yet.
 
 ## [0.7.0] - 2026-09-16
