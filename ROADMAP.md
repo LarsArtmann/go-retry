@@ -14,13 +14,13 @@ ship.
 with exponential backoff and jitter, plus the `error-family` integration. Its
 reason to exist is that consumers who only need retry (CLIs, batch jobs, simple
 services) can import it **without** pulling in CQRS message types or the
-OpenTelemetry SDK (`doc.go:1-9`). Every addition should be judged against that
+OpenTelemetry SDK (`doc.go`). Every addition should be judged against that
 boundary: if a feature needs CQRS or OTel types, it belongs in
 `github.com/larsartmann/go-cqrs-lite/middleware/v4`, not here.
 
 ## v1.0 — what is the bar?
 
-The current release is **v0.7.0** (tagged 2026-09-16). The path to v1.0 is an
+The current release is **v0.7.1** (tagged 2026-09-17). The path to v1.0 is an
 **API-stability promise**, not a feature list. Open questions to resolve before
 v1.0:
 
@@ -215,6 +215,7 @@ v1.0:
   | v0.6.0        | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc                      |
   | v0.6.1        | v0.10.1         | patch bump, no PR — daemon commit `9eb87ee` (see bump trace below); surface unchanged, gates green |
   | v0.7.0        | v0.10.1         | options surface added; consumes no new go-error-family symbol                                      |
+  | v0.7.1        | v0.10.1         | docs/tooling patch; library code byte-identical to v0.7.0                                          |
 
   Rule: a go-error-family **major** (post-v1) or any change to the surface
   above requires a go-retry minor bump and a new matrix row; the `RetryPolicy`
@@ -299,7 +300,8 @@ v1.0:
      bar above).
   3. Godoc examples cover every entry point — **done**: all seven exported
      entry points carry output-pinned examples (`ExampleBackoff` /
-     `ExampleComputeDelay` landed post-v0.7.0).
+     `ExampleComputeDelay` landed post-v0.7.0 and render on pkg.go.dev from
+     v0.7.1 onward).
   4. Launch content decision: demo video per the `website-launch` pattern
      (owner call).
   5. Docs-site content source chosen (README-derived vs dedicated pages) —

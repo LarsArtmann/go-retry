@@ -217,13 +217,15 @@ inventory.
 ## Development
 
 ```bash
-go test ./... -race        # tests (always with -race)
+go test ./... -race        # tests (always with -race; backoff uses math/rand/v2)
 golangci-lint run ./...    # lint
 go vet ./...               # vet
 go test -run '^FuzzComputeDelayNeverPanics$' .   # exercise the committed fuzz corpus (no fuzzing)
-go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12  # workflow schema check
-go test ./... -race -coverprofile=reports/coverage.out \
-  && go tool cover -func=reports/coverage.out   # coverage (currently 100%)
+# Development tools (actionlint, govulncheck) are version-pinned in the
+# nested tools module — install them once per bump, then run by name:
+go -C tools install github.com/rhysd/actionlint/cmd/actionlint golang.org/x/vuln/cmd/govulncheck
+actionlint -verbose        # workflow schema check
+go test -cover ./...       # coverage (currently 100%)
 ```
 
 CI (`.github/workflows/ci.yml`) runs `go vet` and the race-detector tests

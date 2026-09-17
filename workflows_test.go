@@ -92,6 +92,7 @@ func TestRemoteActionInputsAreAllowlisted(t *testing.T) {
 
 	for _, step := range uses {
 		pin := step.action + "@" + step.ref
+
 		allowed, known := actionInputAllowlist[pin]
 		if !known {
 			t.Fatalf(

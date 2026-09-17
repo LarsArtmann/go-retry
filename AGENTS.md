@@ -205,9 +205,12 @@ Error codes follow a `retry.<snake_case_event>` convention
   silently — the runner ignores unknown inputs. Since 2026-09-17 the gap is
   guarded by `TestRemoteActionInputsAreAllowlisted` (`workflows_test.go`):
   every `with:` key is checked against allowlists verified from each action's
-  `action.yml` at the pinned SHA. Pinning a new action or re-pinning an
-  existing one means re-verifying inputs at the new SHA and updating
-  `actionInputAllowlist` in the same change; the parser is fail-closed on
+  `action.yml` at the pinned SHA; the allowlist is keyed by `action@SHA`, so
+  a re-pin fails the test until the inputs are re-verified (an upstream
+  input rename can no longer pass silently). Pinning a new action or
+  re-pinning an existing one means re-verifying inputs at the new SHA and
+  updating `actionInputAllowlist` under the new `action@SHA` key in the same
+  change; the parser is fail-closed on
   YAML shapes it cannot attribute (flow mappings, anchors, merge keys).
 - **`setup-go`'s version manifest lags `go.dev` by hours.** A fresh Go patch
   release can resolve `go-version-file`/`go-version` to the _previous_ patch,

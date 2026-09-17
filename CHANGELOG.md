@@ -47,7 +47,10 @@ set and the new guarantees ship on a tagged page.
   the exact pinned SHA) — the 2026-09-13 `namee:` typo class that
   actionlint's schema check cannot see. The parser is fail-closed (flow
   mappings, anchors, and merge keys abort the test), also asserts SHA
-  pinning, and flags stale allowlist rows. `workflows_test.go`.
+  pinning, and flags stale allowlist rows; the allowlist is keyed by
+  `action@SHA`, so re-pinning an action fails the test until its inputs are
+  re-verified from the new action.yml, closing the upstream-rename blind
+  spot. `workflows_test.go`.
 - **`ExampleDo_withOptions`.** The options tail gets its output-pinned godoc
   counterpart to the README's verified snippet: `WithOnRetry` plus
   `WithJitter(JitterNone)` with deterministic exact delays. `retry_test.go`.

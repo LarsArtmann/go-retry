@@ -162,7 +162,9 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   `TestRemoteActionInputsAreAllowlisted` checks every `with:` key of every
   pinned `uses:` step against allowlists verified from each action's
   `action.yml` at the exact pinned SHA (catching the typo'd-input class
-  actionlint cannot see; drift-fail proven with an injected `namee:` probe);
+  actionlint cannot see; drift-fail proven with an injected `namee:` probe).
+  The allowlist is keyed by `action@SHA`, so re-pinning an action fails the
+  test until its inputs are re-verified (re-pin drift-fail proven too), and
   the fail-closed parser aborts on YAML shapes it cannot attribute.
   `workflows_test.go` (`TestRemoteActionInputsAreAllowlisted`).
 - **Behavioral guarantees** — `OnRetry` not called after the final failure;
