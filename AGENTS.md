@@ -188,8 +188,14 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   `TestModuleGoDirectiveStaysPinned`). A new guard must be shown to fail on the
   drift it guards; drill with `-count=1` (data-file mutations are not in Go's
   test cache key, so a cached PASS can hide them).
-- **Consumer sweeps run through go-cqrs-lite's committed `go.work`** (it lists
-  this repo). Never create a temp `go.work` there — it is tracked, and an
+- **Consumer sweeps bump the pin, then run through go-cqrs-lite's committed
+  `go.work`.** The retry consumer there is the separate `middleware` module
+  (its own `go.mod`, pinning go-retry). The workspace `use` list does **not**
+  include this repo (verified 2026-10-08 — an older AGENTS note claimed it
+  did), so a sweep means: `go get github.com/larsartmann/go-retry@<version>`
+  in `middleware/`, then run its suite plus the ritual suites
+  (`commandlifecycle`, `integration`, `example/taskmanager`) with `-race`.
+  Never create a temp `go.work` there — it is tracked, and an
   overwrite silently discards its committed module list.
 
 ## Session Ritual (self-checks before claiming done)
