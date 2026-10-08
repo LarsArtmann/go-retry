@@ -7,6 +7,10 @@ presets:
 # TestModuleGoDirectiveStaysPinned; every doc states it). The go-version rule
 # bumps it to the installed toolchain minor, which silently re-lost the pin —
 # the same fight that made BuildFlow skip go-mod-update (see .buildflow.yml).
+# UPSTREAM NOTE (2026-10-08): go-structure-linter 32754000 made the rule
+# detect-only with minor-granularity comparison (no repair, no patch-form
+# flagging). This suppression stays while the deployed binary (9720578c)
+# predates that commit; remove it once the deployed version is >= 32754000.
 suppressions:
   - rule: go-version
     file: go.mod
