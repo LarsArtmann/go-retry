@@ -96,7 +96,9 @@ found the prior summary wrong about push state; that correction is §d.1.
    inherits an honest ledger. `docs/status/README.md` gained a paragraph
    naming the enforcing tests and the HTML-scope call. TODO_LIST rebuilt:
    T45/T46 removed (done, recorded in CHANGELOG), T47 narrowed to an
-   observe-tail row (first green CI run carrying the vet step), T48–T54 and
+   observe-tail row (first green CI run carrying the vet step) —
+   **resolved 2026-10-08: the vet step verified live in `ci.yml` and green on
+   the v0.8.0 tag CI (runs 37836295244/37836297624); T47 retired**, T48–T54 and
    T42 untouched. AGENTS gained the tools-vet command, the check-docs.sh
    ritual line, the ci.yml row update, and a test-cache warning folded into
    the existing test-failure-proof bullet (no new gotcha row — the 20-row

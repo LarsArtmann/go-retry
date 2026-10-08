@@ -143,9 +143,9 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   `go 1.26.0` via `respect_patch_floor`. A real re-pin updates every doc too.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
-- **`//nolint:` directives are deliberate** — per-marker rationale lives in
-  `CONTRIBUTING.md` (Lint policy); removing any produces a real finding; sweep
-  markers when linters are added/renamed.
+  Same stance for go-auto-upgrade's `lo.Map` suggestion: adding `samber/lo`
+  breaks the dependency-light contract for one test loop — see
+  `docs/engineering-notes.md` before "fixing" it.
 - **Never cite line numbers in prose docs — ours or dependencies'.** Cite by
   function/type name only (`retry.go` (`Do`)); for dependencies cite the symbol
   and, when precision matters, the version from `go.mod`.
@@ -172,15 +172,14 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   commits every few minutes; a gate-running hook would run the full battery
   on each daemon tick. Fossilized red states are a fleet-level problem —
   see the ROADMAP open question on a daemon-side guard.
-- **After touching `.golangci.yml`, run `golangci-lint config verify`.** Plain
-  `run` tolerates settings the strict CI schema rejects (`exhaustruct_v5`
-  accepts no `exclude` key — it bit once).
+- **Lint-gate quirks:** after touching `.golangci.yml`, run `golangci-lint
+  config verify` (plain `run` tolerates settings the strict CI schema
+  rejects — `exhaustruct_v5` accepts no `exclude` key, it bit once); the
+  in-source `//nolint:` markers are deliberate, per-marker rationale in
+  `CONTRIBUTING.md`, and removing any produces a real finding.
 - **Terminal-error codes/messages are single-sourced constants** at the top of
   `retry.go`; the sentinels and their `WrapInfrastructure` call sites must use
   them — never re-inline the strings.
-- **The go-auto-upgrade `lo.Map` suggestion is a deliberate non-fix** (adding
-  `samber/lo` breaks the dependency-light contract for one test loop). See
-  `docs/engineering-notes.md` before "fixing" it.
 
 ## Testing Patterns
 
