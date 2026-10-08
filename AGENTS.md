@@ -143,18 +143,16 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   `go 1.26.0` via `respect_patch_floor`. A real re-pin updates every doc too.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
-- **`//nolint:` directives are deliberate**, not leftover (`exhaustruct_v5` on
-  `DefaultConfig`, `gosec` on the jitter line, `errorlint` on the identity
-  assertion in `TestDo_DoesNotRetryNonRetryableError`). Removing any produces a
-  real finding; sweep markers when linters are added/renamed.
+- **`//nolint:` directives are deliberate** — per-marker rationale lives in
+  `CONTRIBUTING.md` (Lint policy); removing any produces a real finding; sweep
+  markers when linters are added/renamed.
 - **Never cite line numbers in prose docs — ours or dependencies'.** Cite by
   function/type name only (`retry.go` (`Do`)); for dependencies cite the symbol
   and, when precision matters, the version from `go.mod`.
 - **The committed fuzz corpus mirrors the `f.Add` seeds**
-  (`TestFuzzCorpusMirrorsSeeds` fails naming the offender); a new constant
-  expression in a seed needs its corpus file (and maybe a
-  `seedConstExpressions` entry) in the same change; the daily fuzz workflow
-  adds crashers to the corpus AND as distilled seeds.
+  (`TestFuzzCorpusMirrorsSeeds` fails naming the offender); a seed's new
+  constant expression needs its corpus file in the same change; the daily fuzz
+  workflow adds crashers to the corpus AND as distilled seeds.
 - **Release notes are GitHub-only**, composed at release time from the
   CHANGELOG section; there is deliberately no `docs/releases/` directory.
 - **Go files use tabs** (`.editorconfig`); YAML/JSON/Nix use 2 spaces.
@@ -166,6 +164,14 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
 - **`setup-go`'s version manifest lags `go.dev` by hours.** A fresh patch
   release can resolve to the previous patch while toolchain switching downloads
   the exact one; fix when it bites with `GOTOOLCHAIN: go1.26.x`.
+  Deferred 2026-10-08: with `go-version-file: go.mod` and the minor-only
+  `go 1.26` directive, the lag cannot produce a wrong-toolchain build (any
+  1.26.x compiles it), so there is nothing for the pin to fix yet — revisit
+  only if a workflow switches to ranged `go-version:` inputs.
+- **No pre-commit hook by decision (2026-10-08).** The auto-commit daemon
+  commits every few minutes; a gate-running hook would run the full battery
+  on each daemon tick. Fossilized red states are a fleet-level problem —
+  see the ROADMAP open question on a daemon-side guard.
 - **After touching `.golangci.yml`, run `golangci-lint config verify`.** Plain
   `run` tolerates settings the strict CI schema rejects (`exhaustruct_v5`
   accepts no `exclude` key — it bit once).
