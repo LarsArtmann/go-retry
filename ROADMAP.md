@@ -208,15 +208,15 @@ v1.0:
   `Transient`/`Rejection` family constants (tests), and the `RetryPolicy`
   type consumed by `FromPolicy`.
 
-  | go-retry      | go-error-family | Notes                                                                                              |
-  | ------------- | --------------- | -------------------------------------------------------------------------------------------------- |
-  | v0.1.0–v0.3.1 | v0.9.x          | pre-audit; unverified                                                                              |
-  | v0.4.0        | v0.10.0         | family/code contract settled                                                                       |
-  | v0.5.0        | v0.10.0         | —                                                                                                  |
-  | v0.6.0        | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc                      |
-  | v0.6.1        | v0.10.1         | patch bump, no PR — daemon commit `9eb87ee` (see bump trace below); surface unchanged, gates green |
-  | v0.7.0        | v0.10.1         | options surface added; consumes no new go-error-family symbol                                      |
-  | v0.7.1        | v0.10.1         | docs/tooling patch; library code byte-identical to v0.7.0                                          |
+  | go-retry      | go-error-family | Notes                                                                                                   |
+  | ------------- | --------------- | ------------------------------------------------------------------------------------------------------- |
+  | v0.1.0–v0.3.1 | v0.9.x          | pre-audit; unverified                                                                                   |
+  | v0.4.0        | v0.10.0         | family/code contract settled                                                                            |
+  | v0.5.0        | v0.10.0         | —                                                                                                       |
+  | v0.6.0        | v0.10.0         | surface above; minor bumps of go-error-family within v0.x are accepted ad hoc                           |
+  | v0.6.1        | v0.10.1         | patch bump, no PR — daemon commit `9eb87ee` (see bump trace below); surface unchanged, gates green      |
+  | v0.7.0        | v0.10.1         | options surface added; consumes no new go-error-family symbol                                           |
+  | v0.7.1        | v0.10.1         | docs/tooling patch; library code byte-identical to v0.7.0                                               |
   | v0.8.0        | v0.11.0         | minor bump via daemon `e3c0492` (2026-09-29); surface grep unchanged (verified 2026-10-08), gates green |
 
   Rule: a go-error-family **major** (post-v1) or any change to the surface
@@ -229,7 +229,7 @@ v1.0:
   | --------------- | ----------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
   | v0.10.0         | v0.4.0      | manual bump, 2026-08-22 hardening session                                                           | family/code contract settled that session; matrix row + `CHANGELOG.md` `[0.4.0]`                                             |
   | v0.10.1         | v0.6.1      | daemon auto-commit `9eb87ee` (2026-09-16) — **no Dependabot PR**; the gomod watcher had opened none | gates green + dependency surface grep unchanged, recorded in the 2026-09-17 05:53 v0.6.1 report; doc-currency pass `047f075` |
-  | v0.11.0         | v0.8.0      | daemon auto-commit `e3c0492` (2026-09-29) — **no Dependabot PR**; gomod watcher silent again       | surface grep unchanged (2026-10-08 harvest pass); all 2026-10-08 gate batteries green |
+  | v0.11.0         | v0.8.0      | daemon auto-commit `e3c0492` (2026-09-29) — **no Dependabot PR**; gomod watcher silent again        | surface grep unchanged (2026-10-08 harvest pass); all 2026-10-08 gate batteries green                                        |
 
   Every future bump adds one line here when it merges, linking the Dependabot
   PR (or naming the mechanism when there is none) and the SHA-verification /
