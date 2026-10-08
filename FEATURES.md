@@ -191,9 +191,12 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   deterministic `JitterNone` delays), `ExampleFromPolicy` (error-family
   policy → `Config`), `ExampleDoWithValue` (value-returning API),
   `ExampleBackoff` (the `Rejection` path for `attempt < 1`), and
-  `ExampleComputeDelay` (hard-cap determinism) are deterministic, carry
-  `// Output:` comments, and render on `pkg.go.dev`. The last three landed
-  after the v0.7.0 tag and shipped in v0.7.1. `retry_test.go`.
+  `ExampleComputeDelay` (hard-cap determinism), `ExampleWithJitter_additive`
+  (seeded-RNG additive jitter), and `ExampleWithJitter_none` (deterministic
+  backoff) are deterministic, carry `// Output:` comments, and render on
+  `pkg.go.dev`. The last three landed after the v0.7.0 tag and shipped in
+  v0.7.1; the two jitter examples landed 2026-10-08 and surface from v0.8.1
+  onward. `retry_test.go`.
 - **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
   (~20–35 ns/op depending on machine load; 0 allocations — the jitter path
   allocates nothing). Re-check when the Go toolchain or the reference machine

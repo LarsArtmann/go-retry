@@ -64,7 +64,9 @@ go test ./... -race -coverprofile=reports/coverage.out \
 Current statement coverage is **100%**. CI enforces a **95% floor**
 (`.github/workflows/ci.yml`, `coverage` job) — keep new code at or above
 100% where practical; the floor exists so a hard-to-test edge never blocks
-a fix.
+a fix. The canonical coverage claim format is the `go test -cover ./...`
+summary line (see `AGENTS.md` → Session Ritual); the `coverprofile` recipe
+above is for inspecting per-function detail, not for quoting totals.
 
 ### Fuzzing
 
@@ -128,6 +130,18 @@ restructuring the code:
 `mnd` and `exhaustruct_v5` are excluded from `*_test.go` (see
 `.golangci.yml`), where partial struct literals and bare scalars are
 legitimate.
+
+## Config-disposition guard tests
+
+Deliberate tooling/config decisions are enforced, not just documented:
+`dispositions_test.go` pins the `.buildflow.yml` go-pin dispositions, the
+interface-typed terminal sentinels, the dependency go floor, and the
+`lychee.toml` private-namespace exclude; `retry_test.go` pins the `go.mod`
+go directive; `workflows_test.go` allowlists remote-action inputs. When a
+disposition must change, re-decide it deliberately and update the guard in
+the same change — every guard was proven failing on injected drift before
+it landed, so a failure means the disposition moved, not that the test is
+broken.
 
 ## Testing conventions
 

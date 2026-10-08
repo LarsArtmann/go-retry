@@ -1506,6 +1506,63 @@ func ExampleDo_withOptions() {
 	// exhausted: true
 }
 
+// ExampleJitter_additive shows the default additive strategy (the zero
+// value, byte-identical to omitting WithJitter): the delay for each attempt
+// is the capped exponential plus a random 0-50% on top. A seeded random
+// source makes the output reproducible for the example while keeping the
+// jitter behavior real.
+func ExampleWithJitter_additive() {
+	cfg := retry.DefaultConfig()
+	cfg.InitialDelay = time.Millisecond
+	cfg.MaxDelay = 4 * time.Millisecond
+
+	err := retry.Do(
+		context.Background(),
+		cfg,
+		func(context.Context, int) error {
+			return errorfamily.NewTransient("example.transient", "still failing")
+		},
+		retry.WithJitter(retry.JitterAdditive),
+		retry.WithRandomSource(rand.NewPCG(1, 2)),
+		retry.WithOnRetry(func(attempt int, delay time.Duration, _ error) {
+			fmt.Printf("attempt %d retried after %v\n", attempt, delay)
+		}),
+	)
+
+	fmt.Println("exhausted:", errors.Is(err, retry.ErrExhausted))
+	// Output:
+	// attempt 1 retried after 1.384686ms
+	// attempt 2 retried after 2.616436ms
+	// exhausted: true
+}
+
+// ExampleJitter_none shows the deterministic strategy: pure capped
+// exponential backoff with no randomness, for tests and callers that need
+// reproducible timing.
+func ExampleWithJitter_none() {
+	cfg := retry.DefaultConfig()
+	cfg.InitialDelay = time.Millisecond
+	cfg.MaxDelay = 4 * time.Millisecond
+
+	err := retry.Do(
+		context.Background(),
+		cfg,
+		func(context.Context, int) error {
+			return errorfamily.NewTransient("example.transient", "still failing")
+		},
+		retry.WithJitter(retry.JitterNone),
+		retry.WithOnRetry(func(attempt int, delay time.Duration, _ error) {
+			fmt.Printf("attempt %d retried after %v\n", attempt, delay)
+		}),
+	)
+
+	fmt.Println("exhausted:", errors.Is(err, retry.ErrExhausted))
+	// Output:
+	// attempt 1 retried after 1ms
+	// attempt 2 retried after 2ms
+	// exhausted: true
+}
+
 // ExampleFromPolicy converts an error-family retry policy — the advisory
 // defaults for Transient errors — into a Config.
 func ExampleFromPolicy() {
