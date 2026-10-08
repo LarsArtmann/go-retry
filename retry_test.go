@@ -1217,11 +1217,18 @@ func TestDo_PreCanceledContextReturnsErrCanceled(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // canceled before Do starts
 
+	cfg := retry.Config{
+		MaxAttempts:  3,
+		InitialDelay: 5 * time.Second, // long delay so the pre-cancel deterministically wins the select
+		MaxDelay:     5 * time.Second,
+		Multiplier:   2.0,
+	}
+
 	transient := errorfamily.NewTransient("test.transient", "fail")
 
 	var calls atomic.Int32
 
-	err := retry.Do(ctx, fastConfig(), func(ctx context.Context, attempt int) error {
+	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
 		calls.Add(1)
 
 		return transient
@@ -2134,6 +2141,7 @@ func TestWithJitter_AdditiveStaysBounded(t *testing.T) {
 	// whichever attempt actually did.
 	base := time.Millisecond << (maxReport.attempt - 1)
 	upper := base * 3 / 2
+
 	if maxCap := 5 * time.Millisecond; upper > maxCap {
 		upper = maxCap
 	}
