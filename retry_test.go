@@ -2096,38 +2096,59 @@ func TestWithJitter_MatrixAcrossStrategiesNeverPanics(t *testing.T) {
 func TestWithJitter_AdditiveStaysBounded(t *testing.T) {
 	t.Parallel()
 
-	var minDelay, maxDelay time.Duration
+	type report struct {
+		attempt int
+		delay   time.Duration
+	}
 
-	minDelay = time.Hour
+	minDelay := time.Hour
+
+	var maxReport report
 
 	for range 200 {
-		var delay time.Duration
+		var last report
 
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 
 		_ = retry.Do(ctx, fastConfig(), func(_ context.Context, _ int) error {
 			return errorfamily.NewTransient("test.transient", "fail")
-		}, retry.WithJitter(retry.JitterAdditive), retry.WithOnRetry(func(_ int, d time.Duration, _ error) {
-			delay = d
+		}, retry.WithJitter(retry.JitterAdditive), retry.WithOnRetry(func(attempt int, d time.Duration, _ error) {
+			last = report{attempt, d}
 		}))
 
-		if delay < minDelay {
-			minDelay = delay
+		if last.delay < minDelay {
+			minDelay = last.delay
 		}
 
-		if delay > maxDelay {
-			maxDelay = delay
+		if last.delay > maxReport.delay {
+			maxReport = last
 		}
 	}
 
-	// Additive range for attempt 1: [1ms, 1.5ms] — jitter only adds, cap is 5ms.
+	// Additive jitter adds [0, base/2) to the capped exponential delay of the
+	// failed attempt (base = 1ms << (attempt-1), hard cap 5ms). The pre-canceled
+	// context usually aborts the loop after attempt 1, but the sleep's select
+	// can legitimately race timer-vs-cancel when the goroutine is descheduled
+	// past the timer, so a later attempt may report; assert the bound of
+	// whichever attempt actually did.
+	base := time.Millisecond << (maxReport.attempt - 1)
+	upper := base * 3 / 2
+	if maxCap := 5 * time.Millisecond; upper > maxCap {
+		upper = maxCap
+	}
+
 	if minDelay < time.Millisecond {
 		t.Fatalf("additive delay dipped below the exponential base: %v", minDelay)
 	}
 
-	if maxDelay > 1500*time.Microsecond {
-		t.Fatalf("additive delay exceeded base+50%%: %v", maxDelay)
+	if maxReport.delay > upper {
+		t.Fatalf(
+			"additive delay exceeded base+50%% (capped at MaxDelay): attempt %d reported %v, upper bound %v",
+			maxReport.attempt,
+			maxReport.delay,
+			upper,
+		)
 	}
 }
 
