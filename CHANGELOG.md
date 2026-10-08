@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the Session Ritual — the nested module was invisible to root `./...` and
   stood outside every quality gate.
 
+### Changed
+
+- **Terminal sentinels are declared with the `error` interface type.**
+  `ErrExhausted`, `ErrCanceled`, and `ErrDeadlineExceeded` are now
+  `var X error = errorfamily.NewInfrastructure(...)` instead of concrete
+  `*errorfamily.Error` variables. Runtime behavior is unchanged (`errors.Is`,
+  the code+family matcher, unwrapping, and classification all work as before);
+  the interface type is the standard sentinel declaration and lets static
+  analysis recognize `errors.Is` call sites as sentinel matching.
+
 ### Fixed
 
 - **Rendering repairs caught by the guard prototype.** AGENTS.md's architecture
