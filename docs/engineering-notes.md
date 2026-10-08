@@ -161,3 +161,19 @@ are unique in this package, so nothing is lost. The same applies to dependency
 sources: no `classify.go:NN` refs into `go-error-family` — cite the symbol
 (`Classify`, `IsRetryable`) and, when precision matters, the dependency
 version from `go.mod`.
+
+## BuildFlow health-check tools: only dprint and lychee apply here
+
+`buildflow doctor` checks ~50 tools across every ecosystem it supports; most
+show as unavailable in any single repo. For this Go library exactly two are
+applicable, and both are now satisfied: `lychee` (the link-scan step —
+installed 2026-10-08 via `nix profile install nixpkgs#lychee`, first real scan
+green: 75 links, 0 errors, 26 excluded by the private-namespace rule) and
+`dprint` (the format gate — installed the same day; note the local profile
+floats with nixpkgs, currently 0.60.1, while CI pins 0.57.4 in `dprint/check`
+— the recorded float-posture question in ROADMAP covers this). Everything else
+unavailable (bandit, cargo-*, ruff/mypy/pytest, jest/tsc/vue/svelte, prettier,
+eslint, knip/madge/c8, protolint, hadolint, shellcheck, markdownlint, gci,
+vulnix, …) targets languages or gates this repo does not have; their absence
+is a disposition, not a gap. Re-audit only if a BuildFlow step for one of them
+starts appearing in this repo's runs.
