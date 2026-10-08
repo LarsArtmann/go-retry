@@ -1,0 +1,32 @@
+name: Stress
+
+on:
+  schedule:
+    # Daily at 04:33 UTC, after the 03:17 fuzz campaign; scheduled workflows
+    # run on the default branch only.
+    - cron: "33 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stress-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      # The 2026-10-08 flakes were invisible at -count=1 and reproducible at
+      # -count=10 (timer-vs-cancel select race under goroutine descheduling).
+      # Per-push CI stays at -count=1; this job sweeps the repetition axis
+      # daily so the class cannot silently return.
+      - name: Repeated race suite (10 sweeps, shuffled)
+        run: go test -shuffle=on ./... -race -count=10
