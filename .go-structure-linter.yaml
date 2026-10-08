@@ -3,3 +3,11 @@
 # consumers, and pkg/ would churn the import path for no benefit.
 presets:
   - flat
+# The go directive is deliberately pinned at 1.26 (guarded by
+# TestModuleGoDirectiveStaysPinned; every doc states it). The go-version rule
+# bumps it to the installed toolchain minor, which silently re-lost the pin —
+# the same fight that made BuildFlow skip go-mod-update (see .buildflow.yml).
+suppressions:
+  - rule: go-version
+    file: go.mod
+    reason: "go directive is deliberately pinned at 1.26; a real re-pin updates every doc in the same change"

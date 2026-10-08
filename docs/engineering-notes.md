@@ -23,6 +23,16 @@ this policy, and never "fix" a red `TestModuleGoDirectiveStaysPinned` by
 updating the constant alone — a real re-pin means updating every doc that
 states 1.26 in the same change.
 
+`go-mod-update` is not the only writer: the `go-structure-linter` tool's
+`go-version` repair rule also bumps the directive ("go.mod specifies Go 1.26,
+but Go 1.27 is available", error-severity, so it trips the findings gate too).
+Caught on 2026-10-08 by watching go.mod during a full `--fix` run and
+correlating the flip timestamp with the pipeline's step log — every BuildFlow
+gomod step was exonerated individually first, so the writer was hiding in a
+tool whose name suggests structure-only checks. `.go-structure-linter.yaml`
+suppresses the rule for `go.mod` with the pin rationale. When a file flips
+between runs, bisect steps AND check repair-only rules in non-obvious tools.
+
 The `tools/` nested module declares `go 1.26.0` (patch form) because six
 `golang.org/x/*` dependencies each declare a patch-form `go 1.26.0` floor, so
 a major.minor-only directive cannot represent the true minimum. That is why

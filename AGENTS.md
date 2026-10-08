@@ -133,11 +133,12 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   `errors.Is(err, retry.ErrCanceled)` is false for deadline errors. Do not
   collapse the branches — operators debug timeouts vs shutdowns differently.
 - **The go directive is pinned at `go 1.26`** (guarded by
-  `TestModuleGoDirectiveStaysPinned`; every doc states it). `.buildflow.yml`
-  skips `go-mod-update` because its unconditional minor-bump fought this pin
-  three times; Dependabot owns gomod bumps. `tools/go.mod` keeps its real
-  patch-form floor `go 1.26.0` (six x/* deps declare it) via
-  `respect_patch_floor`. A real re-pin updates every doc in the same change.
+  `TestModuleGoDirectiveStaysPinned`; every doc states it). Both tools that
+  fight the pin are dispositioned: `.buildflow.yml` skips `go-mod-update`
+  (unconditional minor-bump; Dependabot owns gomod bumps) and
+  `.go-structure-linter.yaml` suppresses its `go-version` rule (bumps to the
+  installed toolchain). `tools/go.mod` keeps its dep-forced patch floor
+  `go 1.26.0` via `respect_patch_floor`. A real re-pin updates every doc too.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
 - **`//nolint:` directives are deliberate**, not leftover (`exhaustruct_v5` on
@@ -185,10 +186,9 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   `TestModuleGoDirectiveStaysPinned`). A new guard must be shown to fail on the
   drift it guards; drill with `-count=1` (data-file mutations are not in Go's
   test cache key, so a cached PASS can hide them).
-- **Consumer sweeps run through go-cqrs-lite's committed `go.work`** — it lists
-  `/home/lars/projects/go-retry` as a `use` target. Never create a temp
-  `go.work` in that repo (tracked file; an overwrite silently discards its
-  committed module list).
+- **Consumer sweeps run through go-cqrs-lite's committed `go.work`** (it lists
+  this repo). Never create a temp `go.work` there — it is tracked, and an
+  overwrite silently discards its committed module list.
 
 ## Session Ritual (self-checks before claiming done)
 
