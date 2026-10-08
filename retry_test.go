@@ -2217,6 +2217,153 @@ func TestWithJitter_AdditiveStaysBounded(t *testing.T) {
 	}
 }
 
+// TestDo_StressInterleavedCancellation drives many concurrent Do loops under
+// real timers with cancellations interleaved at seeded points inside the
+// backoff sleeps, locking in the race-proof assertion patterns from the
+// 2026-10-08 flake fixes: whichever branch the timer-vs-cancel select takes,
+// the observed state stays within formula-derived bounds, OnExhausted never
+// fires on a context end, and DoWithValue never leaks a partial value. The
+// exponential base crosses the 5ms MaxDelay at attempt 4, so the hard-cap
+// guarantee is exercised on every run that reaches it. Skipped under
+// -short; per-push CI sweeps repetition via the nightly stress workflow.
+func TestDo_StressInterleavedCancellation(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("stress test with real timers; skipped under -short")
+	}
+
+	const (
+		goroutines      = 8
+		iterationsEach  = 30
+		stressAttempts  = 8
+		stressCap       = 5 * time.Millisecond
+		cancelWithinMax = stressAttempts - 1
+	)
+
+	var (
+		contextEnds       atomic.Int32
+		exhaustions       atomic.Int32
+		exhaustedOnCtxEnd atomic.Int32
+	)
+
+	var wg sync.WaitGroup
+
+	for loop := range goroutines {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			for it := range iterationsEach {
+				rng := rand.New(rand.NewPCG(uint64(loop)+1, uint64(it)+1))
+				// cancelAfter == stressAttempts never fires (OnRetry is not
+				// called after the final attempt), leaving that run to reach
+				// exhaustion and exercise the hard cap at attempts 4+.
+				cancelAfter := rng.IntN(stressAttempts) + 1
+
+				ctx, cancel := context.WithCancel(context.Background())
+				cfg := retry.Config{
+					MaxAttempts:  stressAttempts,
+					InitialDelay: time.Millisecond,
+					MaxDelay:     stressCap,
+					Multiplier:   2.0,
+				}
+
+				var (
+					exhaustedFired bool
+					cancelAttempt  atomic.Int32
+					lastDelay      time.Duration
+					delayAttempt   int
+				)
+
+				cancelAttempt.Store(int32(cancelAfter))
+
+				err := retry.Do(ctx, cfg, func(_ context.Context, _ int) error {
+					return errorfamily.NewTransient("test.stress", "fail")
+				},
+					retry.WithOnRetry(func(attempt int, delay time.Duration, _ error) {
+						lastDelay, delayAttempt = delay, attempt
+
+						if int(cancelAttempt.Load()) == attempt {
+							cancel()
+						}
+					}),
+					retry.WithExhausted(func(int, error) {
+						exhaustedFired = true
+					}),
+				)
+
+				switch {
+				case err == nil:
+					if exhaustedFired {
+						t.Error("OnExhausted fired on success")
+					}
+				case errors.Is(err, retry.ErrCanceled), errors.Is(err, retry.ErrDeadlineExceeded):
+					contextEnds.Add(1)
+
+					if exhaustedFired {
+						exhaustedOnCtxEnd.Add(1)
+					}
+				case errors.Is(err, retry.ErrExhausted):
+					exhaustions.Add(1)
+
+					if !exhaustedFired {
+						t.Error("OnExhausted did not fire on exhaustion")
+					}
+				default:
+					t.Errorf("unexpected error class: %v", err)
+				}
+
+				// Race-proof delay bound: assert whichever attempt reported
+				// against ITS formula-derived bound, never a specific
+				// outcome of the timer-vs-cancel select. Once the exponential
+				// base reaches MaxDelay the hard cap pins both ends at
+				// exactly MaxDelay.
+				if delayAttempt > 0 {
+					base := time.Millisecond << (delayAttempt - 1)
+					lower := base
+
+					if lower > stressCap {
+						lower = stressCap
+					}
+
+					upper := base * 3 / 2
+
+					if upper > stressCap {
+						upper = stressCap
+					}
+
+					if lastDelay < lower || lastDelay > upper {
+						t.Errorf("attempt %d reported delay %v, want within [%v, %v]",
+							delayAttempt, lastDelay, lower, upper)
+					}
+				}
+
+				// DoWithValue must never leak a partial value on failure.
+				value, valueErr := retry.DoWithValue(ctx, cfg, func(context.Context, int) (int, error) {
+					return 42, errorfamily.NewTransient("test.stress", "fail")
+				})
+
+				if valueErr != nil && value != 0 {
+					t.Errorf("DoWithValue leaked partial value %d on failure", value)
+				}
+
+				cancel()
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	if exhaustedOnCtxEnd.Load() != 0 {
+		t.Errorf("OnExhausted fired on %d context endings", exhaustedOnCtxEnd.Load())
+	}
+
+	t.Logf("outcomes: %d context ends, %d exhaustions of %d total loops",
+		contextEnds.Load(), exhaustions.Load(), goroutines*iterationsEach)
+}
+
 func ExampleBackoff() {
 	// Backoff rejects attempts below 1 with a Rejection-family error
 	// before any delay math runs.
