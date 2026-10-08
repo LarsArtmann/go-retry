@@ -56,7 +56,8 @@ correct, `internal/` would make the library unimportable):
 | `config.go`                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                               |
 | `options.go`                 | `Option` funcs (`WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`, `WithExhausted`) + `JitterStrategy` (`JitterAdditive`, `JitterNone`)        |
 | `doc.go`                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                               |
-| `retry_test.go`              | External test package (`retry_test`)                                                                                                           |
+| `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                                         |
+| `dispositions_test.go`                       | Config-disposition guards: `.buildflow.yml` skip_steps/patch-floor, interface-typed sentinels, error-family floor within the go pin, `lychee.toml` private-namespace exclude (each proven failing on drift)  |
 | `docs_test.go`               | Markdown guard tests (strike rendering, table code spans, archive verdicts, status index)                                                      |
 | `workflows_test.go`          | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA              |
 | `tools/`                     | Nested module pinning dev tools via Go `tool` directives                                                                                       |
