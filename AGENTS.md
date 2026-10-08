@@ -1,6 +1,8 @@
 # AGENTS.md
 
 Concise, enduring context for every AI session working in `go-retry`.
+Long-form narratives for select gotchas: `docs/engineering-notes.md` — read a
+section there before acting on its topic.
 
 ## What This Is
 
@@ -17,10 +19,9 @@ import this package to avoid pulling in those deps. See `doc.go`.
 
 ## Commands
 
-No `flake.nix`, `Makefile`, or `justfile` exists in this repo — `go` and
-`golangci-lint` are the only build/test tools; [dprint](https://dprint.dev)
-(committed `dprint.json`) formats markdown/JSON/YAML/Dockerfile and runs via
-nix. Use raw Go commands:
+No `flake.nix`, `Makefile`, or `justfile` — `go` and `golangci-lint` are the
+only build/test tools; [dprint](https://dprint.dev) (committed `dprint.json`)
+formats markdown/JSON/YAML/Dockerfile via nix. Raw Go commands:
 
 ```bash
 go test ./... -race             # tests (always with -race; backoff uses math/rand/v2)
@@ -37,51 +38,55 @@ govulncheck ./...               # vulnerability scan (CI uses the official actio
 nix run nixpkgs#dprint -- check # markdown/JSON/YAML format gate (fmt to fix; CHANGELOG.md excluded; also gated in CI via dprint/check)
 ```
 
-`go test` is the only verification gate. There is no build step beyond `go build`
-(the package is consumed as a library). Development tools (actionlint,
+`go test` is the only verification gate; there is no build step beyond
+`go build` (the package is consumed as a library). Dev tools (actionlint,
 govulncheck) are version-pinned in the nested `tools/` module via Go `tool`
 directives — never suffix `@version` when running them. The classic
 blank-import `tools.go` is dead: Go 1.26 rejects importing main packages, and
 pinning tools in the library module would force `go.mod` off its guarded
-relaxed `go 1.26` directive (current x/* tool versions declare `go 1.26.0`).
-Consumers download none of the tools module.
+relaxed `go 1.26` directive. Consumers download none of the tools module.
 
 ## Architecture & Data Flow
 
-Flat single-package layout — no internal subpackages:
+Flat single-package layout — no internal subpackages (why
+`.go-structure-linter.yaml` selects the `flat` preset; root package files are
+correct, `internal/` would make the library unimportable):
 
-| File                                         | Responsibility                                                                                                                                                                                               |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `retry.go`                                   | `Do` + generic `DoWithValue` (loops), `awaitBackoff`/`nextDelay`/`contextEnded` helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted` / `ErrCanceled` / `ErrDeadlineExceeded`                         |
-| `config.go`                                  | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                                             |
-| `doc.go`                                     | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                                             |
-| `retry_test.go`                              | External test package (`retry_test`)                                                                                                                                                                         |
-| `workflows_test.go`                          | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA (catches the `namee:` typo class)                                          |
-| `tools/`                                     | Nested module pinning dev tools (actionlint, govulncheck) via Go `tool` directives; `tools.go` documents usage and the dprint reference                                                                      |
-| `.golangci.yml`                              | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                                             |
-| `.github/workflows/ci.yml`                   | Push/PR CI: vet (root + `tools/`), race tests, govulncheck, 95% coverage floor, actionlint (built from `tools/go.mod` pin), dprint check (SHA-pinned `dprint/check`), golangci-lint (version pinned in-repo) |
-| `.github/workflows/fuzz.yml`                 | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                                                       |
-| `testdata/fuzz/FuzzComputeDelayNeverPanics/` | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                                            |
-| `docs/status/`                               | Point-in-time session reports; resolved ones are annotated inline and moved to `docs/status/archived/` (index: `docs/status/README.md`)                                                                      |
+| File                        | Responsibility                                                                                                                                                    |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `retry.go`                  | `Do` + generic `DoWithValue` (loops), backoff helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted`/`ErrCanceled`/`ErrDeadlineExceeded`                    |
+| `config.go`                 | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                  |
+| `options.go`                | `Option` funcs (`WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`, `WithExhausted`) + `JitterStrategy` (`JitterAdditive`, `JitterNone`)                           |
+| `doc.go`                    | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                  |
+| `retry_test.go`             | External test package (`retry_test`)                                                                                                                             |
+| `docs_test.go`              | Markdown guard tests (strike rendering, table code spans, archive verdicts, status index)                                                                         |
+| `workflows_test.go`         | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA                                 |
+| `tools/`                    | Nested module pinning dev tools via Go `tool` directives                                                                                                          |
+| `.buildflow.yml`            | BuildFlow dispositions (deliberate policy — see Gotchas)                                                                                                          |
+| `.go-structure-linter.yaml` | `flat` preset — single-package library at repo root by design                                                                                                     |
+| `lychee.toml`               | Link-check excludes: private LarsArtmann repos 404 unauthenticated                                                                                                |
+| `.golangci.yml`             | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                  |
+| `.github/workflows/ci.yml`  | Push/PR CI: vet (root + `tools/`), race tests, govulncheck, 95% coverage floor, actionlint, dprint check, golangci-lint                                            |
+| `.github/workflows/fuzz.yml`| Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                            |
+| `testdata/fuzz/...`         | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                 |
+| `docs/engineering-notes.md` | Long-form narratives behind the compressed gotchas below                                                                                                          |
+| `docs/status/`              | Point-in-time session reports; resolved ones annotated inline, moved to `docs/status/archived/` (index: `docs/status/README.md`)                                  |
 
-**Control flow of `Do`**: validate config → loop `attempt` from 1 to
-`MaxAttempts` → call `fn(ctx, attempt)` → on `nil` return immediately → if not
-retryable, return immediately → else `awaitBackoff` (compute delay via
-`nextDelay` = exponential + `DelayFunc` override, fire `OnRetry`, sleep in a
+**Control flow of `Do`**: validate config → loop `attempt` 1..`MaxAttempts` →
+call `fn(ctx, attempt)` → on `nil` return → if not retryable, return → else
+`awaitBackoff` (exponential + `DelayFunc` override, fire `OnRetry`, sleep in a
 `select` on `timer.C` vs `ctx.Done()`; a context end classifies via
 `contextEnded` into `ErrDeadlineExceeded` vs `ErrCanceled`) → on exhaustion
-call `OnExhausted` and return `ErrExhausted` wrapping the last error via
-`.WithCause()`.
-
-**`DoWithValue[T]`** wraps `Do` with a `ResultFunc[T]`; on any failure it
-returns the zero `T` with the same error `Do` would produce, and never leaks
-a partial value from an earlier attempt.
+call `OnExhausted` and return `ErrExhausted` wrapping the last error.
+**`DoWithValue[T]`** wraps `Do` with a `ResultFunc[T]`; on failure it returns
+the zero `T` with the same error `Do` would produce, never leaking a partial
+value from an earlier attempt.
 
 ## The error-family Dependency
 
-The sole external dependency is
-`github.com/larsartmann/go-error-family` (`errorfamily` import alias). Errors
-carry a **family** classification and a string **code**. This package uses:
+The sole external dependency is `github.com/larsartmann/go-error-family`
+(`errorfamily` import alias). Errors carry a **family** classification and a
+string **code**. This package uses:
 
 - `errorfamily.NewInfrastructure(code, msg)` — for `ErrExhausted`,
   `ErrCanceled`, `ErrDeadlineExceeded` (retry exhaustion / context endings =
@@ -95,9 +100,8 @@ carry a **family** classification and a string **code**. This package uses:
 - `errorfamily.Classify(err)` — returns the family (asserted as `Rejection` in
   the invalid-config test)
 
-Error codes follow a `retry.<snake_case_event>` convention
-(`retry.exhausted`, `retry.canceled`, `retry.deadline`,
-`retry.invalid_max_attempts`, etc.).
+Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
+`retry.canceled`, `retry.deadline`, `retry.invalid_max_attempts`, etc.).
 
 ## Gotchas & Non-Obvious Conventions
 
@@ -110,181 +114,123 @@ Error codes follow a `retry.<snake_case_event>` convention
   `attempt < 1` yields a `Rejection` (`retry.invalid_attempt`). The internal
   `Do` loop calls the unexported `computeDelay` (no error tax on a
   loop-controlled value).
-- **Jitter is additive, not symmetric, and hard-capped.** `computeDelay`
-  adds `rand.Int64N(half)` _on top of_ the capped exponential delay and then
-  caps the sum at `MaxDelay`, so the actual wait is in
-  `[base, min(base * 1.5, MaxDelay)]` — never above `MaxDelay`. The cap
-  applies to the jittered sum; capping before jitter would let real sleeps
-  reach 1.5× `MaxDelay` while the docs promise a hard cap.
-  Tests that compare two sampled delays can be flaky; the existing
-  exponential-growth test verifies the **formula**, not sampled values, for
-  this reason. Follow that pattern.
-- **`computeDelay` is panic-proof by design.** It sits on the failure path, so
-  it must never crash: an unset/zero `MaxDelay` degrades to "no growth beyond
-  `InitialDelay`", sub-2ns delays skip jitter, and `math.Pow` overflow saturates
-  to `MaxDelay` instead of wrapping negative. A matrix property test
-  (`TestComputeDelay_NeverPanicsAcrossMatrix`) guards this. Do not reintroduce
-  an unguarded `rand.Int64N` call.
+- **Sentinels are declared `var X error = errorfamily.NewInfrastructure(...)`.**
+  The interface type is the erraudit sentinel pattern; narrowing back to
+  `*errorfamily.Error` re-flags every `errors.Is` call site as `legacy_is`.
+- **Jitter is additive and hard-capped** — the cap applies to the jittered sum
+  (`[base, min(base * 1.5, MaxDelay)]`); tests verify the **formula**, not
+  sampled values. Strategies are `WithJitter` options only (`JitterAdditive`
+  zero value = historical default, `JitterNone` deterministic; `Full`/`Equal`/
+  `Decorrelated` are ROADMAP follow-ups, unknown values fall back to additive).
+  Never a `Config` field. Details: `docs/engineering-notes.md`.
+- **`computeDelay` is panic-proof by design.** It sits on the failure path: an
+  unset/zero `MaxDelay` degrades to "no growth beyond `InitialDelay`", sub-2ns
+  delays skip jitter, `math.Pow` overflow saturates to `MaxDelay`. A matrix
+  property test (`TestComputeDelay_NeverPanicsAcrossMatrix`) guards this. Do
+  not reintroduce an unguarded `rand.Int64N` call.
 - **Concurrent call counting in tests uses `atomic.Int32`** (`sync/atomic`), not
   mutexes. Follow the same style.
 - **Callback timing: `OnRetry` fires before the sleep**, after a failed
   attempt but only when more attempts remain. `OnExhausted` fires once after
-  the final failure **and never on context end** (cancel or deadline
-  termination returns without it; pinned by
+  the final failure **and never on context end** (pinned by
   `TestDo_OnExhaustedNotCalledOnCancel` / `...OnDeadline`). Neither callback
   is called on success.
-- **Context endings during backoff are distinguished.** A deadline
-  exceeded returns `ErrDeadlineExceeded` (unwraps to
-  `context.DeadlineExceeded`); an explicit cancel returns `ErrCanceled`
-  (unwraps to `context.Canceled`). Both also chain the last attempt error
-  via Go 1.20 multi-`%w`, and `Error.Is` matches by code+family — so
-  `errors.Is(err, retry.ErrCanceled)` is false for deadline errors. Do not
-  collapse the two branches; operators debug timeouts vs shutdowns
-  differently.
-- **Jitter strategy landed via `WithJitter` — do not regress it to a field.**
-  The twice-deferred jitter question closed in v0.7.0: `JitterAdditive`
-  (zero value = the historical default, byte-identical) and `JitterNone`
-  (deterministic) are options-only, never `Config` fields. `Full`,
-  `Equal`, and `Decorrelated` strategies are recorded ROADMAP follow-ups —
-  no constants exist for them, and an unknown strategy value falls back to
-  additive by design. Do not re-propose `Jitter`/`JitterStrategy` as a
-  public `Config` field, and do not add the deferred strategy constants
-  without implementing them.
+- **Context endings during backoff are distinguished.** A deadline exceeded
+  returns `ErrDeadlineExceeded` (unwraps to `context.DeadlineExceeded`); an
+  explicit cancel returns `ErrCanceled` (unwraps to `context.Canceled`). Both
+  chain the last attempt error via multi-`%w`, and `Error.Is` matches by
+  code+family — so `errors.Is(err, retry.ErrCanceled)` is false for deadline
+  errors. Do not collapse the two branches; operators debug timeouts vs
+  shutdowns differently.
+- **The go directive is pinned at `go 1.26`** (guarded by
+  `TestModuleGoDirectiveStaysPinned`; every doc states it). `.buildflow.yml`
+  skips `go-mod-update` because its unconditional minor-bump fought this pin
+  three times; Dependabot owns gomod bumps here. `tools/go.mod` keeps its real
+  patch-form floor `go 1.26.0` (six x/* deps declare `go 1.26.0`) via
+  `respect_patch_floor`. A real re-pin updates every doc in the same change.
+  See `docs/engineering-notes.md`.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
-- **`//nolint:` directives are deliberate**, not leftover, and the referenced
-  linters are enabled in `.golangci.yml`: `exhaustruct_v5` on `DefaultConfig`
-  (optional callbacks omitted), `gosec` on the jitter line (weak rand is
-  intentional and safe here; `mnd` does not fire — `2` is in its
-  ignored-numbers), and `errorlint` on the identity comparison in
-  `TestDo_DoesNotRetryNonRetryableError` (the whole point of the assertion is
-  `err != rejection`). Removing any marker produces a real finding.
-  Preserve them when editing.
-- **Never cite line numbers in prose docs — ours or dependencies'.** Own-file
-  citations rot on the next insertion above them (this happened twice: the
-  T10 const block shifted every citation in FEATURES/DOMAIN_LANGUAGE within a
-  day). Cite by function/type name only (`retry.go` (`Do`)); function names
-  are unique in this package, so nothing is lost. The same applies to
-  dependency sources: no `classify.go:NN` refs into `go-error-family` — cite
-  the symbol (`Classify`, `IsRetryable`) and, when precision matters, the
-  dependency version from `go.mod`.
-- **Dependabot PRs are now an expected supply-chain surface — verify, then
-  merge.** Configured weekly (`dependabot.yml`: gomod at `/` and `/tools` +
-  github-actions); it stayed silent until 2026-09-13, then opened its first
-  PR (#1, actions group), which was SHA-verified and merged the same day
-  (`e67a70e`). Review flow that worked: fetch each pinned commit **by SHA**
-  from upstream (content-addressed — the hash proves what will run), read its
-  `action.yml` inputs, diff against this repo's `with:` usage (the
-  `workflows_test.go` allowlist now fails on unknown keys — update it in the
-  same change), post the evidence, merge. Annotated-tag pins may be re-pinned
-  by Dependabot to the peeled commit (zero code change — `v9` tag object →
-  same commit). The gomod watcher will not touch the `go` directive
-  regardless; go-error-family bumps additionally get one line in the
-  `ROADMAP.md` bump trace when they merge.
-- **After touching `.golangci.yml`, run `golangci-lint config verify`.** Plain
-  `golangci-lint run` tolerates settings that strict schema validation (what
-  the CI action executes first) rejects. This bit once: `exhaustruct_v5`
-  accepts no `exclude` settings key (unlike v4), local `run` stayed green,
-  and the CI lint job went red on push.
-- **Terminal-error codes/messages are single-sourced constants** at the top of
-  `retry.go` (`codeExhausted`/`msgExhausted`, `codeCanceled`/`msgCanceled`,
-  `codeDeadline`/`msgDeadline`). The sentinels and their
-  `WrapInfrastructure` call sites must use them — never re-inline the strings.
+- **`//nolint:` directives are deliberate**, not leftover (`exhaustruct_v5` on
+  `DefaultConfig`, `gosec` on the jitter line, `errorlint` on the identity
+  assertion in `TestDo_DoesNotRetryNonRetryableError`). Removing any produces a
+  real finding; sweep markers when linters are added/renamed.
+- **Never cite line numbers in prose docs — ours or dependencies'.** Cite by
+  function/type name only (`retry.go` (`Do`)); for dependencies cite the symbol
+  and, when precision matters, the version from `go.mod`.
 - **The committed fuzz corpus mirrors the `f.Add` seeds, enforced by a test.**
-  `TestFuzzCorpusMirrorsSeeds` fails with the offending entry named when a
-  seed lacks its `testdata/fuzz/FuzzComputeDelayNeverPanics/` file or a
-  corpus entry matches no seed; a seed introducing a new constant expression
-  needs it added to `seedConstExpressions` in the same change. A daily
-  scheduled workflow (`.github/workflows/fuzz.yml`) fuzzes for 30 minutes;
-  new crashers land in the corpus AND as distilled seeds, together.
-- **Release notes are GitHub-only.** Bodies are composed at release time from
-  the CHANGELOG section (the `go-release` skill flow); there is deliberately
-  no `docs/releases/` directory.
+  `TestFuzzCorpusMirrorsSeeds` fails naming the offending entry; a seed
+  introducing a new constant expression needs its corpus file and possibly a
+  `seedConstExpressions` entry in the same change. The daily fuzz workflow adds
+  new crashers to the corpus AND as distilled seeds, together.
+- **Release notes are GitHub-only**, composed at release time from the
+  CHANGELOG section; there is deliberately no `docs/releases/` directory.
 - **Go files use tabs** (`.editorconfig`); YAML/JSON/Nix use 2 spaces.
-- **actionlint validates structure, not remote-action inputs.** Cron formats,
-  expressions, and workflow schema errors die in seconds (the gate is the first
-  lint-job step), but a typo'd _input key_ on a `uses:` action passes actionlint
-  silently — the runner ignores unknown inputs. Since 2026-09-17 the gap is
-  guarded by `TestRemoteActionInputsAreAllowlisted` (`workflows_test.go`):
-  every `with:` key is checked against allowlists verified from each action's
-  `action.yml` at the pinned SHA; the allowlist is keyed by `action@SHA`, so
-  a re-pin fails the test until the inputs are re-verified (an upstream
-  input rename can no longer pass silently). Pinning a new action or
-  re-pinning an existing one means re-verifying inputs at the new SHA and
-  updating `actionInputAllowlist` under the new `action@SHA` key in the same
-  change; the parser is fail-closed on
-  YAML shapes it cannot attribute (flow mappings, anchors, merge keys).
-- **`setup-go`'s version manifest lags `go.dev` by hours.** A fresh Go patch
-  release can resolve `go-version-file`/`go-version` to the _previous_ patch,
-  while Go's own toolchain switching downloads the exact version regardless —
-  a tag-CI run can then disagree with the local toolchain. Fix when it bites:
-  pin `GOTOOLCHAIN: go1.26.x` at job or workflow level (go-release skill Phase
-  4; verified against the skill source 2026-09-16).
+- **Remote-action `with:` keys are SHA-keyed allowlisted.** actionlint cannot
+  see remote-action inputs; `TestRemoteActionInputsAreAllowlisted` fails any
+  re-pin until inputs are re-verified from `action.yml` at the new SHA and
+  `actionInputAllowlist` is updated in the same change (last:
+  upload-artifact `v7.0.2`, 2026-10-08). The parser is fail-closed on YAML
+  shapes it cannot attribute.
+- **`setup-go`'s version manifest lags `go.dev` by hours.** A fresh patch
+  release can resolve to the previous patch while toolchain switching downloads
+  the exact one; fix when it bites with `GOTOOLCHAIN: go1.26.x`.
+- **After touching `.golangci.yml`, run `golangci-lint config verify`.** Plain
+  `run` tolerates settings the strict CI schema rejects (`exhaustruct_v5`
+  accepts no `exclude` key — it bit once).
+- **Terminal-error codes/messages are single-sourced constants** at the top of
+  `retry.go`; the sentinels and their `WrapInfrastructure` call sites must use
+  them — never re-inline the strings.
+- **The go-auto-upgrade `lo.Map` suggestion is a deliberate non-fix** (adding
+  `samber/lo` would break the dependency-light contract for one test loop);
+  warning-severity only. See `docs/engineering-notes.md` before "fixing" it.
 
 ## Testing Patterns
 
 - External test package (`package retry_test`) — test the public API only.
-- Every test calls `t.Parallel()`.
-- Table-driven subtests use `t.Run(tt.name, ...)` (see `TestDo_InvalidConfig...`).
-- `fastConfig()` helper returns a `Config` with millisecond-scale delays so the
-  suite stays fast. Reuse it; don't introduce real-second delays except the
-  two context-ending tests (cancel + deadline) which deliberately use `5s`
-  delays so the context end fires during the wait.
-- Assertions use `t.Fatalf` with a descriptive message including the actual value.
-- Validate error identity with `errors.Is`, and family with
+- Every test calls `t.Parallel()`; table-driven subtests use
+  `t.Run(tt.name, ...)` (see `TestDo_InvalidConfig...`).
+- `fastConfig()` helper returns millisecond-scale delays — reuse it; real-second
+  delays only in the two context-ending tests (cancel + deadline, `5s`).
+- Assertions use `t.Fatalf` with a descriptive message including the actual
+  value. Validate error identity with `errors.Is`, family with
   `errorfamily.Classify(err) == errorfamily.<Family>`.
-- **Repo-level doc/code invariants get a guard test.** `go.mod`'s `go`
-  directive is pinned by `TestModuleGoDirectiveStaysPinned` (proven failing on
-  drift before it landed), so external tooling cannot silently re-pin it away
-  from the `go 1.26` every living doc states. Add the same shape when a
-  documented claim has no other enforcement.
-- **Consumer sweeps run through go-cqrs-lite's committed `go.work`** — it
-  already lists `/home/lars/projects/go-retry` as a `use` target, so running
-  `commandlifecycle`/`integration`/`example/taskmanager` suites there resolves
-  local go-retry master with no overlay files. Never create a temp `go.work`
-  in that repo: the file is tracked, and an overwrite silently discards its
-  committed module list (recovered once, 2026-09-17).
+- **Repo-level doc/code invariants get a guard test** (shape:
+  `TestModuleGoDirectiveStaysPinned`). A new guard must be shown to fail on the
+  drift it guards; drill with `-count=1` (data-file mutations are not in Go's
+  test cache key, so a cached PASS can hide them).
+- **Consumer sweeps run through go-cqrs-lite's committed `go.work`** — it lists
+  `/home/lars/projects/go-retry` as a `use` target. Never create a temp
+  `go.work` in that repo (tracked file; an overwrite silently discards its
+  committed module list).
 
 ## Session Ritual (self-checks before claiming done)
 
-- **Gate order:** `gofmt -l .` → `go vet ./...` → `go -C tools vet ./...`
-  (the nested module is invisible to root `./...`) → `go test ./... -race
-  -count=10` → `golangci-lint run ./...` → `golangci-lint config verify`
-  (mandatory after any `.golangci.yml` touch — plain `run` tolerates schema
-  violations the CI action rejects) → coverage if tests changed →
-  `govulncheck ./...` (release cuts scan root + `tools/`) →
-  `./scripts/check-docs.sh` (doc guard tests + dprint + compare-links —
-  run after any doc edit).
+- **Gate order:** `gofmt -l .` → `go vet ./...` → `go -C tools vet ./...` →
+  `go test ./... -race -count=10` → `golangci-lint run ./...` →
+  `golangci-lint config verify` (mandatory after any `.golangci.yml` touch) →
+  coverage if tests changed → `govulncheck ./...` (release cuts scan root +
+  `tools/`) → `./scripts/check-docs.sh` (after any doc edit).
 - **Coverage canonical format:** `go test -cover ./...` — read the
-  `coverage: 100.0% of statements` line; the CI floor is 95% (decided
-  2026-09-16: keep 95 — rationale in `ROADMAP.md`). Never quote coverage from `go tool cover`
-  output without the `go test -cover` line as source.
-- **Test-failure proof:** a new guard test must be shown to FAIL on the drift
-  it guards (temporarily break the fixture, observe the named failure,
-  restore). A test that was never seen failing is unverified. Drill with
-  `-count=1`: a mutation in a data file is not part of Go's test cache key,
-  so a cached PASS can hide it (bit 2026-09-17 during the docs-gate drills).
-- **Hash verification:** every commit hash cited as evidence is verified with
-  `git show`/`git log` before writing it into a report; status-report claims
-  are re-verified against fresh CLI runs, never trusted (reports are
-  point-in-time).
+  `coverage: 100.0% of statements` line; the CI floor is 95%. Never quote
+  coverage from `go tool cover` output without the `go test -cover` line.
+- **Hash verification:** verify every commit hash cited as evidence with
+  `git show`/`git log`; status-report claims are re-verified against fresh CLI
+  runs, never trusted (reports are point-in-time).
 - **Annotate-as-you-land:** plan/report tables get their `done at <hash>`
   verdict in the same change that completes the work (re-check `git status`
   immediately before `git add` — the daemon races explicit commits), and a
-  report cites only the final hash of the work it describes, never an
-  intermediate one.
+  report cites only the final hash of the work it describes.
 - **Pipeline masking:** never judge a gate by a filtered tail (`| rg ... |
   head`); read the raw `ok`/`FAIL` summary lines — filters match test names
   and hide failing summaries.
 - **Delete-then-build:** after deleting any file/package/symbol, run
   `go build ./...` immediately, before editing dependents — LSP caches lie,
   builds don't.
-- **Marker coverage:** when linters are added/renamed, sweep the `//nolint:`
-  markers; a renamed linter marker silences nothing and re-produces findings.
 
 ## `.config/metadata.yaml`
 
 Machine-written metadata (`tags: [lib]`, `importance`, timestamps) produced
-by Lars's external repo tooling — nothing in this repo reads or writes it,
-and its `updated_at` changes without repo activity. Do not edit or delete it
-by hand; an external writer owns the file and its timestamps.
+by Lars's external repo tooling — nothing in this repo reads or writes it.
+Do not edit or delete it by hand; an external writer owns the file and its
+timestamps.
