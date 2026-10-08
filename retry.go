@@ -36,7 +36,7 @@ const (
 // IsRetryable predicate retries only Transient errors, so an outer retry
 // loop treats an inner loop's exhaustion as terminal rather than
 // multiplying attempts.
-var ErrExhausted = errorfamily.NewInfrastructure(
+var ErrExhausted error = errorfamily.NewInfrastructure(
 	codeExhausted,
 	msgExhausted,
 )
@@ -44,7 +44,7 @@ var ErrExhausted = errorfamily.NewInfrastructure(
 // ErrCanceled is returned by [Do] when the context is canceled during
 // a retry delay. Errors matching it also unwrap to [context.Canceled],
 // and the last attempt error remains in the chain.
-var ErrCanceled = errorfamily.NewInfrastructure(
+var ErrCanceled error = errorfamily.NewInfrastructure(
 	codeCanceled,
 	msgCanceled,
 )
@@ -55,7 +55,7 @@ var ErrCanceled = errorfamily.NewInfrastructure(
 // chain. The distinction from [ErrCanceled] matters operationally: a
 // deadline means the operation was too slow, a cancel means the caller
 // shut down — the two are debugged differently.
-var ErrDeadlineExceeded = errorfamily.NewInfrastructure(
+var ErrDeadlineExceeded error = errorfamily.NewInfrastructure(
 	codeDeadline,
 	msgDeadline,
 )

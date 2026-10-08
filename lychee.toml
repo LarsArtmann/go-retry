@@ -1,0 +1,4 @@
+# Private LarsArtmann repos 404 under unauthenticated lychee link checks, and
+# the fleet authenticate-vs-exclude policy is undecided, so this repo excludes
+# the namespace instead of requiring GITHUB_TOKEN in every environment.
+exclude = ['(?i)https://github\.com/larsartmann/.*']

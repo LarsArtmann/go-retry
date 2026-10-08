@@ -1,0 +1,5 @@
+# go-retry is a single-package library: the package lives at the repo root by
+# design (see AGENTS.md and doc.go). internal/ would make it unimportable by
+# consumers, and pkg/ would churn the import path for no benefit.
+presets:
+  - flat

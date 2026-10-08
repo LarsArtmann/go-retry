@@ -1,0 +1,12 @@
+# go-retry pins the go directive at 1.26 (guarded by TestModuleGoDirectiveStaysPinned
+# and stated across the docs). go-mod-update unconditionally bumps it to the installed
+# minor, which silently re-lost the pin three times in 20 commits. Dependabot owns
+# gomod bumps in this repo (weekly, / and /tools).
+skip_steps:
+  - go-mod-update
+# tools/go.mod declares `go 1.26.0` because six x/* tool dependencies each declare a
+# patch-form `go 1.26.0` floor, so a major.minor-only directive cannot represent it.
+# Leave patch-form directives alone while they do not exceed the installed toolchain.
+tool_options:
+  go-version-auto-configure:
+    respect_patch_floor: true
