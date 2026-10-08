@@ -332,7 +332,6 @@ func TestMarkdownTableCellsCloseCodeSpans(t *testing.T) {
 var (
 	archivedSection = regexp.MustCompile(`^##\s+([a-z])\)`)
 	numberedItem    = regexp.MustCompile(`^\s{0,3}\d+\.\s`)
-	tableSeparator  = regexp.MustCompile(`^:?-{2,}:?$`)
 )
 
 func isVerdictSection(letter string) bool {
