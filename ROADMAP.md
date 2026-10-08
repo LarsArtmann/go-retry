@@ -20,7 +20,7 @@ boundary: if a feature needs CQRS or OTel types, it belongs in
 
 ## v1.0 — what is the bar?
 
-The current release is **v0.7.1** (tagged 2026-09-17). The path to v1.0 is an
+The current release is **v0.8.0** (tagged 2026-10-08). The path to v1.0 is an
 **API-stability promise**, not a feature list. Open questions to resolve before
 v1.0:
 
@@ -199,9 +199,10 @@ v1.0:
   evolves, document which `go-retry` versions support which `go-error-family`
   majors.
 
-  **Matrix (2026-09-13; rows updated 2026-09-17).** The `go-error-family` API
+  **Matrix (2026-09-13; rows updated 2026-10-08).** The `go-error-family` API
   surface `go-retry` compiles against (extracted from the `go.mod` pin —
-  v0.10.0 at audit time, v0.10.1 since the Dependabot bump; grep-verified):
+  v0.10.0 at audit time, v0.11.0 since the 2026-09-29 daemon bump;
+  grep-verified unchanged at v0.11.0 during the 2026-10-08 harvest):
   `NewInfrastructure`, `NewRejection`, `NewTransient` (tests),
   `WrapInfrastructure`, `IsRetryable`, `Classify` (tests), the
   `Transient`/`Rejection` family constants (tests), and the `RetryPolicy`
@@ -216,6 +217,7 @@ v1.0:
   | v0.6.1        | v0.10.1         | patch bump, no PR — daemon commit `9eb87ee` (see bump trace below); surface unchanged, gates green |
   | v0.7.0        | v0.10.1         | options surface added; consumes no new go-error-family symbol                                      |
   | v0.7.1        | v0.10.1         | docs/tooling patch; library code byte-identical to v0.7.0                                          |
+  | v0.8.0        | v0.11.0         | minor bump via daemon `e3c0492` (2026-09-29); surface grep unchanged (verified 2026-10-08), gates green |
 
   Rule: a go-error-family **major** (post-v1) or any change to the surface
   above requires a go-retry minor bump and a new matrix row; the `RetryPolicy`
@@ -227,6 +229,7 @@ v1.0:
   | --------------- | ----------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
   | v0.10.0         | v0.4.0      | manual bump, 2026-08-22 hardening session                                                           | family/code contract settled that session; matrix row + `CHANGELOG.md` `[0.4.0]`                                             |
   | v0.10.1         | v0.6.1      | daemon auto-commit `9eb87ee` (2026-09-16) — **no Dependabot PR**; the gomod watcher had opened none | gates green + dependency surface grep unchanged, recorded in the 2026-09-17 05:53 v0.6.1 report; doc-currency pass `047f075` |
+  | v0.11.0         | v0.8.0      | daemon auto-commit `e3c0492` (2026-09-29) — **no Dependabot PR**; gomod watcher silent again       | surface grep unchanged (2026-10-08 harvest pass); all 2026-10-08 gate batteries green |
 
   Every future bump adds one line here when it merges, linking the Dependabot
   PR (or naming the mechanism when there is none) and the SHA-verification /
@@ -270,6 +273,14 @@ v1.0:
     permissions (today the workflows are `contents: read`), and crasher
     triage is inherently human — the corpus-seeds test keeps the manual
     path cheap.
+- **Jitter-path benchmark.** Whether `nextDelay`/`computeDelay` deserve a
+  fast-path benchmark (the jitter adds one `rand.Int64N` and one compare per
+  retry). **Declined (2026-10-08, harvest decision):** the function is a few
+  integer ops against a millisecond-scale sleep — measurement noise would
+  exceed the signal, no consumer has reported hot-loop pressure, and a
+  benchmark asserting nothing becomes a maintenance liability. Reopen only
+  with a profiling trace showing `computeDelay` on a hot path. (Resolves the
+  2026-10-08 status report `§f.38`.)
 - **Doc-freshness scheduled CI job.** Run the doc gates (dprint, the
   marker/index gate once T45 lands, compare-links) on a schedule rather than
   only pre-push, so non-session writers cannot leave master stale between
@@ -382,6 +393,22 @@ status report.
   root gates (T47). Owner re-weigh (raised 2026-09-17 09:36 §g.1): keep as-is,
   or fold the pins into the library module and relax the guard to accept
   `go 1.26.0`.
+
+- **Fleet lychee policy: authenticated checks or namespace exclusion?** This
+  repo excludes the private LarsArtmann namespace in `lychee.toml` (guarded by
+  `TestLycheeExcludesPrivateNamespace`); the BuildFlow preflight says the
+  fleet-wide policy is undecided. If exclusion is the fleet answer, repos with
+  an exclude config are already handled; if authentication wins, this repo's
+  exclude should be replaced by a GITHUB_TOKEN convention. Owner call (raised
+  2026-10-08 status report `§g.3`).
+
+- **Should the auto-commit daemon run repo guard tests pre-commit?** The
+  daemon fossilized two red states on 2026-10-08 (`bc2c99a`, `4ba7838` —
+  `go 1.27` committed mid-flip-flop). A pre-commit hook running at least
+  `TestModuleGoDirectiveStaysPinned` would prevent that class. Fleet tooling,
+  not repo-local: it needs a BuildFlow/daemon-side change and a policy on
+  failure behavior (block the commit vs commit-and-alert). Owner call (raised
+  2026-10-08 status report `§f.34`).
 
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —
