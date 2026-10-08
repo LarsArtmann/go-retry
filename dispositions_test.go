@@ -1,9 +1,11 @@
 package retry_test
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -33,7 +35,7 @@ func TestBuildflowDispositionsStayCommitted(t *testing.T) {
 
 	skipSteps, patchFloor := parseBuildflowDispositions(string(data))
 
-	if !contains(skipSteps, "go-mod-update") {
+	if !slices.Contains(skipSteps, "go-mod-update") {
 		t.Fatalf(
 			".buildflow.yml no longer skips go-mod-update (skip_steps = %v): the step unconditionally bumps the go directive to the installed minor; remove this skip only after re-deciding the pin policy and updating every doc that states go 1.26",
 			skipSteps,
@@ -54,12 +56,16 @@ func TestBuildflowDispositionsStayCommitted(t *testing.T) {
 // list, two-level nesting, comments); any other shape fails the assertions
 // above closed, which is deliberate: an unreadable config must send a human
 // to look, not pass silently.
-func parseBuildflowDispositions(data string) (skipSteps []string, patchFloor string) {
+func parseBuildflowDispositions(data string) ([]string, string) {
 	const (
 		topLevel    = 0
 		nestedLevel = 1
 		optionLevel = 2
 	)
+
+	var skipSteps []string
+
+	patchFloor := ""
 
 	section, nested := "", ""
 
@@ -70,6 +76,7 @@ func parseBuildflowDispositions(data string) (skipSteps []string, patchFloor str
 		}
 
 		indent := optionLevel
+
 		switch {
 		case !strings.HasPrefix(line, " "):
 			indent = topLevel
@@ -89,9 +96,11 @@ func parseBuildflowDispositions(data string) (skipSteps []string, patchFloor str
 
 				continue
 			}
+
 			nested = key
 		case optionLevel:
-			if section == "tool_options" && nested == "go-version-auto-configure" && found && key == "respect_patch_floor" {
+			isFloor := section == "tool_options" && nested == "go-version-auto-configure"
+			if isFloor && found && key == "respect_patch_floor" {
 				patchFloor = value
 			}
 		}
@@ -138,12 +147,15 @@ func TestErrorFamilyFloorStaysWithinGoPin(t *testing.T) {
 
 	const wantMinor = 26
 
-	output, err := exec.Command("go", "list", "-m", "-f", "{{.GoVersion}}", "github.com/larsartmann/go-error-family").Output()
+	const dep = "github.com/larsartmann/go-error-family"
+
+	output, err := exec.CommandContext(context.Background(), "go", "list", "-m", "-f", "{{.GoVersion}}", dep).Output()
 	if err != nil {
 		t.Fatalf("go list go-error-family GoVersion: %v", err)
 	}
 
 	version := strings.TrimSpace(string(output))
+
 	match := regexp.MustCompile(`^(\d+)\.(\d+)`).FindStringSubmatch(version)
 	if match == nil {
 		t.Fatalf("go-error-family declares unparsable go version %q", version)
@@ -191,14 +203,4 @@ func TestLycheeExcludesPrivateNamespace(t *testing.T) {
 			pattern,
 		)
 	}
-}
-
-func contains(haystack []string, needle string) bool {
-	for _, item := range haystack {
-		if item == needle {
-			return true
-		}
-	}
-
-	return false
 }

@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Nothing yet.
+
+### Changed
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.8.0] - 2026-10-08
+
+### Added
+
 - **Documentation guard tests.** Four gates now read the repo's markdown:
   `TestMarkdownStrikethroughSpansRender` (the three strikethrough bug classes
   from the 2026-09-17 catastrophe: space-preceded closers, lone `~` inside a
@@ -25,6 +39,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`tools/` module vetting.** `go -C tools vet ./...` added to the CI lint job
   and the Session Ritual — the nested module was invisible to root `./...` and
   stood outside every quality gate.
+- **Config-disposition guard tests.** `dispositions_test.go` pins the
+  `.buildflow.yml` go-pin dispositions (`go-mod-update` skipped,
+  `respect_patch_floor` on), the interface-typed terminal sentinels, the
+  go-error-family floor staying within the `go 1.26` pin, and the
+  `lychee.toml` private-namespace exclude. Each proven failing on injected
+  drift, in the `TestModuleGoDirectiveStaysPinned` pattern.
 
 ### Changed
 
@@ -48,6 +68,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   done (v0.7.1 pkg.go.dev page verified) and `§f.15` (T42) carries its
   `→ routed to` pointer — the two items the marker gate found genuinely
   unannotated.
+- **Two latent test flakes made race-proof.**
+  `TestWithJitter_AdditiveStaysBounded` now asserts the per-attempt bound of
+  whichever attempt actually reported, and
+  `TestDo_PreCanceledContextReturnsErrCanceled` follows the documented
+  5-second-delay pattern for context-ending tests. Both were exposed by
+  `-race -count=10` sweeps when the goroutine was descheduled past the 1 ms
+  backoff timer. `retry_test.go`.
+- **CI artifact upload re-pinned** to `actions/upload-artifact` v7.0.2
+  (commit-verified against upstream `action.yml`); the
+  `TestRemoteActionInputsAreAllowlisted` allowlist re-keyed in the same
+  change. `.github/workflows/fuzz.yml`.
 
 ## [0.7.1] - 2026-09-17
 
@@ -480,7 +511,8 @@ Initial public release. Signed annotated tag `v0.1.0`.
 - **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
   links resolve against the public GitHub remote.
 
-[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/LarsArtmann/go-retry/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/LarsArtmann/go-retry/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/LarsArtmann/go-retry/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/LarsArtmann/go-retry/compare/v0.6.0...v0.6.1
