@@ -2234,134 +2234,145 @@ func TestDo_StressInterleavedCancellation(t *testing.T) {
 	}
 
 	const (
-		goroutines      = 8
-		iterationsEach  = 30
-		stressAttempts  = 8
-		stressCap       = 5 * time.Millisecond
-		cancelWithinMax = stressAttempts - 1
+		goroutines     = 8
+		iterationsEach = 30
 	)
 
 	var (
-		contextEnds       atomic.Int32
-		exhaustions       atomic.Int32
-		exhaustedOnCtxEnd atomic.Int32
+		contextEnds atomic.Int32
+		exhaustions atomic.Int32
 	)
 
-	var wg sync.WaitGroup
+	var group sync.WaitGroup
 
 	for loop := range goroutines {
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-
+		group.Go(func() {
 			for it := range iterationsEach {
-				rng := rand.New(rand.NewPCG(uint64(loop)+1, uint64(it)+1))
-				// cancelAfter == stressAttempts never fires (OnRetry is not
-				// called after the final attempt), leaving that run to reach
-				// exhaustion and exercise the hard cap at attempts 4+.
-				cancelAfter := rng.IntN(stressAttempts) + 1
+				outcome := runStressIteration(t, loop, it)
 
-				ctx, cancel := context.WithCancel(context.Background())
-				cfg := retry.Config{
-					MaxAttempts:  stressAttempts,
-					InitialDelay: time.Millisecond,
-					MaxDelay:     stressCap,
-					Multiplier:   2.0,
-				}
-
-				var (
-					exhaustedFired bool
-					cancelAttempt  atomic.Int32
-					lastDelay      time.Duration
-					delayAttempt   int
-				)
-
-				cancelAttempt.Store(int32(cancelAfter))
-
-				err := retry.Do(ctx, cfg, func(_ context.Context, _ int) error {
-					return errorfamily.NewTransient("test.stress", "fail")
-				},
-					retry.WithOnRetry(func(attempt int, delay time.Duration, _ error) {
-						lastDelay, delayAttempt = delay, attempt
-
-						if int(cancelAttempt.Load()) == attempt {
-							cancel()
-						}
-					}),
-					retry.WithExhausted(func(int, error) {
-						exhaustedFired = true
-					}),
-				)
-
-				switch {
-				case err == nil:
-					if exhaustedFired {
-						t.Error("OnExhausted fired on success")
-					}
-				case errors.Is(err, retry.ErrCanceled), errors.Is(err, retry.ErrDeadlineExceeded):
-					contextEnds.Add(1)
-
-					if exhaustedFired {
-						exhaustedOnCtxEnd.Add(1)
-					}
-				case errors.Is(err, retry.ErrExhausted):
-					exhaustions.Add(1)
-
-					if !exhaustedFired {
-						t.Error("OnExhausted did not fire on exhaustion")
-					}
-				default:
-					t.Errorf("unexpected error class: %v", err)
-				}
-
-				// Race-proof delay bound: assert whichever attempt reported
-				// against ITS formula-derived bound, never a specific
-				// outcome of the timer-vs-cancel select. Once the exponential
-				// base reaches MaxDelay the hard cap pins both ends at
-				// exactly MaxDelay.
-				if delayAttempt > 0 {
-					base := time.Millisecond << (delayAttempt - 1)
-					lower := base
-
-					if lower > stressCap {
-						lower = stressCap
-					}
-
-					upper := base * 3 / 2
-
-					if upper > stressCap {
-						upper = stressCap
-					}
-
-					if lastDelay < lower || lastDelay > upper {
-						t.Errorf("attempt %d reported delay %v, want within [%v, %v]",
-							delayAttempt, lastDelay, lower, upper)
-					}
-				}
-
-				// DoWithValue must never leak a partial value on failure.
-				value, valueErr := retry.DoWithValue(ctx, cfg, func(context.Context, int) (int, error) {
-					return 42, errorfamily.NewTransient("test.stress", "fail")
-				})
-
-				if valueErr != nil && value != 0 {
-					t.Errorf("DoWithValue leaked partial value %d on failure", value)
-				}
-
-				cancel()
+				contextEnds.Add(int32(outcome.contextEnds))
+				exhaustions.Add(int32(outcome.exhaustions))
 			}
-		}()
+		})
 	}
 
-	wg.Wait()
-
-	if exhaustedOnCtxEnd.Load() != 0 {
-		t.Errorf("OnExhausted fired on %d context endings", exhaustedOnCtxEnd.Load())
-	}
+	group.Wait()
 
 	t.Logf("outcomes: %d context ends, %d exhaustions of %d total loops",
 		contextEnds.Load(), exhaustions.Load(), goroutines*iterationsEach)
+}
+
+// stressOutcome aggregates one iteration's terminal classification for the
+// stress summary line.
+type stressOutcome struct {
+	contextEnds int
+	exhaustions int
+}
+
+// stressConfig returns the stress harness's config: 8 attempts so the
+// exponential base crosses the 5ms MaxDelay at attempt 4, exercising the
+// hard-cap guarantee deep in the loop.
+func stressConfig() retry.Config {
+	return retry.Config{
+		MaxAttempts:  8,
+		InitialDelay: 1 * time.Millisecond,
+		MaxDelay:     5 * time.Millisecond,
+		Multiplier:   2.0,
+	}
+}
+
+// runStressIteration drives one Do loop with a cancellation scheduled inside
+// a backoff sleep, asserts the per-iteration invariants (reporting failures
+// on t, which is safe for concurrent use), and classifies the terminal
+// state. The run either exhausts (OnExhausted must fire) or ends via the
+// context (OnExhausted must NOT fire); a delay report must sit within its
+// attempt's formula-derived bound; DoWithValue must never leak a partial
+// value.
+func runStressIteration(t *testing.T, loop, it int) stressOutcome {
+	t.Helper()
+
+	const retryableEachTime = 8
+
+	rng := rand.New(rand.NewPCG(uint64(loop)+1, uint64(it)+1))
+	// cancelAfter == retryableEachTime never fires (OnRetry is not called
+	// after the final attempt), leaving the run to exhaust and exercise the
+	// hard cap at attempts 4+.
+	cancelAfter := rng.IntN(retryableEachTime) + 1
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	cfg := stressConfig()
+
+	var (
+		exhaustedFired bool
+		lastDelay      time.Duration
+		delayAttempt   int
+	)
+
+	err := retry.Do(ctx, cfg, func(_ context.Context, _ int) error {
+		return errorfamily.NewTransient("test.stress", "fail")
+	},
+		retry.WithOnRetry(func(attempt int, delay time.Duration, _ error) {
+			lastDelay, delayAttempt = delay, attempt
+
+			if attempt == cancelAfter {
+				cancel()
+			}
+		}),
+		retry.WithExhausted(func(int, error) {
+			exhaustedFired = true
+		}),
+	)
+
+	outcome := stressOutcome{}
+
+	switch {
+	case err == nil:
+		if exhaustedFired {
+			t.Error("OnExhausted fired on success")
+		}
+	case errors.Is(err, retry.ErrCanceled), errors.Is(err, retry.ErrDeadlineExceeded):
+		outcome.contextEnds = 1
+
+		if exhaustedFired {
+			t.Errorf("OnExhausted fired on context end: %v", err)
+		}
+	case errors.Is(err, retry.ErrExhausted):
+		outcome.exhaustions = 1
+
+		if !exhaustedFired {
+			t.Error("OnExhausted did not fire on exhaustion")
+		}
+	default:
+		t.Errorf("unexpected error class: %v", err)
+	}
+
+	// Race-proof delay bound: assert whichever attempt reported against ITS
+	// formula-derived bound, never a specific outcome of the
+	// timer-vs-cancel select. Once the exponential base reaches MaxDelay the
+	// hard cap pins both ends at exactly MaxDelay.
+	if delayAttempt > 0 {
+		base := time.Millisecond << (delayAttempt - 1)
+		lower := min(base, cfg.MaxDelay)
+		upper := min(base*3/2, cfg.MaxDelay)
+
+		if lastDelay < lower || lastDelay > upper {
+			t.Errorf("attempt %d reported delay %v, want within [%v, %v]",
+				delayAttempt, lastDelay, lower, upper)
+		}
+	}
+
+	// DoWithValue must never leak a partial value on failure.
+	value, valueErr := retry.DoWithValue(ctx, cfg, func(context.Context, int) (int, error) {
+		return 42, errorfamily.NewTransient("test.stress", "fail")
+	})
+
+	if valueErr != nil && value != 0 {
+		t.Errorf("DoWithValue leaked partial value %d on failure", value)
+	}
+
+	return outcome
 }
 
 func ExampleBackoff() {

@@ -176,6 +176,16 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   test until its inputs are re-verified (re-pin drift-fail proven too), and
   the fail-closed parser aborts on YAML shapes it cannot attribute.
   `workflows_test.go` (`TestRemoteActionInputsAreAllowlisted`).
+- **Stress harness for the timer-vs-cancel class** —
+  `TestDo_StressInterleavedCancellation` drives 8 concurrent Do loops x 30
+  iterations with cancellations interleaved at seeded points inside the
+  backoff sleeps (deterministic PCG seeding): every delay report must sit
+  within its attempt's formula-derived bound, `OnExhausted` never fires on a
+  context end, `DoWithValue` never leaks a partial value, and the hard cap
+  is exercised at attempts 4+. Proven catching an uncapped delay via a
+  remove-the-cap mutation drill (172 named failures, restored green).
+  Skipped under `-short`; repetition is swept nightly by the stress
+  workflow. `retry_test.go`.
 - **Behavioral guarantees** — `OnRetry` not called after the final failure;
   a pre-canceled context yields `ErrCanceled`; a deadline exceeded during
   backoff yields `ErrDeadlineExceeded` matching `context.DeadlineExceeded`
