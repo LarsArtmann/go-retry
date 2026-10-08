@@ -177,3 +177,21 @@ eslint, knip/madge/c8, protolint, hadolint, shellcheck, markdownlint, gci,
 vulnix, …) targets languages or gates this repo does not have; their absence
 is a disposition, not a gap. Re-audit only if a BuildFlow step for one of them
 starts appearing in this repo's runs.
+
+## erraudit stays a local gate, not a CI step (2026-10-08 disposition)
+
+The natural home for an erraudit CI gate is the pinned `tools/` module, but
+the binary (`github.com/larsartmann/erraudit`, verified
+`v0.5.1-0.20260922174106-1c6809adf02e`) declares `go 1.27`. Pinning it would
+drag `tools/go.mod` off its deliberate patch-form `go 1.26.0` story (six x/*
+deps), silently retire the `respect_patch_floor` disposition by floor-rise
+instead of by need, and add a toolchain download to every lint job — a
+Verschlimmbesserung against the go-pin war's clarity. The regression that
+motivated the step (terminal sentinels retyped to a concrete type) is already
+CI-guarded by `TestTerminalSentinelsStayInterfaceTyped`, and every full
+`buildflow` run executes the erraudit step locally, where the binary is
+installed. Revisit when erraudit ships a go-1.26-compatible or stable
+release. Until then the working invocation is
+`erraudit lint ./... --type legacy_as` (exits 0 on root and `tools/`;
+`--type-aware` additionally reports six sentinel `errors.Is` advisories in
+`retry_test.go` — the keep-as-is class its own message describes).
