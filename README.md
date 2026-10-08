@@ -1,5 +1,9 @@
 # go-retry
 
+[![CI](https://github.com/LarsArtmann/go-retry/actions/workflows/ci.yml/badge.svg)](https://github.com/LarsArtmann/go-retry/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/larsartmann/go-retry.svg)](https://pkg.go.dev/github.com/larsartmann/go-retry)
+[![Latest release](https://img.shields.io/github/v/tag/LarsArtmann/go-retry?label=release&sort=semver)](https://github.com/LarsArtmann/go-retry/releases)
+
 > A dependency-light Go retry loop with exponential backoff and jitter, built on
 > [`go-error-family`](https://github.com/larsartmann/go-error-family).
 
@@ -226,6 +230,7 @@ go test -run '^FuzzComputeDelayNeverPanics$' .   # exercise the committed fuzz c
 go -C tools install github.com/rhysd/actionlint/cmd/actionlint golang.org/x/vuln/cmd/govulncheck
 actionlint -verbose        # workflow schema check
 go test -cover ./...       # coverage (currently 100%)
+./scripts/check-docs.sh    # doc battery: guard tests + dprint + compare-links
 ```
 
 CI (`.github/workflows/ci.yml`) runs `go vet` and the race-detector tests

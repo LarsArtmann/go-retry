@@ -158,6 +158,15 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   relaxed `go 1.26` that the living docs state, so external tooling cannot
   re-pin it silently. `retry_test.go`
   (`TestModuleGoDirectiveStaysPinned`).
+- **Tooling dispositions are guarded (proven-failing)** —
+  `dispositions_test.go` pins the four deliberate 2026-10-08 dispositions:
+  `.buildflow.yml` keeps skipping `go-mod-update` and keeping
+  `respect_patch_floor` on (both silently re-pinned the go directive), the
+  terminal sentinels stay declared with the `error` interface type, the
+  go-error-family go floor stays within the `go 1.26` pin, and
+  `lychee.toml` keeps the private-namespace exclude. Each names its
+  consequence and was proven failing on injected drift.
+  `dispositions_test.go`.
 - **Remote-action inputs are allowlist-guarded (proven-failing)** —
   `TestRemoteActionInputsAreAllowlisted` checks every `with:` key of every
   pinned `uses:` step against allowlists verified from each action's
@@ -215,9 +224,9 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   with dprint, and enforces a 95%
   coverage floor on every push and pull request; each job carries a
   10-minute timeout and pushes to the same ref cancel superseded runs.
-  Verified green on real runners for the current tip (runs 35244685306 and
-  35246693129, 2026-09-17 — the tag run exercising the tools-pinned actionlint
-  and dprint steps on the v0.7.1 commit).
+  Verified green on real runners for the v0.8.0 tag commit (runs 37836295244
+  master and 37836297624 tag, 2026-10-08 — both exercising the tools-pinned
+  actionlint and dprint steps).
 
 ## PARTIALLY_FUNCTIONAL
 

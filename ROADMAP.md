@@ -275,12 +275,15 @@ v1.0:
     path cheap.
 - **Jitter-path benchmark.** Whether `nextDelay`/`computeDelay` deserve a
   fast-path benchmark (the jitter adds one `rand.Int64N` and one compare per
-  retry). **Declined (2026-10-08, harvest decision):** the function is a few
-  integer ops against a millisecond-scale sleep — measurement noise would
-  exceed the signal, no consumer has reported hot-loop pressure, and a
-  benchmark asserting nothing becomes a maintenance liability. Reopen only
-  with a profiling trace showing `computeDelay` on a hot path. (Resolves the
-  2026-10-08 status report `§f.38`.)
+  retry). **Resolved (2026-10-08, harvest verification): already covered.**
+  `BenchmarkComputeDelay` exists (`retry_test.go`), documents ~20–35 ns/op
+  with 0 allocations, and an archived 2026-08-03 item ("heap allocations in
+  the hot path") was closed by exactly that benchmark. The remaining ask —
+  benchmarking the internal `nextDelay` separately from the exported
+  `ComputeDelay` — is declined: same arithmetic, no separately observable
+  contract, and a benchmark asserting nothing becomes a maintenance
+  liability. Reopen only with a profiling trace showing `computeDelay` on a
+  hot path. (Resolves the 2026-10-08 status report `§f.38`.)
 - **Doc-freshness scheduled CI job.** Run the doc gates (dprint, the
   marker/index gate once T45 lands, compare-links) on a schedule rather than
   only pre-push, so non-session writers cannot leave master stale between
