@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- **Duplication-report disposition.** The four context-ending tests' shared
+  scenario setup now lives in named helpers (`longBackoffConfig`,
+  `contextCanceledDuringBackoff`, `contextDeadlineDuringBackoff`,
+  `runAlwaysFailing`, `countOnRetry`, `countOnExhausted`); the remaining
+  intentional parallelism is recorded with hash-precision `// art-dupl:accept`
+  directives, honored by BuildFlow through a new `.buildflow.yml` opt-in
+  (`emit-suppressed-accepted`) guarded by `TestArtDuplAcceptDirectivesStayHonored`.
 
 ### Changed
 
