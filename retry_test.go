@@ -197,12 +197,8 @@ func TestDo_RespectsCustomIsRetryable(t *testing.T) {
 func TestDo_OnRetryCalledBetweenAttempts(t *testing.T) {
 	t.Parallel()
 
-	var retryCalls atomic.Int32
-
 	cfg := fastConfig()
-	cfg.OnRetry = func(attempt int, delay time.Duration, err error) {
-		retryCalls.Add(1)
-	}
+	retryCalls := countOnRetry(&cfg)
 
 	transient := errorfamily.NewTransient("test.transient", "fail")
 	_ = retry.Do(context.Background(), cfg, func(ctx context.Context, attempt int) error {
@@ -252,21 +248,12 @@ func TestDo_OnExhaustedCalledAfterAllAttemptsFail(t *testing.T) {
 func TestDo_ContextCancellationDuringBackoff(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := contextCanceledDuringBackoff()
+	defer cancel()
 
 	transient := errorfamily.NewTransient("test.transient", "fail")
 
-	go func() {
-		time.Sleep(10 * time.Millisecond) // let the first attempt fail
-		cancel()
-	}()
-
-	cfg := retry.Config{
-		MaxAttempts:  10,
-		InitialDelay: 5 * time.Second, // long delay so cancel fires during it
-		MaxDelay:     10 * time.Second,
-		Multiplier:   2.0,
-	}
+	cfg := longBackoffConfig()
 
 	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
 		return transient
@@ -288,17 +275,12 @@ func TestDo_ContextCancellationDuringBackoff(t *testing.T) {
 func TestDo_DeadlineExceededDuringBackoff(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	ctx, cancel := contextDeadlineDuringBackoff()
 	defer cancel()
 
 	transient := errorfamily.NewTransient("test.transient", "fail")
 
-	cfg := retry.Config{
-		MaxAttempts:  10,
-		InitialDelay: 5 * time.Second, // long delay so the deadline fires during it
-		MaxDelay:     10 * time.Second,
-		Multiplier:   2.0,
-	}
+	cfg := longBackoffConfig()
 
 	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
 		return transient
@@ -393,27 +375,14 @@ func TestDo_NestedRetriesAmplifyWhenOverridden(t *testing.T) {
 func TestDo_OnExhaustedNotCalledOnCancel(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := contextCanceledDuringBackoff()
+	defer cancel()
 
 	transient := errorfamily.NewTransient("test.transient", "fail")
 
-	go func() {
-		time.Sleep(10 * time.Millisecond) // let the first attempt fail
-		cancel()
-	}()
+	cfg := longBackoffConfig()
 
-	cfg := retry.Config{
-		MaxAttempts:  10,
-		InitialDelay: 5 * time.Second, // long delay so cancel fires during it
-		MaxDelay:     10 * time.Second,
-		Multiplier:   2.0,
-	}
-
-	var exhaustedCalls atomic.Int32
-
-	cfg.OnExhausted = func(attempts int, err error) {
-		exhaustedCalls.Add(1)
-	}
+	exhaustedCalls := countOnExhausted(&cfg)
 
 	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
 		return transient
@@ -431,23 +400,14 @@ func TestDo_OnExhaustedNotCalledOnCancel(t *testing.T) {
 func TestDo_OnExhaustedNotCalledOnDeadline(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	ctx, cancel := contextDeadlineDuringBackoff()
 	defer cancel()
 
 	transient := errorfamily.NewTransient("test.transient", "fail")
 
-	cfg := retry.Config{
-		MaxAttempts:  10,
-		InitialDelay: 5 * time.Second, // long delay so the deadline fires during it
-		MaxDelay:     10 * time.Second,
-		Multiplier:   2.0,
-	}
+	cfg := longBackoffConfig()
 
-	var exhaustedCalls atomic.Int32
-
-	cfg.OnExhausted = func(attempts int, err error) {
-		exhaustedCalls.Add(1)
-	}
+	exhaustedCalls := countOnExhausted(&cfg)
 
 	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
 		return transient
@@ -1192,12 +1152,8 @@ func TestDo_NilIsRetryableDefaultsToErrorFamily(t *testing.T) {
 func TestDo_OnRetryNotCalledAfterFinalAttempt(t *testing.T) {
 	t.Parallel()
 
-	var retryCalls atomic.Int32
-
 	cfg := fastConfig()
-	cfg.OnRetry = func(attempt int, delay time.Duration, err error) {
-		retryCalls.Add(1)
-	}
+	retryCalls := countOnRetry(&cfg)
 
 	transient := errorfamily.NewTransient("test.transient", "always fail")
 	_ = retry.Do(context.Background(), cfg, func(ctx context.Context, attempt int) error {
@@ -1387,6 +1343,61 @@ func fastConfig() retry.Config {
 		MaxDelay:     5 * time.Millisecond,
 		Multiplier:   2.0,
 	}
+}
+
+// countOnRetry installs an OnRetry callback into cfg that only counts
+// invocations, and returns the counter.
+func countOnRetry(cfg *retry.Config) *atomic.Int32 {
+	var retryCalls atomic.Int32
+
+	cfg.OnRetry = func(attempt int, delay time.Duration, err error) {
+		retryCalls.Add(1)
+	}
+
+	return &retryCalls
+}
+
+// countOnExhausted installs an OnExhausted callback into cfg that only counts
+// invocations, and returns the counter.
+func countOnExhausted(cfg *retry.Config) *atomic.Int32 {
+	var exhaustedCalls atomic.Int32
+
+	cfg.OnExhausted = func(attempts int, err error) {
+		exhaustedCalls.Add(1)
+	}
+
+	return &exhaustedCalls
+}
+
+// longBackoffConfig pairs with the context*DuringBackoff helpers: the 5s
+// initial delay dwarfs the ~10ms a context takes to end, so the ending fires
+// during the backoff sleep, never during an attempt.
+func longBackoffConfig() retry.Config {
+	return retry.Config{
+		MaxAttempts:  10,
+		InitialDelay: 5 * time.Second,
+		MaxDelay:     10 * time.Second,
+		Multiplier:   2.0,
+	}
+}
+
+// contextCanceledDuringBackoff returns a context canceled ~10ms in, while
+// the first backoff sleep of longBackoffConfig is still running.
+func contextCanceledDuringBackoff() (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go func() {
+		time.Sleep(10 * time.Millisecond) // let the first attempt fail
+		cancel()
+	}()
+
+	return ctx, cancel
+}
+
+// contextDeadlineDuringBackoff returns a context whose ~10ms deadline fires
+// while the first backoff sleep of longBackoffConfig is still running.
+func contextDeadlineDuringBackoff() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), 10*time.Millisecond)
 }
 
 func ExampleDo() {
