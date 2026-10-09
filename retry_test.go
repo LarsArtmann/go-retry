@@ -255,9 +255,7 @@ func TestDo_ContextCancellationDuringBackoff(t *testing.T) {
 
 	cfg := longBackoffConfig()
 
-	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
-		return transient
-	})
+	err := runAlwaysFailing(ctx, cfg, transient)
 
 	if !errors.Is(err, retry.ErrCanceled) {
 		t.Fatalf("expected ErrCanceled, got %v", err)
@@ -282,9 +280,7 @@ func TestDo_DeadlineExceededDuringBackoff(t *testing.T) {
 
 	cfg := longBackoffConfig()
 
-	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
-		return transient
-	})
+	err := runAlwaysFailing(ctx, cfg, transient)
 
 	if !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatalf("expected context.DeadlineExceeded in chain, got %v", err)
@@ -384,9 +380,7 @@ func TestDo_OnExhaustedNotCalledOnCancel(t *testing.T) {
 
 	exhaustedCalls := countOnExhausted(&cfg)
 
-	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
-		return transient
-	})
+	err := runAlwaysFailing(ctx, cfg, transient)
 
 	if !errors.Is(err, retry.ErrCanceled) {
 		t.Fatalf("expected ErrCanceled, got %v", err)
@@ -409,9 +403,7 @@ func TestDo_OnExhaustedNotCalledOnDeadline(t *testing.T) {
 
 	exhaustedCalls := countOnExhausted(&cfg)
 
-	err := retry.Do(ctx, cfg, func(ctx context.Context, attempt int) error {
-		return transient
-	})
+	err := runAlwaysFailing(ctx, cfg, transient)
 
 	if !errors.Is(err, retry.ErrDeadlineExceeded) {
 		t.Fatalf("expected ErrDeadlineExceeded, got %v", err)
@@ -1379,6 +1371,14 @@ func longBackoffConfig() retry.Config {
 		MaxDelay:     10 * time.Second,
 		Multiplier:   2.0,
 	}
+}
+
+// runAlwaysFailing runs retry.Do with a fn that fails every attempt with
+// failWith, and returns Do's result.
+func runAlwaysFailing(ctx context.Context, cfg retry.Config, failWith error) error {
+	return retry.Do(ctx, cfg, func(_ context.Context, _ int) error {
+		return failWith
+	})
 }
 
 // contextCanceledDuringBackoff returns a context canceled ~10ms in, while
