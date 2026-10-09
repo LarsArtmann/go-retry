@@ -10,3 +10,8 @@ skip_steps:
 tool_options:
   go-version-auto-configure:
     respect_patch_floor: true
+  # Honor in-source //art-dupl:accept directives (hash-precision, rationale
+  # kept above each directive in retry_test.go): parallel context-ending test
+  # setups are intentional clones, reviewed 2026-10-09.
+  art-dupl:
+    emit-suppressed-accepted: true

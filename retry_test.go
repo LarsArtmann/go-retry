@@ -246,6 +246,9 @@ func TestDo_OnExhaustedCalledAfterAllAttemptsFail(t *testing.T) {
 }
 
 func TestDo_ContextCancellationDuringBackoff(t *testing.T) {
+	// Setup intentionally mirrors TestDo_OnExhaustedNotCalledOnCancel: same
+	// cancel-mid-backoff scenario, different pinned behavior.
+	// art-dupl:accept 1c7e182f8fd72922
 	t.Parallel()
 
 	ctx, cancel := contextCanceledDuringBackoff()
@@ -271,6 +274,9 @@ func TestDo_ContextCancellationDuringBackoff(t *testing.T) {
 }
 
 func TestDo_DeadlineExceededDuringBackoff(t *testing.T) {
+	// Setup intentionally mirrors TestDo_OnExhaustedNotCalledOnDeadline: same
+	// deadline-mid-backoff scenario, different pinned behavior.
+	// art-dupl:accept 3cf304f8e1f9a926
 	t.Parallel()
 
 	ctx, cancel := contextDeadlineDuringBackoff()
@@ -369,6 +375,9 @@ func TestDo_NestedRetriesAmplifyWhenOverridden(t *testing.T) {
 }
 
 func TestDo_OnExhaustedNotCalledOnCancel(t *testing.T) {
+	// Setup intentionally mirrors TestDo_OnExhaustedNotCalledOnDeadline: only
+	// the ending kind differs (cancel vs deadline stay parallel pins).
+	// art-dupl:accept 7d45cdfa9d182cdb
 	t.Parallel()
 
 	ctx, cancel := contextCanceledDuringBackoff()
