@@ -33,7 +33,7 @@ func TestBuildflowDispositionsStayCommitted(t *testing.T) {
 		t.Fatalf("read .buildflow.yml: %v", err)
 	}
 
-	skipSteps, patchFloor := parseBuildflowDispositions(string(data))
+	skipSteps, patchFloor, _ := parseBuildflowDispositions(string(data))
 
 	if !slices.Contains(skipSteps, "go-mod-update") {
 		t.Fatalf(
@@ -50,13 +50,14 @@ func TestBuildflowDispositionsStayCommitted(t *testing.T) {
 	}
 }
 
-// parseBuildflowDispositions extracts the `skip_steps` list entries and the
-// `tool_options.go-version-auto-configure.respect_patch_floor` value from the
-// committed config. It understands exactly the shape this file uses (block
-// list, two-level nesting, comments); any other shape fails the assertions
-// above closed, which is deliberate: an unreadable config must send a human
-// to look, not pass silently.
-func parseBuildflowDispositions(data string) ([]string, string) {
+// parseBuildflowDispositions extracts the `skip_steps` list entries, the
+// `tool_options.go-version-auto-configure.respect_patch_floor` value, and the
+// `tool_options.art-dupl.emit-suppressed-accepted` value from the committed
+// config. It understands exactly the shape this file uses (block list,
+// two-level nesting, comments); any other shape fails the assertions above
+// closed, which is deliberate: an unreadable config must send a human to
+// look, not pass silently.
+func parseBuildflowDispositions(data string) ([]string, string, string) {
 	const (
 		topLevel    = 0
 		nestedLevel = 1
@@ -66,6 +67,8 @@ func parseBuildflowDispositions(data string) ([]string, string) {
 	var skipSteps []string
 
 	patchFloor := ""
+
+	artDuplEmit := ""
 
 	section, nested := "", ""
 
@@ -103,10 +106,40 @@ func parseBuildflowDispositions(data string) ([]string, string) {
 			if isFloor && found && key == "respect_patch_floor" {
 				patchFloor = value
 			}
+
+			isEmit := section == "tool_options" && nested == "art-dupl"
+			if isEmit && found && key == "emit-suppressed-accepted" {
+				artDuplEmit = value
+			}
 		}
 	}
 
-	return skipSteps, patchFloor
+	return skipSteps, patchFloor, artDuplEmit
+}
+
+// TestArtDuplAcceptDirectivesStayHonored guards the art-dupl disposition in
+// `.buildflow.yml`: `tool_options.art-dupl.emit-suppressed-accepted: true`.
+// The hash-precision `// art-dupl:accept` directives in retry_test.go mark
+// the parallel context-ending test setups as reviewed intentional clones, and
+// the provider ignores those directives unless this option is on. Removing
+// the option turns the directives into dead markers and returns their
+// findings as warnings, which the findings gate does not trip on.
+func TestArtDuplAcceptDirectivesStayHonored(t *testing.T) {
+	t.Parallel()
+
+	data, err := os.ReadFile(".buildflow.yml")
+	if err != nil {
+		t.Fatalf("read .buildflow.yml: %v", err)
+	}
+
+	_, _, artDuplEmit := parseBuildflowDispositions(string(data))
+
+	if artDuplEmit != "true" {
+		t.Fatalf(
+			".buildflow.yml sets tool_options.art-dupl.emit-suppressed-accepted = %q, want \"true\": without it the // art-dupl:accept directives in retry_test.go are dead markers and their findings return as warnings the gate never trips on",
+			artDuplEmit,
+		)
+	}
 }
 
 // TestTerminalSentinelsStayInterfaceTyped guards the erraudit disposition: all

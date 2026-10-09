@@ -57,7 +57,7 @@ correct, `internal/` would make the library unimportable):
 | `options.go`                   | `Option` funcs (`WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`, `WithExhausted`) + `JitterStrategy` (`JitterAdditive`, `JitterNone`)                                                                     |
 | `doc.go`                       | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                                            |
 | `retry_test.go`                | External test package (`retry_test`)                                                                                                                                                                        |
-| `dispositions_test.go`         | Config-disposition guards: `.buildflow.yml` skip_steps/patch-floor, interface-typed sentinels, error-family floor within the go pin, `lychee.toml` private-namespace exclude (each proven failing on drift) |
+| `dispositions_test.go`         | Config-disposition guards: `.buildflow.yml` skip_steps/patch-floor + art-dupl accept opt-in, interface-typed sentinels, error-family floor within the go pin, `lychee.toml` private-namespace exclude (each proven failing on drift) |
 | `docs_test.go`                 | Markdown guard tests (strike rendering, table code spans, archive verdicts, status index)                                                                                                                   |
 | `workflows_test.go`            | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA                                                                           |
 | `tools/`                       | Nested module pinning dev tools via Go `tool` directives                                                                                                                                                    |
@@ -176,7 +176,11 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   config verify` (plain `run` tolerates settings the strict CI schema
   rejects — `exhaustruct_v5` accepts no `exclude` key, it bit once); the
   in-source `//nolint:` markers are deliberate, per-marker rationale in
-  `CONTRIBUTING.md`, and removing any produces a real finding.
+  `CONTRIBUTING.md`, and removing any produces a real finding. Same for the
+  hash-precision `// art-dupl:accept` directives in `retry_test.go`: they
+  mark the parallel context-ending test setups as reviewed clones and are
+  honored only via the `.buildflow.yml` `emit-suppressed-accepted` opt-in
+  (guarded in `dispositions_test.go`).
 - **Terminal-error codes/messages are single-sourced constants** at the top of
   `retry.go`; the sentinels and their `WrapInfrastructure` call sites must use
   them — never re-inline the strings.

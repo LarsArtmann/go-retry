@@ -127,6 +127,17 @@ restructuring the code:
   `//nolint:errorlint`: the whole point of the assertion is the identity
   comparison `err != rejection`, which `errorlint` would otherwise flag.
 
+The same deliberate-marker policy covers the three hash-precision
+`// art-dupl:accept <hash>` directives in `retry_test.go`: the four
+context-ending tests (cancel/deadline crossed with classification vs
+`OnExhausted` suppression) intentionally share their scenario setup, and the
+directives record that review. The hashes are content hashes of the clone
+groups, so if a setup drifts far enough the findings return and the
+directive must be re-reviewed. BuildFlow honors these directives only
+because `.buildflow.yml` sets `tool_options.art-dupl.emit-suppressed-accepted:
+true` (guarded by `TestArtDuplAcceptDirectivesStayHonored`); without that
+option they are dead markers.
+
 `mnd` and `exhaustruct_v5` are excluded from `*_test.go` (see
 `.golangci.yml`), where partial struct literals and bare scalars are
 legitimate.
@@ -135,9 +146,10 @@ legitimate.
 
 Deliberate tooling/config decisions are enforced, not just documented:
 `dispositions_test.go` pins the `.buildflow.yml` go-pin dispositions, the
-interface-typed terminal sentinels, the dependency go floor, and the
-`lychee.toml` private-namespace exclude; `retry_test.go` pins the `go.mod`
-go directive; `workflows_test.go` allowlists remote-action inputs. When a
+art-dupl accept-directive opt-in, the interface-typed terminal sentinels, the
+dependency go floor, and the `lychee.toml` private-namespace exclude;
+`retry_test.go` pins the `go.mod` go directive; `workflows_test.go`
+allowlists remote-action inputs. When a
 disposition must change, re-decide it deliberately and update the guard in
 the same change — every guard was proven failing on injected drift before
 it landed, so a failure means the disposition moved, not that the test is
@@ -149,9 +161,9 @@ broken.
 - Every test calls `t.Parallel()`.
 - Counters use `sync/atomic` (`atomic.Int32`), not mutexes.
 - Keep delays millisecond-scale (see the `fastConfig()` helper) so the suite
-  stays fast; the two context-ending tests (cancel + deadline) are the only
-  deliberate exceptions — they use `5s` delays so the context end fires
-  during the wait.
+  stays fast; the context-ending tests are the only deliberate exceptions —
+  they use `longBackoffConfig()` (`5s` initial delay) so the context ends
+  during the backoff wait, never during an attempt.
 
 See [`AGENTS.md`](AGENTS.md) for the deeper architectural context (the
 `error-family` dependency, the no-CQRS/no-OTel boundary, control flow of `Do`).
