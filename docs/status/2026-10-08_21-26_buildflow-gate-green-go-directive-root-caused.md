@@ -139,3 +139,7 @@ Both are now dispositioned in committed config, so the flip-flop cannot recur un
 - `1fb7b2f` - `go-version` suppression + final doc updates + go.mod restore (HEAD at report time)
 
 HARVEST note: section (f) is the input for docs-health HARVEST into `TODO_LIST.md`/`ROADMAP.md`; awaiting instructions per the session contract.
+
+---
+
+**Annotation 2026-10-09 (BuildFlow session, SUPERB plan D2):** replayed the a7 re-pin shape in a fixture (`actions/upload-artifact@ea165f8… # v7.0.1` → current) against BuildFlow's github-actions-pinning autofix: it re-pinned BOTH fixture actions to the current upstream tags with SHAs — including the exact `cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2` you verified by hand. The manual GitHub-API tag-peel verification a7 required would have been fully covered by `buildflow -s github-actions-pinning --fix` (the allowlist re-key in your `workflows_test.go` is repo-side test infrastructure; the tool writes the same result). Also: the flip-flop class itself is now dead upstream — go-structure-linter v0.11.3 is detect-only for go-version, and BuildFlow repairs announce their write set per tool in the summary, so this whole incident class collapses to a log read (BuildFlow gotcha #232).
