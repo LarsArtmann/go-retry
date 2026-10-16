@@ -1,7 +1,7 @@
 version: "2"
 run:
   timeout: 3m
-  go: 1.26.7
+  go: "1.27"
   build-tags:
     - goexperiment.arenas
     - goexperiment.goroutineleakprofile
@@ -67,6 +67,7 @@ linters:
     - intrange
     - iotamixing
     - ireturn
+    - lll
     - loggercheck
     - maintidx
     - makezero
@@ -120,6 +121,22 @@ linters:
   settings:
     cyclop:
       max-complexity: 12
+    exhaustruct_v5:
+      ignore-patterns:
+        - net/http.Client
+        - net/http.Server
+        - net/http.Request
+        - net/http.Response
+        - net/http.Transport
+        - net/http.Cookie
+        - net.TCPAddr
+        - net.Dialer
+        - log/slog.HandlerOptions
+        - sync.WaitGroup
+        - bytes.Buffer
+        - time.Ticker
+        - time.Timer
+        - os/exec.Cmd
     funlen:
       lines: 200
       statements: 100
