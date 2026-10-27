@@ -214,6 +214,26 @@ loop treats an inner loop's exhaustion as terminal instead of multiplying
 attempts (`outer(3) × inner(3)` runs 3 inner attempts, not 9). Override
 `IsRetryable` deliberately if you actually want nested amplification.
 
+### The last attempt's code is surfaced outermost
+
+When the final attempt error carries an error-family code, the terminal error
+adopts it outermost: `errorfamily.Code(err)` answers with the last attempt's
+code (say `provider.rate_limited`) instead of `retry.exhausted` — exactly
+after all attempts burned, which is when code-switching alerting and routing
+care most. Nothing else moves: the family stays `Infrastructure` (nesting
+stays fail-closed), the retry sentinel stays answerable, and the last attempt
+error stays reachable through the chain.
+
+```go
+err := retry.Do(ctx, cfg, fetch)
+if errorfamily.Code(err) == "provider.rate_limited" { /* route on the quota */ }
+if errors.Is(err, retry.ErrExhausted) { /* still the exhaustion check */ }
+```
+
+Context endings promote the last attempt's code the same way. An uncoded last
+attempt error keeps the plain surface: `errorfamily.Code(err)` answers
+`retry.exhausted` (or `retry.canceled` / `retry.deadline`).
+
 Invalid `Config` returns a `Rejection`-family error (`retry.invalid_*` codes)
 before the first attempt runs. See [`FEATURES.md`](FEATURES.md) for the full
 inventory.

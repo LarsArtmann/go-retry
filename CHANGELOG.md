@@ -19,7 +19,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Nothing yet.
+- **Terminal errors surface the last attempt's error code outermost.** When
+  the final attempt error carries an error-family code, `errorfamily.Code` on
+  the returned error now answers with that code (e.g.
+  `provider.rate_limited`) instead of `retry.exhausted` / `retry.canceled` /
+  `retry.deadline`, so code-switching alerting and routing work without
+  digging through the chain. The family stays `Infrastructure` (nesting
+  stays fail-closed), the retry sentinels stay answerable via `errors.Is`,
+  and the last attempt error stays reachable; uncoded last errors keep the
+  previous surface. `retry.go` (`promoteLastAttemptCode`, `Do`,
+  `contextEnded`).
+- **Restored the `go 1.26` pin and `go-error-family` v0.11.0** after an
+  auto-committed dependency bump (v0.12.0 declares `go 1.27`, which dragged
+  the module directive off its guarded pin and left both pin-guard tests red
+  on master since 2026-10-15). Re-adopt v0.12.0+ only as a deliberate
+  re-pin with the full doc sweep the guards demand. `go.mod`; guarded by
+  `TestModuleGoDirectiveStaysPinned` and `TestErrorFamilyFloorStaysWithinGoPin`.
 
 ### Fixed
 

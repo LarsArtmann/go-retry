@@ -111,6 +111,13 @@ _Test status: `go test ./... -race` is green; statement coverage is 100%
   the default `IsRetryable` predicate does not retry, so an outer loop
   treats an inner loop's exhaustion as terminal. `retry.go` (`Do`,
   `contextEnded`).
+- **Last-attempt code promotion** — when the final attempt error carries an
+  error-family code, the terminal error adopts it outermost:
+  `errorfamily.Code(err)` answers with the last attempt's code instead of
+  the retry bookkeeping code, while the family stays `Infrastructure` and
+  the retry sentinel stays answerable via `errors.Is`. Uncoded last errors
+  keep the plain `retry.*` surface. Applies to exhaustion and both context
+  endings. `retry.go` (`promoteLastAttemptCode`).
 - **Stable error codes** — `retry.exhausted`, `retry.canceled`,
   `retry.deadline`, `retry.invalid_max_attempts`,
   `retry.invalid_initial_delay`, `retry.invalid_max_delay`,
@@ -137,6 +144,17 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   deadline termination return without the exhaustion callback. `retry_test.go`
   (`TestDo_OnExhaustedNotCalledOnCancel`,
   `TestDo_OnExhaustedNotCalledOnDeadline`).
+- **Last-attempt code promotion (pinned)** — exhaustion surfaces a coded last
+  attempt's code outermost (errorfamily-typed or any `Coded` implementation,
+  with `errors.AsType` still reaching the typed cause) while staying
+  `Infrastructure` and sentinel-answerable; uncoded last errors keep
+  `retry.exhausted` outermost; both context endings promote the same way;
+  nested loops stay fail-closed under promotion. `retry_test.go`
+  (`TestDo_ExhaustedSurfacesLastAttemptCodeOutermost`,
+  `TestDo_ExhaustedSurfacesCustomCodedError`,
+  `TestDo_ExhaustedWithUncodedErrorKeepsRetryCodeOutermost`,
+  `TestDo_ContextEndSurfacesLastAttemptCode`,
+  `TestDo_NestedExhaustionWithPromotedCodeStaysTerminal`).
 - **Fuzz target** — `FuzzComputeDelayNeverPanics` with seeds for ordinary,
   zero-cap, overflow, and near-`MaxInt64` inputs. The seed corpus is also
   committed in `testdata/fuzz/FuzzComputeDelayNeverPanics/`, and a scheduled

@@ -144,6 +144,86 @@ func TestDo_ReturnsErrExhaustedWhenAllAttemptsFail(t *testing.T) {
 	}
 }
 
+func TestDo_ExhaustedSurfacesLastAttemptCodeOutermost(t *testing.T) {
+	t.Parallel()
+
+	transient := errorfamily.NewTransient("test.rate_limited", "rate limited by provider")
+
+	err := retry.Do(
+		context.Background(),
+		fastConfig(),
+		func(_ context.Context, _ int) error {
+			return transient
+		},
+	)
+
+	if code := errorfamily.Code(err); code != "test.rate_limited" {
+		t.Fatalf("expected the last attempt's code %q outermost, got %q", "test.rate_limited", code)
+	}
+
+	if family := errorfamily.Classify(err); family != errorfamily.Infrastructure {
+		t.Fatalf("exhaustion must stay Infrastructure for fail-closed nesting, got %s", family)
+	}
+
+	if !errors.Is(err, retry.ErrExhausted) {
+		t.Fatalf("expected ErrExhausted to stay answerable, got %v", err)
+	}
+
+	if !errors.Is(err, transient) {
+		t.Fatalf("expected the last attempt error to stay reachable, got %v", err)
+	}
+}
+
+func TestDo_ExhaustedSurfacesCustomCodedError(t *testing.T) {
+	t.Parallel()
+
+	err := retry.Do(
+		context.Background(),
+		fastConfig(),
+		func(_ context.Context, _ int) error {
+			return quotaError{}
+		},
+	)
+
+	if code := errorfamily.Code(err); code != "test.quota_exceeded" {
+		t.Fatalf("expected any Coded error's code %q outermost, got %q", "test.quota_exceeded", code)
+	}
+
+	if _, ok := errors.AsType[quotaError](err); !ok {
+		t.Fatalf("expected errors.AsType to reach the typed cause, got %v", err)
+	}
+
+	if !errors.Is(err, retry.ErrExhausted) {
+		t.Fatalf("expected ErrExhausted to stay answerable, got %v", err)
+	}
+}
+
+func TestDo_ExhaustedWithUncodedErrorKeepsRetryCodeOutermost(t *testing.T) {
+	t.Parallel()
+
+	plain := errors.New("plain uncoded failure")
+
+	err := retry.Do(
+		context.Background(),
+		fastConfig(),
+		func(_ context.Context, _ int) error {
+			return plain
+		},
+	)
+
+	if code := errorfamily.Code(err); code != "retry.exhausted" {
+		t.Fatalf("expected %q outermost for an uncoded last error, got %q", "retry.exhausted", code)
+	}
+
+	if !errors.Is(err, retry.ErrExhausted) {
+		t.Fatalf("expected ErrExhausted, got %v", err)
+	}
+
+	if !errors.Is(err, plain) {
+		t.Fatalf("expected the last attempt error to stay reachable, got %v", err)
+	}
+}
+
 func TestDo_DoesNotRetryNonRetryableError(t *testing.T) {
 	t.Parallel()
 
@@ -374,6 +454,39 @@ func TestDo_NestedRetriesAmplifyWhenOverridden(t *testing.T) {
 	}
 }
 
+func TestDo_NestedExhaustionWithPromotedCodeStaysTerminal(t *testing.T) {
+	t.Parallel()
+
+	transient := errorfamily.NewTransient("test.rate_limited", "inner always fails")
+
+	var outerCalls atomic.Int32
+
+	err := retry.Do(context.Background(), fastConfig(), func(ctx context.Context, _ int) error {
+		outerCalls.Add(1)
+
+		return retry.Do(ctx, fastConfig(), func(_ context.Context, _ int) error {
+			return transient
+		})
+	})
+
+	if !errors.Is(err, retry.ErrExhausted) {
+		t.Fatalf("expected the inner loop's ErrExhausted, got %v", err)
+	}
+
+	if outerCalls.Load() != 1 {
+		t.Fatalf("promoted code must not re-open inner exhaustion: expected 1 outer attempt, got %d",
+			outerCalls.Load())
+	}
+
+	if code := errorfamily.Code(err); code != "test.rate_limited" {
+		t.Fatalf("expected the promoted code %q to survive the outer return, got %q", "test.rate_limited", code)
+	}
+
+	if family := errorfamily.Classify(err); family != errorfamily.Infrastructure {
+		t.Fatalf("inner exhaustion must stay Infrastructure to the outer loop, got %s", family)
+	}
+}
+
 func TestDo_OnExhaustedNotCalledOnCancel(t *testing.T) {
 	// Setup intentionally mirrors TestDo_OnExhaustedNotCalledOnDeadline: only
 	// the ending kind differs (cancel vs deadline stay parallel pins).
@@ -420,6 +533,63 @@ func TestDo_OnExhaustedNotCalledOnDeadline(t *testing.T) {
 
 	if exhaustedCalls.Load() != 0 {
 		t.Fatalf("OnExhausted must not fire when a deadline ends the loop, got %d calls", exhaustedCalls.Load())
+	}
+}
+
+func TestDo_ContextEndSurfacesLastAttemptCode(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		setup    func() (context.Context, context.CancelFunc)
+		sentinel error
+		ctxErr   error
+	}{
+		{
+			name:     "cancel",
+			setup:    contextCanceledDuringBackoff,
+			sentinel: retry.ErrCanceled,
+			ctxErr:   context.Canceled,
+		},
+		{
+			name:     "deadline",
+			setup:    contextDeadlineDuringBackoff,
+			sentinel: retry.ErrDeadlineExceeded,
+			ctxErr:   context.DeadlineExceeded,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx, cancel := tt.setup()
+			defer cancel()
+
+			transient := errorfamily.NewTransient("test.rate_limited", "fail")
+
+			err := runAlwaysFailing(ctx, longBackoffConfig(), transient)
+
+			if code := errorfamily.Code(err); code != "test.rate_limited" {
+				t.Fatalf("expected the last attempt's code %q outermost, got %q", "test.rate_limited", code)
+			}
+
+			if family := errorfamily.Classify(err); family != errorfamily.Infrastructure {
+				t.Fatalf("context endings must stay Infrastructure for fail-closed nesting, got %s", family)
+			}
+
+			if !errors.Is(err, tt.sentinel) {
+				t.Fatalf("expected %v to stay answerable, got %v", tt.sentinel, err)
+			}
+
+			if !errors.Is(err, tt.ctxErr) {
+				t.Fatalf("expected %v to stay reachable, got %v", tt.ctxErr, err)
+			}
+
+			if !errors.Is(err, transient) {
+				t.Fatalf("expected the last attempt error to stay reachable, got %v", err)
+			}
+		})
 	}
 }
 
@@ -1337,6 +1507,14 @@ func TestDo_OnRetryReceivesDelayFuncDelay(t *testing.T) {
 	}
 }
 
+// quotaError is a plain error type carrying an error-family code without
+// being an errorfamily.Error, proving that code promotion honors any Coded
+// implementation and that errors.AsType still reaches the typed cause.
+type quotaError struct{}
+
+func (quotaError) Error() string     { return "provider quota exceeded" }
+func (quotaError) ErrorCode() string { return "test.quota_exceeded" }
+
 func fastConfig() retry.Config {
 	return retry.Config{
 		MaxAttempts:  3,
@@ -1493,7 +1671,7 @@ func ExampleDo_delayFunc() {
 	fmt.Println("error:", err)
 	// Output:
 	// delays: [2ms]
-	// error: [infrastructure:retry.exhausted] all retry attempts failed: [transient:example.rate_limited] too many requests
+	// error: [infrastructure:example.rate_limited] all retry attempts failed: [infrastructure:retry.exhausted] all retry attempts failed: [transient:example.rate_limited] too many requests
 }
 
 // ExampleDo_withOptions customizes one call through the options tail: the

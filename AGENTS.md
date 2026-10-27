@@ -77,9 +77,11 @@ call `fn(ctx, attempt)` → on `nil` return → if not retryable, return → els
 `awaitBackoff` (exponential + `DelayFunc` override, fire `OnRetry`, sleep in a
 `select` on `timer.C` vs `ctx.Done()`; a context end classifies into
 `ErrDeadlineExceeded` vs `ErrCanceled`) → on exhaustion call `OnExhausted` and
-return `ErrExhausted` wrapping the last error. **`DoWithValue[T]`** wraps `Do`
-with a `ResultFunc[T]`; on failure it returns the zero `T` with the same error,
-never leaking a partial value from an earlier attempt.
+return `ErrExhausted` wrapping the last error. Every terminal (exhaustion and
+both context endings) promotes a coded last attempt error's code outermost
+via `promoteLastAttemptCode` — see the gotcha below. **`DoWithValue[T]`**
+wraps `Do` with a `ResultFunc[T]`; on failure it returns the zero `T` with
+the same error, never leaking a partial value from an earlier attempt.
 
 ## The error-family Dependency
 
@@ -94,6 +96,10 @@ The sole external dependency is `github.com/larsartmann/go-error-family`
 - `errorfamily.IsRetryable(err)` — the **default** predicate when `Config.IsRetryable` is nil
 - `errorfamily.WrapInfrastructure(...).WithCause(err)` — chains the last error
 - `errorfamily.Classify(err)` — the family (asserted `Rejection` in the invalid-config test)
+- `errorfamily.Code(err)` — reads the **outermost** coded layer; because
+  terminals promote a coded last attempt error's code outermost
+  (`promoteLastAttemptCode` in `retry.go`), `Code` on a terminal answers with
+  the operationally relevant code, not the `retry.*` bookkeeping code
 
 Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
 `retry.canceled`, `retry.deadline`, `retry.invalid_max_attempts`, etc.).
@@ -134,6 +140,15 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   attempt error via multi-`%w`; `Error.Is` matches by code+family, so
   `errors.Is(err, retry.ErrCanceled)` is false for deadline errors. Do not
   collapse the branches — operators debug timeouts vs shutdowns differently.
+- **Terminals promote the last attempt's code outermost** (issue #3). When the
+  final attempt error has a non-empty `errorfamily.Code`, the terminal gets an
+  extra outermost `WrapInfrastructure(terminal, innerCode, msg)` layer: `Code`
+  answers with the inner code, `Classify` stays `Infrastructure` (fail-closed
+  nesting holds — pinned by `TestDo_NestedExhaustionWithPromotedCodeStaysTerminal`),
+  and the `errors.Is`/`AsType` surface is unchanged. Uncoded last errors keep
+  the plain single-layer terminal. The rendered string repeats the terminal
+  message (outer wrapper + wrapped layer both say it) — accepted cost of every
+  layer staying a native `errorfamily.Error`.
 - **The go directive is pinned at `go 1.26`** (guarded by
   `TestModuleGoDirectiveStaysPinned`; every doc states it). Both tools that
   fight the pin are dispositioned: `.buildflow.yml` skips `go-mod-update`
@@ -141,6 +156,11 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   `.go-structure-linter.yaml` suppresses its `go-version` rule (bumps to the
   installed toolchain). `tools/go.mod` keeps its dep-forced patch floor
   `go 1.26.0` via `respect_patch_floor`. A real re-pin updates every doc too.
+  The pin's dependency side is guarded by `TestErrorFamilyFloorStaysWithinGoPin`:
+  go-error-family v0.12.0 declares `go 1.27` and a daemon-committed bump to it
+  (2026-10-15) left both guards red on master until restored to v0.11.0
+  (2026-10-27) — re-adopt a newer go-error-family only as a deliberate re-pin
+  with the full doc sweep.
 - **No `flake.nix` despite the global AGENTS.md convention.** This repo predates
   / doesn't follow the LarsArtmann flake.nix pattern. Do not invent nix targets.
   Same stance for go-auto-upgrade's `lo.Map` suggestion: adding `samber/lo`
