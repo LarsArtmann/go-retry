@@ -195,3 +195,47 @@ release. Until then the working invocation is
 `erraudit lint ./... --type legacy_as` (exits 0 on root and `tools/`;
 `--type-aware` additionally reports six sentinel `errors.Is` advisories in
 `retry_test.go` — the keep-as-is class its own message describes).
+
+## File-by-file map (moved out of AGENTS.md 2026-10-27)
+
+AGENTS.md is length-capped by `go-structure-linter` (`agent-config` rule,
+maximum 220 lines — the file is injected into every AI session and must stay
+concise), so the per-file responsibility table lives here:
+
+| File                           | Responsibility                                                                                                                                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `retry.go`                     | `Do` + generic `DoWithValue` (loops), backoff helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted`/`ErrCanceled`/`ErrDeadlineExceeded`                                                                                       |
+| `config.go`                    | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                                                                     |
+| `options.go`                   | `Option` funcs (`WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`, `WithExhausted`) + `JitterStrategy` (`JitterAdditive`, `JitterNone`)                                                                                              |
+| `doc.go`                       | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                                                                     |
+| `retry_test.go`                | External test package (`retry_test`)                                                                                                                                                                                                 |
+| `dispositions_test.go`         | Config-disposition guards: `.buildflow.yml` skip_steps/patch-floor + art-dupl accept opt-in, interface-typed sentinels, error-family floor within the go pin, `lychee.toml` private-namespace exclude (each proven failing on drift) |
+| `docs_test.go`                 | Markdown guard tests (strike rendering, table code spans, archive verdicts, status index)                                                                                                                                            |
+| `workflows_test.go`            | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA                                                                                                    |
+| `tools/`                       | Nested module pinning dev tools via Go `tool` directives                                                                                                                                                                             |
+| `.buildflow.yml`               | BuildFlow dispositions (deliberate policy — see the AGENTS.md gotchas)                                                                                                                                                               |
+| `.go-structure-linter.yaml`    | `flat` preset — single-package library at repo root by design                                                                                                                                                                        |
+| `lychee.toml`                  | Link-check excludes: private LarsArtmann repos 404 unauthenticated                                                                                                                                                                   |
+| `.golangci.yml`                | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                                                                     |
+| `.github/workflows/ci.yml`     | Push/PR CI: vet (root + `tools/`), race tests, govulncheck, 95% coverage floor, actionlint, dprint check, golangci-lint                                                                                                              |
+| `.github/workflows/fuzz.yml`   | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                                                                               |
+| `.github/workflows/stress.yml` | Daily 04:33 UTC 10-sweep shuffled race suite (`-count=10`); per-push CI stays `-count=1` — the 2026-10-08 select-race flakes were invisible at 1 and reproducible at 10                                                              |
+| `testdata/fuzz/...`            | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                                                                    |
+| `docs/engineering-notes.md`    | Long-form narratives behind the compressed AGENTS.md gotchas                                                                                                                                                                         |
+| `docs/status/`                 | Point-in-time session reports; resolved ones annotated inline, moved to `docs/status/archived/` (index: `docs/status/README.md`)                                                                                                     |
+
+## The 2026-10-15 errorfamily bump that broke the go pin (restored 2026-10-27)
+
+An auto-committed dependency sweep landed `go-error-family` v0.12.0 and a
+`go 1.27` directive on 2026-10-15 (commit `0f61e18`). v0.12.0 declares
+`go 1.27`, and a dependency's floor forces the module directive up — exactly
+the silent re-pin `TestModuleGoDirectiveStaysPinned` and
+`TestErrorFamilyFloorStaysWithinGoPin` exist to catch. Both guards sat red on
+master for 12 days (the fossilized-red-state class the ROADMAP open question
+tracks; the no-pre-commit-hook decision means nothing blocked the daemon's
+commit). The restore to v0.11.0 loses nothing: v0.12.0's only change is a
+nil-receiver `Unwrap` guard this package never exercises, and Go requirements
+are minimums — consumers wanting v0.12.0 still resolve it via MVS while this
+module keeps its `go 1.26` floor for retry-only consumers. Re-adopt a newer
+go-error-family only as a deliberate re-pin with the full doc sweep the
+guards demand.
