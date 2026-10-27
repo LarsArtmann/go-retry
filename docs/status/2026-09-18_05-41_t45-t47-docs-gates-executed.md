@@ -130,6 +130,9 @@ found the prior summary wrong about push state; that correction is §d.1.
    evening). No CI run can carry the step until push happens, and pushing
    is not mine to decide. The TODO row was narrowed to exactly this
    observation tail (P3) instead of being closed done.
+   → resolved 2026-10-08: done at `e6687d3` — the push landed and the vet
+   step verified live in `ci.yml`, green on the v0.8.0 tag CI (runs
+   37836295244/37836297624); T47 retired.
 2. **T45's "graduate the paragraph render-diff into it" tail is open.** The
    GFM render-diff (`/tmp/verify-strikes.py`, GitHub API round-trip per
    file) remains a manual deep-verify tool outside the repo. The static
@@ -139,29 +142,45 @@ found the prior summary wrong about push state; that correction is §d.1.
    modeled. The drill-proven static gate plus the archived render-diff is
    the shipped compromise; graduating the diff into `scripts/` (network-
    and-auth-gated, so never CI) is routed as §f.3.
+   **Won't implement for now — the static gates have been canon since
+   v0.8.0; the GFM render-diff stays a disposable manual deep-verify
+   (closed 2026-10-27; revisit only if a rendering bug escapes them).**
 3. **The gate's own parsing edges have no self-tests.** Correctness is
    currently evidenced by the drills plus the live corpus (723 items, 30
    `.md` files). Edge behavior — `\|` splitting, double-backtick runs,
    fence detection, the lazy-continuation item segmenter — is exercised
    only incidentally. Table-driven unit tests for the scanner helpers are
    routed as §f.4.
+   → routed to TODO_LIST.md (T79, harvested 2026-10-27 — still open).
 
 ## c) NOT STARTED
 
 1. **The push.** Explicitly owner-gated; not done (see §b.1).
+   → resolved 2026-10-08: done at `e6687d3` (master pushed; CI and
+   Dependency Graph green on it).
 2. **T48–T54 (all P3):** canonical coverage recipe across
    README/CONTRIBUTING/FEATURES; AGENTS gotcha prune below 20; SECURITY.md
    posture audit against the grown supply-chain surface; safe probe
    fixtures for guard drills; index/backlog conventions; dangling-hash
    sweep in archived plans; living-docs go-version guard extension. All
    untouched this session, all still evidence-backed in TODO_LIST.
+   → resolved by split: T48 done 2026-10-09 (`f02e613`), T49 done
+   2026-10-09 (`d76d439`), T50 done 2026-10-27; T51/T52/T53/T54 still open
+   → routed to TODO_LIST.md (T51–T54).
 3. **T42 (Dependabot watch):** still open; no Dependabot PR appeared during
    the window.
+   → routed to TODO_LIST.md (T42, still open — none observed through
+   2026-10-27).
 4. **ROADMAP Open questions** (daemon commit-message/push policy,
    tools-pin topology, dprint pinning posture): owner decisions, untouched
    — though §d.1 sharpens the daemon-policy question with fresh evidence.
+   → routed to ROADMAP → Open questions (commit-message, topology, and
+   dprint posture still standing 2026-10-27; the push-policy half was
+   decided 2026-09-16: the daemon keeps committing AND pushing).
 5. **CI wiring for compare-links:** `check-compare-links.sh` still runs
    only at release time and locally; it is not a CI step (routed §f.6).
+   → routed to TODO_LIST.md (T81, harvested 2026-10-27 — verified still
+   absent from `ci.yml`).
 
 ## d) TOTALLY FUCKED UP (honest ledger)
 

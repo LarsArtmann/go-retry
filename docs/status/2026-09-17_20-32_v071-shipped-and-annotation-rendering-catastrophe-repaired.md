@@ -203,65 +203,115 @@ archives; dprint check; compare-links; `go test -race -shuffle=on -count=3`.
 
 Ordered by impact; the first block is the open TODO_LIST verbatim.
 
-1. **T45 (P1)** — marker-completeness gate for `docs/status/archived/`;
+1. ~~**T45 (P1)** — marker-completeness gate for `docs/status/archived/`;
    fold in the index State-cell recheck, the HTML `<del>`-vs-exemption
-   design call, and graduate this session's paragraph render-diff into it.
+   design call, and graduate this session's paragraph render-diff into it.~~
+   done at `519a6b3` (v0.8.0: the three gate tests in `docs_test.go`; the
+   HTML design call closed as out-of-scope-by-design).
 2. **T46 (P1)** — `scripts/check-docs.sh` orchestrating dprint + marker gate
    - compare-links; add to the AGENTS Session Ritual.
-3. **T47 (P2)** — gate the `tools/` module (`go -C tools vet ./...` + lint)
-   in CI and the ritual; shape depends on the topology answer.
-4. **T48 (P3)** — one canonical coverage recipe across README/CONTRIBUTING/
-   FEATURES + full CONTRIBUTING drift sweep.
-5. **T49 (P3)** — AGENTS gotcha prune to <20 rows (the budget is full).
-6. **T50 (P3)** — SECURITY.md posture audit vs the grown supply-chain
-   surface (tools module, dprint action, three Dependabot groups).
+   → resolved 2026-09-18: shipped as `scripts/check-docs.sh` and wired into
+   the AGENTS Session Ritual (verified live 2026-10-27; CHANGELOG `[0.8.0]`).
+3. ~~**T47 (P2)** — gate the `tools/` module (`go -C tools vet ./...` + lint)
+   in CI and the ritual; shape depends on the topology answer.~~ done
+   2026-10-08: the vet step is live in `ci.yml` (re-verified 2026-10-27;
+   first green tag-CI runs 37836295244/37836297624); the lint half stays
+   deferred on the tools-pin topology answer (ROADMAP).
+4. ~~**T48 (P3)** — one canonical coverage recipe across README/CONTRIBUTING/
+   FEATURES + full CONTRIBUTING drift sweep.~~ done 2026-10-09 at `f02e613`
+   (CONTRIBUTING carries the canonical coverage-claim format).
+5. ~~**T49 (P3)** — AGENTS gotcha prune to <20 rows (the budget is full).~~
+   done 2026-10-09 at `d76d439` (22 → 20); re-verified at 20 rows on
+   2026-10-27 with the one-in-one-out rule written into the AGENTS.md header.
+6. ~~**T50 (P3)** — SECURITY.md posture audit vs the grown supply-chain
+   surface (tools module, dprint action, three Dependabot groups).~~ done
+   2026-10-27 (Security Practices section; claims verified against `ci.yml`
+   and `dependabot.yml`; SLA numbers await owner sign-off — ROADMAP OQ).
 7. **T51 (P3)** — safe probe fixtures so guard drills never touch live
    `.github/workflows/`.
+   → routed to TODO_LIST.md (T51, still open 2026-10-27).
 8. **T52 (P3)** — index/backlog conventions (planning State column, standing
    Verdict/Status format, planning README, keep "Last harvested" current).
+   → routed to TODO_LIST.md (T52, still open 2026-10-27).
 9. **T53 (P3)** — annotate archived plans' dangling pre-amend hashes.
+   → routed to TODO_LIST.md (T53, still open 2026-10-27).
 10. **T54 (P3)** — living-doc Go-version ↔ `go.mod` guard extension + the
     dependency-contract assertion decision.
+    → routed to TODO_LIST.md (T54, narrowed — the dependency-floor half
+    landed 2026-10-08; the docs-match half is still open).
 11. **T42** — next Dependabot PR: observe auto-rebase AND execute the
     `/tools` bump flow end-to-end (bump-trace append), then retire.
-12. Add a **flake-watch task**: one observed transient test FAIL during a
+    → routed to TODO_LIST.md (T42, still open — no Dependabot PR observed
+    through 2026-10-27).
+12. ~~Add a **flake-watch task**: one observed transient test FAIL during a
     daemon git sweep (non-reproducible ×3 shuffled — suspect a
     workflow/corpus-reading test racing file writes); decide between
-    hardening the test and accepting the noise.
+    hardening the test and accepting the noise.~~ resolved 2026-10-08:
+    root-caused as two real flakes and fixed (`2ca73e9` per-attempt bounds,
+    `96f174e` pre-canceled 5-second pattern); the class is now swept
+    nightly by `.github/workflows/stress.yml` (`404a79a`).
 13. Answer the three ROADMAP Open questions (dprint pinning, tools topology,
     daemon commit policy) — each unblocks routed work.
-14. Wire the **GFM render check into the annotation ritual docs** (the
-    index documents the rules; the ritual should name the check).
-15. Third docs-health point (trend, not snapshot).
-16. Consider a dprint/lint rule or script that flags lone `~` adjacent to
-    `~~` spans in `docs/` (mechanize improvement e.6).
-17. Sweep the plans' micro-tables (Status columns) with the same paragraph
+    → routed to ROADMAP → Open questions — all three still standing there
+    (re-verified 2026-10-27); owner decisions, not agent tasks.
+14. ~~Wire the **GFM render check into the annotation ritual docs** (the
+    index documents the rules; the ritual should name the check).~~
+    superseded: the static strike/code-span gates shipped in `docs_test.go`
+    (v0.8.0) and run on every CI test job plus `./scripts/check-docs.sh`;
+    the GFM API render-diff stays a disposable manual deep-verify
+    (deliberate — recorded in the 2026-09-18 report `§b.2`/`§g.2`).
+15. ~~Third docs-health point (trend, not snapshot).~~ done 2026-10-27 —
+    this audit is the third point; scores live in its inline health report
+    (never written to a file).
+16. ~~Consider a dprint/lint rule or script that flags lone `~` adjacent to
+    `~~` spans in `docs/` (mechanize improvement e.6).~~ done at `519a6b3`
+    — covered by `TestMarkdownStrikethroughSpansRender` (the static gate
+    detects the lone-tilde class repo-wide; no dprint rule needed).
+17. ~~Sweep the plans' micro-tables (Status columns) with the same paragraph
     render-diff — this pass verified status reports and one plan fully;
-    the other two plans got full-file counts only.
-18. Verify the archived HTML report renders its Status column correctly on
+    the other two plans got full-file counts only.~~ covered by the static
+    gates (they scan every repo `.md` including `docs/planning/`, v0.8.0);
+    the 2026-10-08 plan was annotated and archived under them 2026-10-27.
+18. ~~Verify the archived HTML report renders its Status column correctly on
     GitHub (it is HTML — GitHub sanitizes some markup; never actually
-    checked).
-19. Record whether `docs/planning/` gets its own README (folded into T52,
-    but needs the actual decision).
-20. After the next daemon-heavy session, sample three `done at` citations
+    checked).~~ resolved: closed by T45's design call — the HTML report is
+    out of scope by design (zero `<del>` spans; parse-validated instead;
+    recorded in `docs_test.go` and the status index).
+19. ~~Record whether `docs/planning/` gets its own README (folded into T52,
+    but needs the actual decision).~~ → routed to TODO_LIST.md (T52, still
+    open 2026-10-27 — no planning README exists).
+20. ~~After the next daemon-heavy session, sample three `done at` citations
     and confirm they resolve (the heuristic-commit weakness is documented;
-    resolution is untested).
-21. Re-run the go-cqrs-lite consumer sweep once against the v0.7.1 tag for
+    resolution is untested).~~ done 2026-10-27 — sampled three 05:53-report
+    citations (`047f075`, `f65ee77`, `a0a3968`); all resolve via
+    `git cat-file`.
+21. ~~Re-run the go-cqrs-lite consumer sweep once against the v0.7.1 tag for
     the record (skip is defensible — byte-identical — but one green run
-    closes the question permanently).
-22. Confirm `gh release view v0.7.1` notes render the compare link and code
+    closes the question permanently).~~ superseded: the v0.8.0 sweep
+    executed 2026-10-09 (middleware bump `065b2e9c5`, all nine suite lines
+    `ok` under `-race`); v0.7.1 was byte-identical to v0.7.0.
+22. ~~Confirm `gh release view v0.7.1` notes render the compare link and code
     fences correctly on the Releases page (composed via API, eyeballed
-    only as text).
-23. Update CONTRIBUTING's release skeleton if the v0.7.1 notes shape
-    differed from the recorded one (it did not — verify and close).
-24. Add the pkg.go.dev "Latest banner" quirk to DOMAIN_LANGUAGE or a FAQ
-    note if it keeps generating questions (third occurrence on record).
-25. Decide whether `docs/status/README.md`'s new rendering rules section
+    only as text).~~ verified 2026-10-27 — notes live (1610 chars) with
+    both code fences present in the body.
+23. ~~Update CONTRIBUTING's release skeleton if the v0.7.1 notes shape
+    differed from the recorded one (it did not — verify and close).~~
+    verified 2026-10-09 (`f02e613` review): no difference; skeleton stands.
+24. ~~Add the pkg.go.dev "Latest banner" quirk to DOMAIN_LANGUAGE or a FAQ
+    note if it keeps generating questions (third occurrence on record).~~
+    **Won't implement — no recurrence recorded since v0.7.1; a
+    pkg.go.dev-side cosmetic that self-resolves as versions advance.**
+25. ~~Decide whether `docs/status/README.md`'s new rendering rules section
     should also live in CONTRIBUTING (one more copy = drift risk; current
-    single-source is deliberate — confirm and leave).
-26. When T45 lands, backfill it as the standing gate in the Session Ritual
+    single-source is deliberate — confirm and leave).~~ verified
+    2026-10-27: single-source stands — the guard tests' comments point at
+    this README; CONTRIBUTING links, never copies.
+26. ~~When T45 lands, backfill it as the standing gate in the Session Ritual
     and re-run it over the full archive once (should pass — it was
-    render-verified this pass, but the gate must prove it mechanically).
+    render-verified this pass, but the gate must prove it mechanically).~~
+    done at `519a6b3` — `TestArchivedReportItemsCarryVerdicts` and the
+    strike/code-span gates run over the full archive on every CI test job
+    and via `./scripts/check-docs.sh`; green through 2026-10-27.
 
 (Items 27–50 intentionally left empty: the remaining 08:47 `[NEW]` backlog is
 fully accounted for above; padding the list would duplicate routed work.)
@@ -275,18 +325,25 @@ fully accounted for above; padding the list would duplicate routed work.)
    configured to skip doc/toolchain files, or (c) citations written as
    "(daemon batch)" permanently? I cannot change host/daemon config from
    here; (a) I can do on my own authority only where you grant it.
+   → routed to ROADMAP → Open questions (still unanswered 2026-10-27).
 2. **Tools-pin topology (unblocks T47's design).** Keep the nested `tools/`
    module (current, CI-proven, but outside every root quality gate until
    T47 adds its own), or fold the pins into the library module and relax
    the guarded `go 1.26` directive to `go 1.26.0`? The supply-chain-vs-
    one-less-module trade-off is yours to re-weigh; T47 is cheap either way
    but its shape differs.
+   → routed to ROADMAP → Open questions (still standing 2026-10-27; T47's
+   vet half shipped anyway on 2026-10-08, the lint half stays deferred on
+   this answer).
 3. **Is the observed transient test failure worth hardening?** During the
    daemon's final sweep, `go test -race -count=1` failed once and never
    reproduced (shuffled ×3 + targeted guard-test reruns green; likely a
    file-reading test racing git operations). Options: accept as noise, or
    authorize a small hardening task (retry-once on transient file errors in
    the workflow-reading test). I cannot judge your flakiness tolerance.
+   → resolved 2026-10-08: root-caused as two real flakes and fixed
+   (`2ca73e9` per-attempt bounds, `96f174e` pre-canceled 5-second pattern);
+   the class is swept nightly by `.github/workflows/stress.yml` (`404a79a`).
 
 ---
 
