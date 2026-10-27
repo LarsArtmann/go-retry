@@ -407,11 +407,18 @@ status report.
 
 - **Should the auto-commit daemon run repo guard tests pre-commit?** The
   daemon fossilized two red states on 2026-10-08 (`bc2c99a`, `4ba7838` —
-  `go 1.27` committed mid-flip-flop). A pre-commit hook running at least
-  `TestModuleGoDirectiveStaysPinned` would prevent that class. Fleet tooling,
-  not repo-local: it needs a BuildFlow/daemon-side change and a policy on
-  failure behavior (block the commit vs commit-and-alert). Owner call (raised
-  2026-10-08 status report `§f.34`).
+  `go 1.27` committed mid-flip-flop), and two more incident classes followed:
+  `0f61e18` (2026-10-15) bumped errorfamily to v0.12.0 and the go directive
+  to 1.27 in one commit, leaving master red for 12 days until the 2026-10-27
+  pin restore; and `7d19442` (2026-10-27, mislabeled "auto-commit 0 changed
+  file(s)") deleted the guarded `.buildflow.yml` outright, turning the
+  buildflow `test-race` gate red within minutes (restored in `6791e1d`). A
+  pre-commit hook running at least `TestModuleGoDirectiveStaysPinned` would
+  prevent the directive class; only a daemon-side guard can catch deletions
+  of guarded files. Fleet tooling, not repo-local: it needs a
+  BuildFlow/daemon-side change and a policy on failure behavior (block the
+  commit vs commit-and-alert). Owner call (raised 2026-10-08 status report
+  `§f.34`; incident evidence updated 2026-10-27).
 
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —
