@@ -29,16 +29,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the last attempt error stays reachable; uncoded last errors keep the
   previous surface. `retry.go` (`promoteLastAttemptCode`, `Do`,
   `contextEnded`).
-- **Restored the `go 1.26` pin and `go-error-family` v0.11.0** after an
-  auto-committed dependency bump (v0.12.0 declares `go 1.27`, which dragged
-  the module directive off its guarded pin and left both pin-guard tests red
-  on master since 2026-10-15). Re-adopt v0.12.0+ only as a deliberate
-  re-pin with the full doc sweep the guards demand. `go.mod`; guarded by
-  `TestModuleGoDirectiveStaysPinned` and `TestErrorFamilyFloorStaysWithinGoPin`.
 
 ### Fixed
 
-- Nothing yet.
+- **Restored the `go 1.26` pin and `go-error-family` v0.11.0** after an
+  auto-committed dependency bump (v0.12.0 declares `go 1.27`) dragged the
+  module directive off its guarded pin and left both pin-guard tests red on
+  master from 2026-10-15 to 2026-10-27. Re-adopt v0.12.0+ only as a
+  deliberate re-pin with the full doc sweep the guards demand. `go.mod`;
+  guarded by `TestModuleGoDirectiveStaysPinned` and
+  `TestErrorFamilyFloorStaysWithinGoPin`.
 
 ## [0.8.0] - 2026-10-08
 

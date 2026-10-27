@@ -102,7 +102,7 @@ A runnable, output-pinned version lives in `ExampleDoWithValue`
 | `IsRetryable`  | `errorfamily.IsRetryable` | Decides whether an error triggers a retry. Set `nil` for the default.                                                                |
 | `DelayFunc`    | `nil`                     | Overrides the backoff delay per attempt. Return `> 0` to use that delay; return `0` to fall back to the default exponential backoff. |
 | `OnRetry`      | `nil`                     | Called after each failed attempt, before sleeping.                                                                                   |
-| `OnExhausted`  | `nil`                     | Called once after all attempts have failed.                                                                                          |
+| `OnExhausted`  | `nil`                     | Called once after all attempts have failed, with the last error as the function returned it (unwrapped, unpromoted).                  |
 
 When `DelayFunc` is set, it is called after each failed retryable attempt with the
 attempt number and the last error. A return greater than 0 overrides the
@@ -232,7 +232,10 @@ if errors.Is(err, retry.ErrExhausted) { /* still the exhaustion check */ }
 
 Context endings promote the last attempt's code the same way. An uncoded last
 attempt error keeps the plain surface: `errorfamily.Code(err)` answers
-`retry.exhausted` (or `retry.canceled` / `retry.deadline`).
+`retry.exhausted` (or `retry.canceled` / `retry.deadline`). One rendering
+cost to expect: the promoted outer layer repeats the terminal's message, so
+the exhaustion sentence appears twice in the error string — accepted so every
+chain layer stays a native `error-family` error.
 
 Invalid `Config` returns a `Rejection`-family error (`retry.invalid_*` codes)
 before the first attempt runs. See [`FEATURES.md`](FEATURES.md) for the full
@@ -260,7 +263,9 @@ a `govulncheck` vulnerability scan, and enforces a **95% coverage
 floor** — local coverage sits at 100%, the floor leaves deliberate room for
 hard-to-test edges. A separate daily workflow (`.github/workflows/fuzz.yml`)
 fuzzes `FuzzComputeDelayNeverPanics` for 30 minutes and uploads any crash
-corpus it finds.
+corpus it finds, and a second nightly (`.github/workflows/stress.yml`) sweeps
+the race-detector suite at `-race -count=10 -shuffle=on` so timer-race-class
+flakes surface within 24 h instead of never at `-count=1`.
 
 There is no `justfile`, `Makefile`, or `flake.nix` — `go` and `golangci-lint`
 are the only tools. See [`CONTRIBUTING.md`](CONTRIBUTING.md).

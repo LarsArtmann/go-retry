@@ -159,7 +159,7 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   zero-cap, overflow, and near-`MaxInt64` inputs. The seed corpus is also
   committed in `testdata/fuzz/FuzzComputeDelayNeverPanics/`, and a scheduled
   CI workflow fuzzes daily for 30 minutes (schedule-trigger runs verified
-  green 2026-09-14 through 2026-09-17). `retry_test.go`, `testdata/fuzz/`,
+  green through 2026-10-27). `retry_test.go`, `testdata/fuzz/`,
   `.github/workflows/fuzz.yml`.
 - **Fuzz failure path is runner-proven** — a deliberate panic injected on a
   throwaway branch made the dispatch-triggered fuzz job fail as designed,
@@ -223,8 +223,8 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   (seeded-RNG additive jitter), and `ExampleWithJitter_none` (deterministic
   backoff) are deterministic, carry `// Output:` comments, and render on
   `pkg.go.dev`. The last three landed after the v0.7.0 tag and shipped in
-  v0.7.1; the two jitter examples landed 2026-10-08 and surface from v0.8.1
-  onward. `retry_test.go`.
+  v0.7.1; the two jitter examples landed 2026-10-08 and surface from the
+  next cut (v0.9.0) onward. `retry_test.go`.
 - **Backoff benchmark** — `BenchmarkComputeDelay` documents the hot-path cost
   (~20–35 ns/op depending on machine load; 0 allocations — the jitter path
   allocates nothing). Re-check when the Go toolchain or the reference machine
@@ -257,7 +257,10 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   10-minute timeout and pushes to the same ref cancel superseded runs.
   Verified green on real runners for the v0.8.0 tag commit (runs 37836295244
   master and 37836297624 tag, 2026-10-08 — both exercising the tools-pinned
-  actionlint and dprint steps).
+  actionlint and dprint steps). A separate nightly stress workflow
+  (`.github/workflows/stress.yml`) re-runs the race suite at
+  `-race -count=10 -shuffle=on` on a schedule (with manual dispatch) so the
+  select-race flake class is swept within 24 h of its introduction.
 
 ## PARTIALLY_FUNCTIONAL
 
