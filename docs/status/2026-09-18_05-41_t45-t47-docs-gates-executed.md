@@ -281,77 +281,119 @@ found the prior summary wrong about push state; that correction is §d.1.
 Release-ordered first, then gates, then hygiene. Tags: `[PUSH]` · `[GATE]`
 · `[DOC]` · `[CI]` · `[OWNER]` · `[PROCESS]`.
 
-1. `[PUSH]` **Owner call: push the 16 pending commits** (docs + gates,
+1. ~~`[PUSH]` **Owner call: push the 16 pending commits** (docs + gates,
    `082842a..e83a509`) — everything is gate-green at tip; the only remote
-   risk is ordinary.
-2. `[CI]` **Verify the first green run carrying the `tools/` vet step**
-   after that push (`gh run list`/`view`), then retire the T47 observe row.
+   risk is ordinary.~~ resolved 2026-10-08: done at `e6687d3`; CI and
+   Dependency Graph green on it.
+2. ~~`[CI]` **Verify the first green run carrying the `tools/` vet step**
+   after that push (`gh run list`/`view`), then retire the T47 observe row.~~
+   resolved 2026-10-08: green on runs 37836295244/37836297624 (v0.8.0);
+   T47 retired.
 3. `[GATE]` **Graduate the GFM render-diff into `scripts/verify-render.sh`**
    (per-file GitHub API check, `gh`-auth-gated, documented as local-only —
    never CI), so the deep-verify stops living in `/tmp`.
+   **Won't implement for now — the static docs gates are canon since
+   v0.8.0; the render-diff stays a disposable deep-verify (closed
+   2026-10-27; revisit only if a rendering bug escapes them).**
 4. `[GATE]` **Table-driven self-tests for the docs-gate scanner edges:**
    `\|` cell splitting, double-backtick runs, fence detection, unclosed
    run preservation, lazy-continuation item segmentation.
+   → routed to TODO_LIST.md (T79, harvested 2026-10-27).
 5. `[GATE]` **Extend marker gating to `docs/planning/archived/*.md`** —
    three fully-annotated plans currently stand outside the marker gate;
    the §-letter scheme matches, so the same checker applies.
+   → routed to TODO_LIST.md (T80, harvested 2026-10-27 — verified the gate
+   reads only `docs/status/archived`).
 6. `[CI]` **Add `check-compare-links.sh` as a CI step** (lint job, after
    actionlint) — today it only runs locally and at release time; a poisoned
    link should fail the push, not the release.
-7. `[DOC]` **T48: one canonical coverage recipe** across
-   README/CONTRIBUTING/FEATURES plus the full CONTRIBUTING drift sweep.
-8. `[PROCESS]` **T49: prune AGENTS gotchas below 20** — the budget must be
+   → routed to TODO_LIST.md (T81, harvested 2026-10-27 — verified still
+   absent from `ci.yml`).
+7. ~~`[DOC]` **T48: one canonical coverage recipe** across
+   README/CONTRIBUTING/FEATURES plus the full CONTRIBUTING drift sweep.~~
+   done 2026-10-09 at `f02e613`.
+8. ~~`[PROCESS]` **T49: prune AGENTS gotchas below 20** — the budget must be
    refilled before the next gotcha lands; this session added none (the
-   cache warning went into an existing bullet), and the pressure remains.
-9. `[DOC]` **T50: SECURITY.md posture audit** against the current surface
-   (nested tools module, dprint action, Dependabot groups).
+   cache warning went into an existing bullet), and the pressure remains.~~
+   done 2026-10-09 at `d76d439` (22 → 20); re-verified 2026-10-27 with the
+   one-in-one-out rule written into the AGENTS.md header.
+9. ~~`[DOC]` **T50: SECURITY.md posture audit** against the current surface
+   (nested tools module, dprint action, Dependabot groups).~~ done
+   2026-10-27 (Security Practices section; SLA numbers → ROADMAP OQ).
 10. `[PROCESS]` **T51: safe probe fixtures for guard drills** — a
     gitignored scratch convention so future prove-fail drills never touch
     live workflow/doc files even briefly.
+    → routed to TODO_LIST.md (T51, still open 2026-10-27).
 11. `[DOC]` **T52: index/backlog conventions** — State-cell format for the
     status index, planning-file row conventions, whether
     `docs/planning/` earns its own README.
+    → routed to TODO_LIST.md (T52, still open 2026-10-27).
 12. `[DOC]` **T53: sweep archived plans for dangling `done at` hashes**
     (the known dangling `9c08595` in the 2026-09-16 plan; find others).
+    → routed to TODO_LIST.md (T53, still open 2026-10-27).
 13. `[GATE]` **T54: assert the living docs' stated Go version matches
     `go.mod`**, and decide the go-error-family surface-contract question.
+    → routed to TODO_LIST.md (T54 — the dependency-floor half landed
+    2026-10-08 as `TestErrorFamilyFloorStaysWithinGoPin`; the docs-match
+    half is open; the surface-contract matrix lives in ROADMAP).
 14. `[OWNER]` **T42: Dependabot watchlist** — observe the post-merge
     rebase on the next actions-group PR, then run the `/tools` bump flow
     end-to-end.
-15. `[CI]` **Confirm CI green on the batch once pushed** (runs for
+    → routed to TODO_LIST.md (T42, still open 2026-10-27).
+15. ~~`[CI]` **Confirm CI green on the batch once pushed** (runs for
     `e83a509`-tip), closing the broken-but-green exposure window the
-    unpushed pile represents.
-16. `[OWNER]` **Daemon push policy, now with evidence:** the daemon
+    unpushed pile represents.~~ resolved 2026-10-08: CI green post-push
+    (`e6687d3`); latest master runs 40571159852/40572338572 green
+    2026-10-27.
+16. ~~`[OWNER]` **Daemon push policy, now with evidence:** the daemon
     committed 16 times between 18:08 and 21:28 without pushing once —
     either its push step is wedged or push-on-commit was never its
-    behavior. Either answer changes how every session ends (§g.1).
-17. `[PROCESS]` **Adopt the §d.4 archive-edit rule in writing** (one
+    behavior. Either answer changes how every session ends (§g.1).~~
+    resolved: decided 2026-09-16 (owner, ROADMAP) — the daemon keeps
+    committing AND pushing; the gap was a wedge, since healed (branch
+    synced with origin, re-verified 2026-10-27).
+17. ~~`[PROCESS]` **Adopt the §d.4 archive-edit rule in writing** (one
     sentence in `docs/status/README.md`'s annotation convention: format
     repairs only, never content) so the near-miss becomes policy, not
-    anecdote.
-18. `[PROCESS]` **Adopt the open-with-commands ritual** (§e.1) in AGENTS:
-    status verification before summary trust at session start.
-19. `[GATE]` **Decide the marker gate's exemption story for narrative
+    anecdote.~~ done 2026-10-27: the format-only-repairs rule is written
+    into `docs/status/README.md` (annotation-convention block).
+18. ~~`[PROCESS]` **Adopt the open-with-commands ritual** (§e.1) in AGENTS:
+    status verification before summary trust at session start.~~ done
+    2026-10-27: folded into the AGENTS Session Ritual hash-verification
+    bullet.
+19. ~~`[GATE]` **Decide the marker gate's exemption story for narrative
     numbered items** — today §a/§d/§e are exempt by section letter; if a
     future report puts narrative items inside a gated letter, the gate
     will (correctly) demand annotation or a conscious recognizer change.
-    Write that policy down before it first bites.
-20. `[DOC]` **Record the gesture-set extension procedure** next to the
+    Write that policy down before it first bites.~~ done 2026-10-27: the
+    policy stands written in `docs/status/README.md` ("Narrative sections
+    that carry their own resolution are deliberately left unmarked"); the
+    gate exempts §a/§d/§e by letter (`isVerdictSection`).
+20. ~~`[DOC]` **Record the gesture-set extension procedure** next to the
     verdict patterns in `docs_test.go` comments are already the mechanism;
     add one line to `docs/status/README.md`: "new verdict phrasing failing
-    the gate is fixed by extending the recognizer deliberately."
+    the gate is fixed by extending the recognizer deliberately."~~ done
+    2026-10-27: the extension rule is written into `docs/status/README.md`
+    (annotation-convention block).
 21. `[CI]` **Once topology is decided: golangci-lint for `tools/` in CI** —
     requires verifying `working-directory` (or equivalent) input at the
     action's pinned SHA and updating `actionInputAllowlist` in the same
     change.
+    → deferred — blocked on the tools-pin topology answer (ROADMAP, still
+    open 2026-10-27).
 22. `[OWNER]` **Tools-pin topology answer** (ROADMAP Open question) — it
     gates §f.21 and shapes where T47's gate lives long-term.
+    → routed to ROADMAP → Open questions (still standing 2026-10-27).
 23. `[OWNER]` **dprint pinning posture** (ROADMAP Open question) — the
     CI action pins 0.57.4 while local runs float on nixpkgs; a mismatch
     class is still possible (drift between the two formatters).
-24. `[PROCESS]` **Flake-watch: one `-shuffle=on -count=50` run this week**
+    → routed to ROADMAP → Open questions (still standing 2026-10-27).
+24. ~~`[PROCESS]` **Flake-watch: one `-shuffle=on -count=50` run this week**
     over the suite to chase the once-seen, never-reproduced 13:19-era
-    transient FAIL (suspected file-reading test racing git operations).
+    transient FAIL (suspected file-reading test racing git operations).~~
+    superseded: the flakes were root-caused and fixed 2026-10-08
+    (`2ca73e9`, `96f174e`); the repetition axis is swept nightly by
+    `.github/workflows/stress.yml`.
 
 ## g) QUESTIONS I CAN **NOT** FIGURE OUT MYSELF
 
@@ -365,6 +407,9 @@ Release-ordered first, then gates, then hygiene. Tags: `[PUSH]` · `[GATE]`
    ends with an unverified-CI window, and I would like your standing
    instruction: may I push gate-green doc/tooling commits myself when the
    pile grows past a threshold, or is push always yours?
+   → resolved: decided 2026-09-16 (owner, ROADMAP) — the daemon keeps
+   committing AND pushing; the 18:08–21:28 gap was a wedge, since healed
+   (branch synced with origin, re-verified 2026-10-27).
 2. **Should the GFM render-diff become a permanent repo script
    (`scripts/verify-render.sh`, requires your `gh` auth, never runs in
    CI), or is the static docs gate sufficient canon and the diff stays a
@@ -373,9 +418,13 @@ Release-ordered first, then gates, then hygiene. Tags: `[PUSH]` · `[GATE]`
    trade-off is one authenticated command vs. a small blind spot the
    static gate cannot see (cross-item span pairing, cross-line code
    spans).
+   **Won't implement for now — the static gates are canon (v0.8.0, green
+   through 2026-10-27); the diff stays a disposable deep-verify.**
 3. **Do you want the docs-gate scanners themselves unit-tested
    (table-driven edge cases, ≈150 lines of test code guarding tooling that
    guards docs), or is drill-proven-plus-live-corpus sufficient forever?**
    The gate currently fails loudly on corpus drift, but a regression in
    its own parser (e.g. the `\|` splitter) would fail silently-green; only
    you can say whether that second-order risk justifies the tests.
+   → routed to TODO_LIST.md (T79, harvested 2026-10-27 — the owner question
+   went unanswered; the routed default is to guard the guard).
