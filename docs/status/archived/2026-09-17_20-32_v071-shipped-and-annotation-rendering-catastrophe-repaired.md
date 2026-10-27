@@ -210,8 +210,8 @@ Ordered by impact; the first block is the open TODO_LIST verbatim.
    HTML design call closed as out-of-scope-by-design).
 2. **T46 (P1)** — `scripts/check-docs.sh` orchestrating dprint + marker gate
    - compare-links; add to the AGENTS Session Ritual.
-   → resolved 2026-09-18: shipped as `scripts/check-docs.sh` and wired into
-   the AGENTS Session Ritual (verified live 2026-10-27; CHANGELOG `[0.8.0]`).
+     → resolved 2026-09-18: shipped as `scripts/check-docs.sh` and wired into
+     the AGENTS Session Ritual (verified live 2026-10-27; CHANGELOG `[0.8.0]`).
 3. ~~**T47 (P2)** — gate the `tools/` module (`go -C tools vet ./...` + lint)
    in CI and the ritual; shape depends on the topology answer.~~ done
    2026-10-08: the vet step is live in `ci.yml` (re-verified 2026-10-27;

@@ -102,7 +102,7 @@ A runnable, output-pinned version lives in `ExampleDoWithValue`
 | `IsRetryable`  | `errorfamily.IsRetryable` | Decides whether an error triggers a retry. Set `nil` for the default.                                                                |
 | `DelayFunc`    | `nil`                     | Overrides the backoff delay per attempt. Return `> 0` to use that delay; return `0` to fall back to the default exponential backoff. |
 | `OnRetry`      | `nil`                     | Called after each failed attempt, before sleeping.                                                                                   |
-| `OnExhausted`  | `nil`                     | Called once after all attempts have failed, with the last error as the function returned it (unwrapped, unpromoted).                  |
+| `OnExhausted`  | `nil`                     | Called once after all attempts have failed, with the last error as the function returned it (unwrapped, unpromoted).                 |
 
 When `DelayFunc` is set, it is called after each failed retryable attempt with the
 attempt number and the last error. A return greater than 0 overrides the

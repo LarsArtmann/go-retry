@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Nothing yet.
+
+### Changed
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.9.0] - 2026-10-27
+
+### Added
+
 - **Duplication-report disposition.** The four context-ending tests' shared
   scenario setup now lives in named helpers (`longBackoffConfig`,
   `contextCanceledDuringBackoff`, `contextDeadlineDuringBackoff`,
@@ -541,7 +555,8 @@ Initial public release. Signed annotated tag `v0.1.0`.
 - **Keep-a-Changelog compare links** — `[Unreleased]` and `[0.1.0]` footer
   links resolve against the public GitHub remote.
 
-[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/LarsArtmann/go-retry/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/LarsArtmann/go-retry/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/LarsArtmann/go-retry/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/LarsArtmann/go-retry/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/LarsArtmann/go-retry/compare/v0.6.1...v0.7.0

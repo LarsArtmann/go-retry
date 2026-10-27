@@ -408,18 +408,14 @@ status report.
 
 - **Should the auto-commit daemon run repo guard tests pre-commit?** The
   daemon fossilized two red states on 2026-10-08 (`bc2c99a`, `4ba7838` —
-  `go 1.27` committed mid-flip-flop), and two more incident classes followed:
-  `0f61e18` (2026-10-15) bumped errorfamily to v0.12.0 and the go directive
-  to 1.27 in one commit, leaving master red for 12 days until the 2026-10-27
-  pin restore; and `7d19442` (2026-10-27, mislabeled "auto-commit 0 changed
-  file(s)") deleted the guarded `.buildflow.yml` outright, turning the
-  buildflow `test-race` gate red within minutes (restored in `6791e1d`). A
-  pre-commit hook running at least `TestModuleGoDirectiveStaysPinned` would
-  prevent the directive class; only a daemon-side guard can catch deletions
-  of guarded files. Fleet tooling, not repo-local: it needs a
+  `go 1.27` committed mid-flip-flop), and `0f61e18` (2026-10-15) bumped
+  errorfamily to v0.12.0 and the go directive to 1.27 in one commit, leaving
+  master red for 12 days until the 2026-10-27 pin restore. A pre-commit hook
+  running at least `TestModuleGoDirectiveStaysPinned` would prevent the
+  directive class. Fleet tooling, not repo-local: it needs a
   BuildFlow/daemon-side change and a policy on failure behavior (block the
   commit vs commit-and-alert). Owner call (raised 2026-10-08 status report
-  `§f.34`; incident evidence updated 2026-10-27).
+  `§f.34`; evidence updated 2026-10-27).
 
 - **Go-pin endgame: hold `go 1.26` or re-pin to `go 1.27` deliberately?**
   The 2026-09-16 decision made `go 1.26` the pin, and the guards have now
@@ -452,6 +448,16 @@ _Reaffirmed (2026-09-17): an external writer re-pinned the directive to
 `go 1.27.1`; it was reverted to `go 1.26` (no dependency or code needs 1.27 —
 the sole dependency declares `go 1.26`) and `TestModuleGoDirectiveStaysPinned`
 now guards the directive, proven failing on drift before it landed._
+
+_Decided (2026-10-27, owner): the repo carries **no `.buildflow.yml`** — it
+should need none. The file and its guard tests were removed; the go-line
+bump that made the skip necessary is filed upstream
+(<https://github.com/LarsArtmann/BuildFlow/issues/77>). art-dupl's accept
+directives suppress standalone (verified: findings suppressed, gate green);
+the patch-floor concern is covered by go-mod-normalize's dependency-floor
+gate (`HeldBackByDepFloor`) plus go-version-auto-configure's detect-only
+warning. Until BuildFlow#77 lands, `buildflow update`/`--fix` may re-lose
+the pin: the guards trip, restore per `docs/engineering-notes.md`._
 
 _Decided (kept for the record, 2026-09-13): no delay-sequence table in the
 README. Proposed repeatedly, never demanded; the formula is already documented

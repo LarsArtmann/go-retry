@@ -208,26 +208,26 @@ AGENTS.md is length-capped by `go-structure-linter` (`agent-config` rule,
 maximum 220 lines — the file is injected into every AI session and must stay
 concise), so the per-file responsibility table lives here:
 
-| File                           | Responsibility                                                                                                                                                                                                                       |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `retry.go`                     | `Do` + generic `DoWithValue` (loops), backoff helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted`/`ErrCanceled`/`ErrDeadlineExceeded`                                                                                       |
-| `config.go`                    | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                                                                                     |
-| `options.go`                   | `Option` funcs (`WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`, `WithExhausted`) + `JitterStrategy` (`JitterAdditive`, `JitterNone`)                                                                                              |
-| `doc.go`                       | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                                                                     |
-| `retry_test.go`                | External test package (`retry_test`)                                                                                                                                                                                                 |
-| `dispositions_test.go`         | Config-disposition guards: interface-typed sentinels, error-family floor within the go pin, `lychee.toml` private-namespace exclude (each proven failing on drift)                                                                  |
-| `docs_test.go`                 | Markdown guard tests (strike rendering, table code spans, archive verdicts, status index)                                                                                                                                            |
-| `workflows_test.go`            | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA                                                                                                    |
-| `tools/`                       | Nested module pinning dev tools via Go `tool` directives                                                                                                                                                                             |
-| `.go-structure-linter.yaml`    | `flat` preset — single-package library at repo root by design                                                                                                                                                                        |
-| `lychee.toml`                  | Link-check excludes: private LarsArtmann repos 404 unauthenticated                                                                                                                                                                   |
-| `.golangci.yml`                | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                                                                     |
-| `.github/workflows/ci.yml`     | Push/PR CI: vet (root + `tools/`), race tests, govulncheck, 95% coverage floor, actionlint, dprint check, golangci-lint                                                                                                              |
-| `.github/workflows/fuzz.yml`   | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                                                                               |
-| `.github/workflows/stress.yml` | Daily 04:33 UTC 10-sweep shuffled race suite (`-count=10`); per-push CI stays `-count=1` — the 2026-10-08 select-race flakes were invisible at 1 and reproducible at 10                                                              |
-| `testdata/fuzz/...`            | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                                                                                    |
-| `docs/engineering-notes.md`    | Long-form narratives behind the compressed AGENTS.md gotchas                                                                                                                                                                         |
-| `docs/status/`                 | Point-in-time session reports; resolved ones annotated inline, moved to `docs/status/archived/` (index: `docs/status/README.md`)                                                                                                     |
+| File                           | Responsibility                                                                                                                                                          |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `retry.go`                     | `Do` + generic `DoWithValue` (loops), backoff helpers, `Backoff`, `ComputeDelay`, sentinels `ErrExhausted`/`ErrCanceled`/`ErrDeadlineExceeded`                          |
+| `config.go`                    | `Config` struct, `DefaultConfig()`, `FromPolicy()`, `Validate()`                                                                                                        |
+| `options.go`                   | `Option` funcs (`WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`, `WithExhausted`) + `JitterStrategy` (`JitterAdditive`, `JitterNone`)                                 |
+| `doc.go`                       | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                        |
+| `retry_test.go`                | External test package (`retry_test`)                                                                                                                                    |
+| `dispositions_test.go`         | Config-disposition guards: interface-typed sentinels, error-family floor within the go pin, `lychee.toml` private-namespace exclude (each proven failing on drift)      |
+| `docs_test.go`                 | Markdown guard tests (strike rendering, table code spans, archive verdicts, status index)                                                                               |
+| `workflows_test.go`            | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA                                       |
+| `tools/`                       | Nested module pinning dev tools via Go `tool` directives                                                                                                                |
+| `.go-structure-linter.yaml`    | `flat` preset — single-package library at repo root by design                                                                                                           |
+| `lychee.toml`                  | Link-check excludes: private LarsArtmann repos 404 unauthenticated                                                                                                      |
+| `.golangci.yml`                | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                        |
+| `.github/workflows/ci.yml`     | Push/PR CI: vet (root + `tools/`), race tests, govulncheck, 95% coverage floor, actionlint, dprint check, golangci-lint                                                 |
+| `.github/workflows/fuzz.yml`   | Daily 03:17 UTC 30-min fuzz campaign; crash-corpus artifact on failure                                                                                                  |
+| `.github/workflows/stress.yml` | Daily 04:33 UTC 10-sweep shuffled race suite (`-count=10`); per-push CI stays `-count=1` — the 2026-10-08 select-race flakes were invisible at 1 and reproducible at 10 |
+| `testdata/fuzz/...`            | Committed fuzz corpus (mirrors the `f.Add` seeds)                                                                                                                       |
+| `docs/engineering-notes.md`    | Long-form narratives behind the compressed AGENTS.md gotchas                                                                                                            |
+| `docs/status/`                 | Point-in-time session reports; resolved ones annotated inline, moved to `docs/status/archived/` (index: `docs/status/README.md`)                                        |
 
 ## The 2026-10-15 errorfamily bump that broke the go pin (restored 2026-10-27)
 
@@ -261,11 +261,15 @@ guards demand.
   Master went green again with the 2026-10-27 pin restore (CI runs
   40571159852 / 40572338572); the first post-restore stress run (2026-10-28
   04:33 UTC) is the expected green.
-- **The daemon deleted the guarded `.buildflow.yml` twice on 2026-10-27.**
-  First mid-report (commit `7d19442`, restored same hour), then again
-  ~21:02 during the docs-health pass as an uncommitted working-tree
-  deletion, restored from HEAD (`6791e1d`) before the daemon could commit
-  it; both disposition guards re-verified green. The empirical answer to
-  the 20:43 report's §f2: the guards already fail loud on the file's
-  absence (`TestBuildflowDispositionsStayCommitted` fatals on the read
-  error) — the missing piece is prevention, not detection.
+- **`.buildflow.yml` and its two BuildFlow disposition guards are gone
+  (owner decision 2026-10-27: no repo-level BuildFlow config).** The daemon
+  deleted the file once mid-report (`7d19442`); the ~21:02 working-tree
+  deletion that day was the owner's own order (briefly restored from HEAD by
+  a parallel session before the decision landed), and the removal then landed
+  for good together with `TestBuildflowDispositionsStayCommitted` and
+  `TestArtDuplAcceptDirectivesStayHonored`. art-dupl honors the
+  `//art-dupl:accept` directives standalone (verified by the removing
+  session); the pin-blind `go-mod-update` go-line bump is filed upstream
+  (LarsArtmann/BuildFlow#77) — until it lands, `buildflow update`/`--fix` may
+  re-lose the go pin: the pin guards trip, and the restore ritual in "The
+  go-directive pin and the BuildFlow fight" applies.
