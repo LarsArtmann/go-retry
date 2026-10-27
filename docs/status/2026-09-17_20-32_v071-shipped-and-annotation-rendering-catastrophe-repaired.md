@@ -42,54 +42,94 @@ archives; dprint check; compare-links; `go test -race -shuffle=on -count=3`.
 1. **T37 closed, but the pkg.go.dev "Latest" banner quirk persists** — the
    v0.7.1 page shows both "Latest" and "not in the latest version" (known
    cosmetic, documented since the 03:30 report). Nothing to do; noted for
-   the record.
+   the record. → closed 2026-10-27: no recurrence recorded since v0.7.1;
+   pkg.go.dev-side cosmetic that self-resolves as versions advance.
 2. **Archived-file verification was render-focused, not claim-focused.** This
    pass verified every archived file's _markup renders_ and spot-checked
    footers/pointers, but did NOT re-verify every factual claim inside all 14
    archived + 3 planning files the way the 08:47 session did. I leaned on
    that session's full audit (same day). A claim-level re-sweep of older
    archives remains undone (low value — they are point-in-time snapshots).
+   **Won't implement — archived files are point-in-time snapshots; the
+   same-day 08:47 audit plus the standing archive gates (`docs_test.go`,
+   shipped v0.8.0) carry the value a re-sweep would add (closed 2026-10-27).**
 3. **Drift-rate second point recorded, but informal.** This audit is the
    second docs-health point; the scores live only in the inline health
    report (the skill forbids writing it to a file), so no numeric baseline
    file exists to compute a rate against. The qualitative rate is visible:
    1 Critical split brain + 741 rendering spans + 4 Medium in ~11 h across
    three daemon-dominated sessions.
+   → resolved by accumulation: further audit points landed 2026-10-08/09
+   and 2026-10-27; the trend lives in those reports' annotations, not a
+   numeric file (the skill forbids writing scores to files).
 4. **The three owner Open questions sit in ROADMAP awaiting answers** (dprint
    pinning posture, tools-pin topology, daemon commit-message policy) —
    asked, routed, unanswered; they gate T47's design and every future
    report's annotation style.
+   → routed to ROADMAP → Open questions — all three still standing there
+   (re-verified 2026-10-27), joined by the go-pin-endgame and per-push-flake-net
+   questions added since.
 5. **T42 watchlist** — still open by design (needs the next Dependabot PR);
    now also carries the `/tools` bump-flow execution step.
+   → routed to TODO_LIST.md (T42, still open — no Dependabot PR observed
+   through 2026-10-27).
 6. **Consumer propagation for v0.7.1 deliberately skipped** — library code is
    byte-identical to v0.7.0, so `go-cqrs-lite/middleware/v4` gains nothing
    from a bump; a cheap consumer-sweep re-run against v0.7.1 was also
    skipped as redundant. Recorded here so the skip is a decision, not an
-   oversight.
+   oversight. **Won't implement — v0.7.1 was byte-identical to v0.7.0; the
+   question closed permanently with the v0.8.0 consumer sweep (2026-10-09,
+   go-cqrs-lite bump `065b2e9c5`, all suites `-race` green).**
 
 ## c) NOT STARTED
 
-1. **T45** — marker-completeness gate for `docs/status/archived/` (+ index
+1. ~~**T45** — marker-completeness gate for `docs/status/archived/` (+ index
    State-cell recheck, HTML-report strikethrough design call, annotation-
    convention guard). Highest-value routing this pass: the 741-span
-   catastrophe existed precisely because no gate reads the archive.
-2. **T46** — `scripts/check-docs.sh` one-command doc gate + Session Ritual
-   wiring.
-3. **T47** — gate the `tools/` module (vet + lint); design depends on the
-   topology answer.
-4. **T48** — canonical coverage-recipe decision + full CONTRIBUTING drift
-   sweep.
-5. **T49** — AGENTS gotcha prune to <20 rows.
-6. **T50** — SECURITY.md posture audit.
+   catastrophe existed precisely because no gate reads the archive.~~ done
+   at `519a6b3` (v0.8.0: `TestArchivedReportItemsCarryVerdicts` plus the
+   strike/code-span gates in `docs_test.go`; HTML design call closed as
+   out-of-scope-by-design).
+2. ~~**T46** — `scripts/check-docs.sh` one-command doc gate + Session Ritual
+   wiring.~~ done 2026-09-18 (verified live 2026-10-27: `scripts/check-docs.sh`
+   runs the guard tests, dprint, and compare-links; recorded in CHANGELOG
+   `[0.8.0]` and the AGENTS Session Ritual).
+3. ~~**T47** — gate the `tools/` module (vet + lint); design depends on the
+   topology answer.~~ done 2026-10-08 — `go -C tools vet ./...` verified live
+   in `ci.yml` ("Vet the tools module" step, re-verified 2026-10-27); first
+   green tag-CI runs 37836295244/37836297624 (v0.8.0). golangci-lint for
+   `tools/` stays deferred on the topology answer (ROADMAP).
+4. ~~**T48** — canonical coverage-recipe decision + full CONTRIBUTING drift
+   sweep.~~ done 2026-10-09 at `f02e613` — CONTRIBUTING carries the canonical
+   coverage-claim format (closing the two-recipes drift) plus the
+   config-disposition guard-tests section.
+5. ~~**T49** — AGENTS gotcha prune to <20 rows.~~ done 2026-10-09 at
+   `d76d439` (22 → 20 by merging duplicate rows); re-verified at 20 rows on
+   2026-10-27, with the one-in-one-out rule now written into the AGENTS.md
+   header.
+6. ~~**T50** — SECURITY.md posture audit.~~ done 2026-10-27 — SECURITY.md
+   gained the Security Practices section and a response-time line, every
+   claim verified against `ci.yml` and `dependabot.yml`; the SLA numbers
+   await owner sign-off (ROADMAP open question, 2026-10-27).
 7. **T51** — safe probe fixtures for guard drills.
+   → routed to TODO_LIST.md (T51, still open 2026-10-27).
 8. **T52** — index/backlog conventions (planning State column, standing
    Verdict/Status format, planning README decision).
+   → routed to TODO_LIST.md (T52, still open 2026-10-27).
 9. **T53** — annotate dangling pre-amend hashes in archived plans.
+   → routed to TODO_LIST.md (T53, still open 2026-10-27).
 10. **T54** — living-doc Go-version ↔ `go.mod` consistency guard + dependency-
     contract assertion decision.
+    → routed to TODO_LIST.md (T54, narrowed: the dependency-floor half
+    landed 2026-10-08 as `TestErrorFamilyFloorStaysWithinGoPin`; the
+    docs-match half is still open).
 11. **Doc-freshness scheduled CI job** — ROADMAP raw idea, unscoped.
-12. **Third docs-health point** — the next AUDIT would make the drift rate
-    computable as a trend.
+    → routed to ROADMAP.md raw ideas (still standing 2026-10-27, now naming
+    the shipped gates it would schedule).
+12. ~~**Third docs-health point** — the next AUDIT would make the drift rate
+    computable as a trend.~~ done 2026-10-27 — this audit is the third
+    point; its scores live in the session's inline health report (the skill
+    forbids writing them to a file).
 
 ## d) TOTALLY FUCKED UP (honest ledger)
 
