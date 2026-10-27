@@ -246,7 +246,8 @@ v1.0:
   (throughput vs concurrency-bug tradeoff); pinning the govulncheck action's
   internal `go install …@latest` posture; an auto-PR loop that lands fuzz
   crashers into `testdata/fuzz/` automatically; `go test -shuffle=on` as a
-  cheap order-dependency detector.
+  cheap order-dependency detector; a scheduled CI job for the lychee link
+  scan (currently local/BuildFlow-only; first real scan green 2026-10-09).
 
   **Decisions (2026-09-13).**
   - `-shuffle=on`: **adopted** on the CI test job (`go test -shuffle=on
@@ -419,6 +420,26 @@ status report.
   BuildFlow/daemon-side change and a policy on failure behavior (block the
   commit vs commit-and-alert). Owner call (raised 2026-10-08 status report
   `§f.34`; incident evidence updated 2026-10-27).
+
+- **Go-pin endgame: hold `go 1.26` or re-pin to `go 1.27` deliberately?**
+  The 2026-09-16 decision made `go 1.26` the pin, and the guards have now
+  rescued it from two daemon bumps (2026-10-08, 2026-10-15 → 10-27). Holding
+  means ongoing guard fights every time go-error-family ships a `go 1.27`
+  floor; re-pinning means the deliberate full sweep (directive, dependency
+  floor, every doc that states `go 1.26`, dispositions). Owner call (raised
+  2026-10-27 status report `§g.1`).
+
+- **SECURITY.md response-time numbers.** The Security Practices section
+  promises "acknowledged within two business days and triaged within five" —
+  numbers an agent chose on the owner's behalf on a public security-facing
+  document. Keep, adjust, or drop them. Owner call (raised 2026-10-27 status
+  report `§g.2`).
+
+- **Per-push flake net: raise CI repetition or keep nightly-only?** Per-push
+  CI runs `-count=1`; a NEW select-race-class flake can pass its push run and
+  surface only via the nightly stress job (up to 24 h later). Raising the
+  push run to `-count=2`/`-count=3` costs roughly 1–2 extra minutes per
+  push. Owner call (raised 2026-10-09 status report `§g.1`).
 
 _Decided (kept for the record): the repo deliberately uses raw `go` /
 `golangci-lint` commands instead of the LarsArtmann `flake.nix` convention —
