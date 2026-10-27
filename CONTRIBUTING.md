@@ -133,10 +133,9 @@ context-ending tests (cancel/deadline crossed with classification vs
 `OnExhausted` suppression) intentionally share their scenario setup, and the
 directives record that review. The hashes are content hashes of the clone
 groups, so if a setup drifts far enough the findings return and the
-directive must be re-reviewed. BuildFlow honors these directives only
-because `.buildflow.yml` sets `tool_options.art-dupl.emit-suppressed-accepted:
-true` (guarded by `TestArtDuplAcceptDirectivesStayHonored`); without that
-option they are dead markers.
+directive must be re-reviewed. art-dupl suppresses these clone groups
+standalone — verified 2026-10-27 with no BuildFlow config: findings
+suppressed, gate green. No repo config is required.
 
 `mnd` and `exhaustruct_v5` are excluded from `*_test.go` (see
 `.golangci.yml`), where partial struct literals and bare scalars are
@@ -145,8 +144,7 @@ legitimate.
 ## Config-disposition guard tests
 
 Deliberate tooling/config decisions are enforced, not just documented:
-`dispositions_test.go` pins the `.buildflow.yml` go-pin dispositions, the
-art-dupl accept-directive opt-in, the interface-typed terminal sentinels, the
+`dispositions_test.go` pins the interface-typed terminal sentinels, the
 dependency go floor, and the `lychee.toml` private-namespace exclude;
 `retry_test.go` pins the `go.mod` go directive; `workflows_test.go`
 allowlists remote-action inputs. When a

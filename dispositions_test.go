@@ -5,142 +5,22 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"testing"
 )
 
-// The disposition guards below exist because the 2026-10-08 gate-restoration
-// session proved that deliberate decisions silently reverted twice in one day
-// when no gate read them: BuildFlow's go-mod-update step and go-structure-
-// linter's go-version repair rule each re-pinned the go directive until config
-// dispositions stopped them. Like TestModuleGoDirectiveStaysPinned, these turn
-// those dispositions into enforced invariants: removing any of them must fail
+// The disposition guards below turn deliberate repo policy into enforced
+// invariants: the 2026-10-08 gate-restoration session proved that decisions
+// silently revert when no gate reads them. Like
+// TestModuleGoDirectiveStaysPinned, removing a guarded disposition must fail
 // a test that names the consequence, not a code review.
-
-// TestBuildflowDispositionsStayCommitted guards the `.buildflow.yml`
-// dispositions behind the go-directive pin: `go-mod-update` stays skipped (its
-// unconditional minor bump silently re-lost the pin three times in 20 commits;
-// Dependabot owns gomod bumps here) and `respect_patch_floor` stays on (the
-// tools module legitimately declares the patch-form `go 1.26.0` six x/*
-// dependencies demand). Deleting either flips go.mod on the next full run.
-func TestBuildflowDispositionsStayCommitted(t *testing.T) {
-	t.Parallel()
-
-	data, err := os.ReadFile(".buildflow.yml")
-	if err != nil {
-		t.Fatalf("read .buildflow.yml: %v", err)
-	}
-
-	skipSteps, patchFloor, _ := parseBuildflowDispositions(string(data))
-
-	if !slices.Contains(skipSteps, "go-mod-update") {
-		t.Fatalf(
-			".buildflow.yml no longer skips go-mod-update (skip_steps = %v): the step unconditionally bumps the go directive to the installed minor; remove this skip only after re-deciding the pin policy and updating every doc that states go 1.26",
-			skipSteps,
-		)
-	}
-
-	if patchFloor != "true" {
-		t.Fatalf(
-			".buildflow.yml sets respect_patch_floor = %q, want \"true\": tools/go.mod declares the patch-form go 1.26.0 floor six golang.org/x/* dependencies demand, and without this option the go-version-auto-configure step rewrites it",
-			patchFloor,
-		)
-	}
-}
-
-// parseBuildflowDispositions extracts the `skip_steps` list entries, the
-// `tool_options.go-version-auto-configure.respect_patch_floor` value, and the
-// `tool_options.art-dupl.emit-suppressed-accepted` value from the committed
-// config. It understands exactly the shape this file uses (block list,
-// two-level nesting, comments); any other shape fails the assertions above
-// closed, which is deliberate: an unreadable config must send a human to
-// look, not pass silently.
-func parseBuildflowDispositions(data string) ([]string, string, string) {
-	const (
-		topLevel    = 0
-		nestedLevel = 1
-		optionLevel = 2
-	)
-
-	var skipSteps []string
-
-	patchFloor := ""
-
-	artDuplEmit := ""
-
-	section, nested := "", ""
-
-	for line := range strings.SplitSeq(data, "\n") {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-
-		indent := optionLevel
-
-		switch {
-		case !strings.HasPrefix(line, " "):
-			indent = topLevel
-		case !strings.HasPrefix(line, "    "):
-			indent = nestedLevel
-		}
-
-		key, value, found := strings.Cut(trimmed, ":")
-		value = strings.TrimSpace(value)
-
-		switch indent {
-		case topLevel:
-			section, nested = key, ""
-		case nestedLevel:
-			if item, isItem := strings.CutPrefix(trimmed, "- "); isItem && section == "skip_steps" {
-				skipSteps = append(skipSteps, strings.TrimSpace(item))
-
-				continue
-			}
-
-			nested = key
-		case optionLevel:
-			isFloor := section == "tool_options" && nested == "go-version-auto-configure"
-			if isFloor && found && key == "respect_patch_floor" {
-				patchFloor = value
-			}
-
-			isEmit := section == "tool_options" && nested == "art-dupl"
-			if isEmit && found && key == "emit-suppressed-accepted" {
-				artDuplEmit = value
-			}
-		}
-	}
-
-	return skipSteps, patchFloor, artDuplEmit
-}
-
-// TestArtDuplAcceptDirectivesStayHonored guards the art-dupl disposition in
-// `.buildflow.yml`: `tool_options.art-dupl.emit-suppressed-accepted: true`.
-// The hash-precision `// art-dupl:accept` directives in retry_test.go mark
-// the parallel context-ending test setups as reviewed intentional clones, and
-// the provider ignores those directives unless this option is on. Removing
-// the option turns the directives into dead markers and returns their
-// findings as warnings, which the findings gate does not trip on.
-func TestArtDuplAcceptDirectivesStayHonored(t *testing.T) {
-	t.Parallel()
-
-	data, err := os.ReadFile(".buildflow.yml")
-	if err != nil {
-		t.Fatalf("read .buildflow.yml: %v", err)
-	}
-
-	_, _, artDuplEmit := parseBuildflowDispositions(string(data))
-
-	if artDuplEmit != "true" {
-		t.Fatalf(
-			".buildflow.yml sets tool_options.art-dupl.emit-suppressed-accepted = %q, want \"true\": without it the // art-dupl:accept directives in retry_test.go are dead markers and their findings return as warnings the gate never trips on",
-			artDuplEmit,
-		)
-	}
-}
+//
+// The former `.buildflow.yml` dispositions (skip go-mod-update,
+// respect_patch_floor, art-dupl emit-suppressed-accepted) were removed with
+// the file on 2026-10-27 (owner decision: no repo-level BuildFlow config).
+// The pin guards remain; the BuildFlow-side protections are pursued
+// upstream — see ROADMAP.md and docs/engineering-notes.md.
 
 // TestTerminalSentinelsStayInterfaceTyped guards the erraudit disposition: all
 // three terminal sentinels are declared with the `error` interface type, not

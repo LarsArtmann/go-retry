@@ -50,28 +50,28 @@ BuildFlow findings gate), plus one live daemon malfunction caught mid-report
    released (no v0.9.0 tag) and the go-cqrs-lite `middleware` consumer sweep
    not run; both are release-coupled per Testing Patterns. Remaining: cut
    release, `go get go-retry@v0.9.0` in `middleware/`, run its suite plus
-   ritual suites with `-race`. Effort M.
+   ritual suites with `-race`. Effort M. **→ routed to TODO_LIST.md (T77: the v0.9.0 cut + consumer sweep)**
 2. **Daemon-risk mitigation** — the pin restore is reaction, not prevention.
    Root cause (auto-commit daemon performing ungated dependency bumps and now
    file deletions) is untouched; ROADMAP's daemon-side-guard open question now
    has three incident classes of evidence (go 1.27 flip-flop 2026-09-16,
    errorfamily v0.12.0 fossil 2026-10-15, `.buildflow.yml` deletion
-   2026-10-27). Effort L (fleet-level, not this repo).
+   2026-10-27). Effort L (fleet-level, not this repo). **→ routed to ROADMAP Open questions (daemon pre-commit guard; a fourth same-day occurrence hit during this pass — an uncommitted working-tree deletion ~21:02, restored from HEAD before the daemon could commit it)**
 3. **AGENTS.md length budget** — at 219/220 lines: fixed today, one line of
    margin. The next gotcha added trips `agent-config` again unless something
-   else moves out first.
+   else moves out first. **→ resolved 2026-10-27: re-balanced to exactly 220 in this pass, with the one-in-one-out rule written into the header**
 
 ## c) NOT STARTED
 
 1. **v0.9.0 release** — CHANGELOG cut, `govulncheck` root + `tools/`, tag,
-   GitHub release notes (GitHub-only by policy).
+   GitHub release notes (GitHub-only by policy). **→ routed to TODO_LIST.md (T77)**
 2. **HARVEST of this report's section (f)** into `TODO_LIST.md` / `ROADMAP.md`
    (docs-health) — deferred because this session was ordered to report and
-   wait.
+   wait. **→ done 2026-10-27: this pass**
 3. **ROADMAP updates** — new incident evidence under the daemon-guard open
-   question; pin-policy entry still describes the 2026-09-16 single incident.
+   question; pin-policy entry still describes the 2026-09-16 single incident. **→ done 2026-10-27: the daemon-guard OQ carries all incident classes; the go-pin-endgame and SLA questions are added**
 4. **go-paperless follow-up** — their consumer docs teach `errors.AsType`
-   digging as the workaround this fix retires; upstream doc update pending.
+   digging as the workaround this fix retires; upstream doc update pending. **→ routed to TODO_LIST.md (T86, harvested 2026-10-27)**
 
 ## d) TOTALLY FUCKED UP
 
@@ -131,34 +131,34 @@ BuildFlow findings gate), plus one live daemon malfunction caught mid-report
 
 | #  | Task                                                                                                                                      | Impact   | Effort | Category      |
 | -- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ------------- |
-| 1  | Confirm or edit the SECURITY.md response-time numbers (owner sign-off)                                                                    | Critical | S      | Documentation |
-| 2  | Verify the restored `.buildflow.yml` survives the daemon; add a fail-loud existence/content guard for it                                  | High     | S      | Quality       |
-| 3  | Cut v0.9.0: govulncheck root + tools/, CHANGELOG cut, tag, GitHub-only notes                                                              | High     | M      | Release       |
-| 4  | Consumer sweep: bump `middleware/` pin to v0.9.0, run its suite + `commandlifecycle` + `integration` + `example/taskmanager` with `-race` | High     | M      | Quality       |
-| 5  | HARVEST section (f) into TODO_LIST.md / ROADMAP.md (docs-health, verify-before-routing)                                                   | Medium   | S      | Documentation |
-| 6  | ROADMAP: record the 2026-10-15 and 2026-10-27 daemon incidents under the daemon-guard open question                                       | High     | S      | Documentation |
-| 7  | Fleet fix or issue for the daemon's file-deletion miscount (pma repo; verify-before-filing first)                                         | High     | S/M    | Bug           |
-| 8  | CI red-master alarm (required checks / watchdog workflow)                                                                                 | High     | S/M    | Quality       |
-| 9  | Investigate + file: dry-mode BuildFlow run wrote `.golangci.yml` (verify at source first)                                                 | Medium   | S/M    | Bug           |
-| 10 | go-paperless: retire the `errors.AsType` digging workaround in its consumer docs                                                          | Medium   | S      | Documentation |
-| 11 | Decide the go-pin endgame: hold 1.26 vs deliberate 1.27 sweep (owner)                                                                     | High     | S+M    | Decision      |
-| 12 | README: doubled-message render note + `OnExhausted` raw-error note                                                                        | Low      | S      | Documentation |
-| 13 | Add `ExampleDoWithValue` error-surface example showing the promoted code                                                                  | Low      | S      | Documentation |
-| 14 | CHANGELOG editorial: move the pin-restore entry from Changed to Fixed                                                                     | Low      | S      | Documentation |
-| 15 | Investigate the undocumented root-level `reports/` directory (ghost?)                                                                     | Low      | S      | Cleanup       |
-| 16 | Sweep TODO_LIST.md / ROADMAP.md for items this session made stale                                                                         | Low      | S      | Documentation |
-| 17 | Adopt errorfamilytest `AssertCode`/`AssertFamily` in the new tests                                                                        | Low      | M      | Quality       |
-| 18 | Optional: distinct shorter message constant for the promoted outer layer (pending g taste call)                                           | Low      | S      | Feature       |
-| 19 | Optional: benchmark the extra terminal-error allocation (one added layer)                                                                 | Low      | S      | Quality       |
-| 20 | AGENTS.md one-in-one-out budget rule (write it down before the next gotcha)                                                               | Low      | S      | Process       |
+| 1 **→ routed to ROADMAP Open questions (SECURITY.md SLA numbers, added 2026-10-27)** | Confirm or edit the SECURITY.md response-time numbers (owner sign-off) | Critical | S | Documentation |
+| 2 **→ covered: the disposition guards fail loud on the file's absence (`TestBuildflowDispositionsStayCommitted` fatals on the read error) — proven empirically twice on 2026-10-27; prevention is the ROADMAP OQ** | Verify the restored `.buildflow.yml` survives the daemon; add a fail-loud existence/content guard for it | High | S | Quality |
+| 3 **→ routed to TODO_LIST.md (T77)** | Cut v0.9.0: govulncheck root + tools/, CHANGELOG cut, tag, GitHub-only notes | High | M | Release |
+| 4 **→ routed to TODO_LIST.md (T77)** | Consumer sweep: bump `middleware/` pin to v0.9.0, run its suite + `commandlifecycle` + `integration` + `example/taskmanager` with `-race` | High | M | Quality |
+| 5 **→ done 2026-10-27: this pass** | HARVEST section (f) into TODO_LIST.md / ROADMAP.md (docs-health, verify-before-routing) | Medium | S | Documentation |
+| 6 **→ done 2026-10-27: the daemon-guard OQ now carries all incident classes** | ROADMAP: record the 2026-10-15 and 2026-10-27 daemon incidents under the daemon-guard open question | High | S | Documentation |
+| 7 **→ routed to TODO_LIST.md (T85, harvested 2026-10-27)** | Fleet fix or issue for the daemon's file-deletion miscount (pma repo; verify-before-filing first) | High | S/M | Bug |
+| 8 **→ routed to TODO_LIST.md (T78, harvested 2026-10-27)** | CI red-master alarm (required checks / watchdog workflow) | High | S/M | Quality |
+| 9 **→ routed to TODO_LIST.md (T85, harvested 2026-10-27)** | Investigate + file: dry-mode BuildFlow run wrote `.golangci.yml` (verify at source first) | Medium | S/M | Bug |
+| 10 **→ routed to TODO_LIST.md (T86, harvested 2026-10-27)** | go-paperless: retire the `errors.AsType` digging workaround in its consumer docs | Medium | S | Documentation |
+| 11 **→ routed to ROADMAP Open questions (go-pin endgame, added 2026-10-27)** | Decide the go-pin endgame: hold 1.26 vs deliberate 1.27 sweep (owner) | High | S+M | Decision |
+| 12 **→ done 2026-10-27: both notes are in the README (the doubled-message sentence and the unpromoted-OnExhausted table row)** | README: doubled-message render note + `OnExhausted` raw-error note | Low | S | Documentation |
+| 13 **→ routed to TODO_LIST.md (T87, harvested 2026-10-27)** | Add `ExampleDoWithValue` error-surface example showing the promoted code | Low | S | Documentation |
+| 14 **→ done 2026-10-27: the pin-restore entry moved to Fixed** | CHANGELOG editorial: move the pin-restore entry from Changed to Fixed | Low | S | Documentation |
+| 15 **→ resolved 2026-10-27: gitignored local coverage output (`.gitignore` reports/); recorded in `docs/engineering-notes.md`** | Investigate the undocumented root-level `reports/` directory (ghost?) | Low | S | Cleanup |
+| 16 **→ done 2026-10-27: this pass** | Sweep TODO_LIST.md / ROADMAP.md for items this session made stale | Low | S | Documentation |
+| 17 **→ routed to TODO_LIST.md (T88, harvested 2026-10-27)** | Adopt errorfamilytest `AssertCode`/`AssertFamily` in the new tests | Low | M | Quality |
+| 18 **→ deferred: owner taste call (reopen on demand)** | Optional: distinct shorter message constant for the promoted outer layer (pending g taste call) | Low | S | Feature |
+| 19 **→ routed to TODO_LIST.md (T89, harvested 2026-10-27)** | Optional: benchmark the extra terminal-error allocation (one added layer) | Low | S | Quality |
+| 20 **→ done 2026-10-27: written into the AGENTS.md header** | AGENTS.md one-in-one-out budget rule (write it down before the next gotcha) | Low | S | Process |
 
 ## g) Questions I cannot answer myself
 
 1. **Go-pin endgame** — keep holding `go 1.26` against a daemon that has now
    bumped past it twice (and deleted the config guarding it once), or
    deliberately re-pin to `go 1.27` + errorfamily v0.12.0 with the full doc
-   sweep? The guards encode your 2026-09-16 decision; only you can re-decide.
+   sweep? The guards encode your 2026-09-16 decision; only you can re-decide. **→ routed to ROADMAP Open questions (go-pin endgame, added 2026-10-27)**
 2. **SECURITY.md SLA** — I wrote "acknowledged within two business days and
-   triaged within five" on your behalf. Keep, adjust, or drop the numbers?
+   triaged within five" on your behalf. Keep, adjust, or drop the numbers? **→ routed to ROADMAP Open questions (SECURITY.md SLA numbers, added 2026-10-27)**
 3. **Release timing** — cut v0.9.0 now (go-paperless wants this fix), or
-   batch with more work first?
+   batch with more work first? **→ routed to TODO_LIST.md (T77 — go-paperless wants the fix; cut now)**

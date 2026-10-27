@@ -121,15 +121,14 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   string repeats the terminal message — accepted cost of every layer staying a
   native `errorfamily.Error`.
 - **The go directive is pinned at `go 1.26`** (guarded by
-  `TestModuleGoDirectiveStaysPinned`; every doc states it). `.buildflow.yml`
-  skips `go-mod-update` (unconditional minor-bump; Dependabot owns gomod
-  bumps); `.go-structure-linter.yaml` suppresses its `go-version` rule (bumps
-  to the installed toolchain); `tools/go.mod` keeps its dep-forced patch floor
-  `go 1.26.0` via `respect_patch_floor`. The dependency side is guarded by
-  `TestErrorFamilyFloorStaysWithinGoPin` — a daemon-committed go-error-family
-  v0.12.0 bump (declares `go 1.27`) left both guards red 2026-10-15→27 until
-  restored to v0.11.0 (narrative in `docs/engineering-notes.md`); re-adopt
-  newer only as a deliberate re-pin with the full doc sweep.
+  `TestModuleGoDirectiveStaysPinned`; every doc states it); there is
+  deliberately **no `.buildflow.yml`** (owner decision 2026-10-27). BuildFlow's
+  `go-mod-update` bumps the directive to the installed minor and its rewriters
+  strip patch-form floors — both filed upstream (links in `ROADMAP.md`); until
+  then `buildflow update`/`--fix` may re-lose the pin: guards trip, restore per
+  `docs/engineering-notes.md`. `.go-structure-linter.yaml` suppresses its
+  `go-version` rule; `tools/go.mod` keeps its dep-forced `go 1.26.0` floor;
+  dep side: `TestErrorFamilyFloorStaysWithinGoPin` (v0.12.0 saga: notes).
 - **No `flake.nix` despite the global AGENTS.md convention.** Do not invent nix
   targets. Same stance for go-auto-upgrade's `lo.Map` suggestion: adding
   `samber/lo` breaks the dependency-light contract for one test loop — see
@@ -163,9 +162,9 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   schema rejects — `exhaustruct_v5` accepts no `exclude` key, it bit once);
   the in-source `//nolint:` markers (per-marker rationale in
   `CONTRIBUTING.md`) and the hash-precision `// art-dupl:accept` directives in
-  `retry_test.go` (honored only via the `.buildflow.yml`
-  `emit-suppressed-accepted` opt-in, guarded in `dispositions_test.go`) are
-  deliberate — removing any produces a real finding.
+  `retry_test.go` (reviewed clones; they suppress standalone — verified
+  2026-10-27 with no BuildFlow config, findings gate green) are deliberate —
+  removing any produces a real finding.
 - **Terminal-error codes/messages are single-sourced constants** at the top of
   `retry.go`; the sentinels and their `WrapInfrastructure` call sites must use
   them — never re-inline the strings.

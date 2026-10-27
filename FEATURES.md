@@ -177,13 +177,14 @@ attempt` to prove `computeDelay` cannot panic or return negative for any
   re-pin it silently. `retry_test.go`
   (`TestModuleGoDirectiveStaysPinned`).
 - **Tooling dispositions are guarded (proven-failing)** —
-  `dispositions_test.go` pins the four deliberate 2026-10-08 dispositions:
-  `.buildflow.yml` keeps skipping `go-mod-update` and keeping
-  `respect_patch_floor` on (both silently re-pinned the go directive), the
-  terminal sentinels stay declared with the `error` interface type, the
+  `dispositions_test.go` pins the deliberate dispositions: the terminal
+  sentinels stay declared with the `error` interface type, the
   go-error-family go floor stays within the `go 1.26` pin, and
-  `lychee.toml` keeps the private-namespace exclude. Each names its
-  consequence and was proven failing on injected drift.
+  `lychee.toml` keeps the private-namespace exclude. (The former
+  `.buildflow.yml` go-pin dispositions were removed with the file on
+  2026-10-27 — owner decision, no repo-level BuildFlow config; the
+  BuildFlow-side behaviors are filed upstream, see `ROADMAP.md`.) Each
+  names its consequence and was proven failing on injected drift.
   `dispositions_test.go`.
 - **Remote-action inputs are allowlist-guarded (proven-failing)** —
   `TestRemoteActionInputsAreAllowlisted` checks every `with:` key of every

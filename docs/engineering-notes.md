@@ -14,14 +14,18 @@ load-bearing, not cosmetic.
 
 BuildFlow's `go-mod-update` step bumps the directive to the installed
 toolchain's minor unconditionally — that policy silently re-lost the pin three
-times in twenty commits (the guard test caught each one). Resolution,
-2026-10-08: `.buildflow.yml` skips `go-mod-update` in this repo; Dependabot
-(weekly, gomod at `/` and `/tools`) is the primary dependency-update surface,
-and intentional bumps happen through the release flow with the docs re-pinned
-in the same change. Do not remove the `skip_steps` entry without re-deciding
-this policy, and never "fix" a red `TestModuleGoDirectiveStaysPinned` by
-updating the constant alone — a real re-pin means updating every doc that
-states 1.26 in the same change.
+times in twenty commits (the guard test caught each one). From 2026-10-08 the
+repo carried a `.buildflow.yml` skip for it; on 2026-10-27 the owner decided
+the repo should need no BuildFlow config at all, so the file and its guard
+tests were removed and the behavior was filed upstream instead (links in
+`ROADMAP.md`). Until upstream lands a pin-respecting default, any
+`buildflow update`/`--fix` run may re-write the directive: the guard trips,
+restore the pin and re-run the battery. Dependabot (weekly, gomod at `/` and
+`/tools`) remains the primary dependency-update surface, and intentional
+bumps happen through the release flow with the docs re-pinned in the same
+change. Never "fix" a red `TestModuleGoDirectiveStaysPinned` by updating the
+constant alone — a real re-pin means updating every doc that states 1.26 in
+the same change.
 
 `go-mod-update` is not the only writer: the `go-structure-linter` tool's
 `go-version` repair rule also bumps the directive ("go.mod specifies Go 1.26,
@@ -35,12 +39,14 @@ between runs, bisect steps AND check repair-only rules in non-obvious tools.
 
 The `tools/` nested module declares `go 1.26.0` (patch form) because six
 `golang.org/x/*` dependencies each declare a patch-form `go 1.26.0` floor, so
-a major.minor-only directive cannot represent the true minimum. That is why
-`.buildflow.yml` sets
-`tool_options.go-version-auto-configure.respect_patch_floor: true`: patch-form
-directives stay alone while they do not exceed the installed toolchain. If the
-x/* stack is ever bumped to versions with major.minor-only floors, tighten the
-directive and drop the option together.
+a major.minor-only directive cannot represent the true minimum (`go mod
+tidy` re-raises it after any flattening). BuildFlow's go-line rewriters
+downgrade such patch pins by default; the former `respect_patch_floor` opt-in
+lived in `.buildflow.yml` and was removed with it on 2026-10-27 — the default
+is filed upstream too (links in `ROADMAP.md`). If a `--fix` run flattens
+`go 1.26.0` to `go 1.26`, restore it — the flip-flop is the documented BF2
+class. If the x/* stack is ever bumped to versions with major.minor-only
+floors, tighten the directive.
 
 ## Sentinel errors are typed `error`, not `*errorfamily.Error`
 
@@ -209,11 +215,10 @@ concise), so the per-file responsibility table lives here:
 | `options.go`                   | `Option` funcs (`WithIsRetryable`, `WithDelayFunc`, `WithOnRetry`, `WithExhausted`) + `JitterStrategy` (`JitterAdditive`, `JitterNone`)                                                                                              |
 | `doc.go`                       | Package doc stating the no-CQRS/no-OTel boundary                                                                                                                                                                                     |
 | `retry_test.go`                | External test package (`retry_test`)                                                                                                                                                                                                 |
-| `dispositions_test.go`         | Config-disposition guards: `.buildflow.yml` skip_steps/patch-floor + art-dupl accept opt-in, interface-typed sentinels, error-family floor within the go pin, `lychee.toml` private-namespace exclude (each proven failing on drift) |
+| `dispositions_test.go`         | Config-disposition guards: interface-typed sentinels, error-family floor within the go pin, `lychee.toml` private-namespace exclude (each proven failing on drift)                                                                  |
 | `docs_test.go`                 | Markdown guard tests (strike rendering, table code spans, archive verdicts, status index)                                                                                                                                            |
 | `workflows_test.go`            | Input-allowlist guard: every pinned `uses:` action's `with:` keys checked against allowlists verified from action.yml at each SHA                                                                                                    |
 | `tools/`                       | Nested module pinning dev tools via Go `tool` directives                                                                                                                                                                             |
-| `.buildflow.yml`               | BuildFlow dispositions (deliberate policy — see the AGENTS.md gotchas)                                                                                                                                                               |
 | `.go-structure-linter.yaml`    | `flat` preset — single-package library at repo root by design                                                                                                                                                                        |
 | `lychee.toml`                  | Link-check excludes: private LarsArtmann repos 404 unauthenticated                                                                                                                                                                   |
 | `.golangci.yml`                | Lint config: standard defaults + ~100 extra linters; `mnd`/`exhaustruct_v5` and friends excluded from `_test.go`                                                                                                                     |

@@ -14,11 +14,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `contextCanceledDuringBackoff`, `contextDeadlineDuringBackoff`,
   `runAlwaysFailing`, `countOnRetry`, `countOnExhausted`); the remaining
   intentional parallelism is recorded with hash-precision `// art-dupl:accept`
-  directives, honored by BuildFlow through a new `.buildflow.yml` opt-in
-  (`emit-suppressed-accepted`) guarded by `TestArtDuplAcceptDirectivesStayHonored`.
+  directives, which art-dupl honors standalone (verified: findings
+  suppressed, gate green).
 
 ### Changed
 
+- **No more repo-level BuildFlow config.** `.buildflow.yml` and its guard
+  tests were removed (owner decision 2026-10-27): the repo should build clean
+  with no BuildFlow dispositions. The pin protections the file carried are
+  pursued upstream instead — BuildFlow's `go-mod-update` unconditionally
+  bumps a minor-pinned go directive to the installed toolchain, and its
+  go-line rewriters strip patch-form floors by default (both verified at
+  source level and reproduced live; links in `ROADMAP.md`). Until fixed
+  upstream, `buildflow update`/`--fix` may re-lose the pin; the guard tests
+  trip and the pin is restored per `docs/engineering-notes.md`.
 - **Terminal errors surface the last attempt's error code outermost.** When
   the final attempt error carries an error-family code, `errorfamily.Code` on
   the returned error now answers with that code (e.g.

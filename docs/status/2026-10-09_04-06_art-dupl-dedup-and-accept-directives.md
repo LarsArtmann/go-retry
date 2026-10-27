@@ -48,31 +48,31 @@ taken by the auto-commit daemon as `10f92a3`, `441c584`, `af2b90b`).
 
 ## b) PARTIALLY DONE
 
-1. **Hash-drift visibility.** The directives re-flag on drift (verified from **→ routed to TODO_LIST.md (T94, harvested 2026-10-27 — the opt-in is guarded; drift loudness is undecided)**
+1. **Hash-drift visibility.** The directives re-flag on drift (verified from
    source semantics), but the returning findings are **warnings**, which the
    default findings gate does not trip on. So drift is visible only to someone
    reading buildflow output. A loud-failure path (strict gate or guard) was
-   considered and consciously deferred — see §f.6.
-2. **Dead-directive surfacing unverified.** art-dupl's CLI detects accept **→ routed to TODO_LIST.md (T92, harvested 2026-10-27 — the experiment covers this)**
+   considered and consciously deferred — see §f.6. **→ routed to TODO_LIST.md (T94, harvested 2026-10-27 — the opt-in is guarded; drift loudness is undecided)**
+2. **Dead-directive surfacing unverified.** art-dupl's CLI detects accept
    directives that matched zero groups (stale hashes); whether the BuildFlow
    provider path surfaces that is **unknown** — I noticed the question
    mid-session, wrote "unverified" in my notes, and then dropped it without
-   the 30-second experiment (flip one hash byte, observe, restore).
+   the 30-second experiment (flip one hash byte, observe, restore). **→ routed to TODO_LIST.md (T92, harvested 2026-10-27 — the experiment covers this)**
 
 ## c) NOT STARTED
 
-1. **Fleet-level fix in BuildFlow**: the provider's default-off accept **→ external to this repo: a BuildFlow-repo decision (this repo's opt-in works and is guarded)**
+1. **Fleet-level fix in BuildFlow**: the provider's default-off accept
    handling is a footgun for every covered repo that ever writes an
    `//art-dupl:accept` directive. The repo-local opt-in works; whether the
    default should flip (or BuildFlow should warn when directives exist but the
-   option is off) is a BuildFlow-repo decision, not made here.
-2. **One full `buildflow` run** (all steps) with the new `.buildflow.yml` — **→ done 2026-10-27: full `buildflow` run exit 0 (20:43 report §a6)**
+   option is off) is a BuildFlow-repo decision, not made here. **→ external to this repo: a BuildFlow-repo decision (this repo's opt-in works and is guarded)**
+2. **One full `buildflow` run** (all steps) with the new `.buildflow.yml` —
    only `-s art-dupl` was exercised; the config change's effect on the whole
-   pipeline is untested locally (CI will cover it on push).
-3. **TODO_LIST/ROADMAP harvest** of this report's §f — deliberately not done; **→ done 2026-10-27: this pass (this report annotated and archived; its §f routed)**
-   this report is the input, docs-health HARVEST is the consumer.
-4. **TODO_LIST check**: this session never opened `TODO_LIST.md`; if it had **→ done 2026-10-09: 21 rows retired at `d76d439`; re-checked 2026-10-27**
-   pre-existing duplication-related items, they are now obsoleted unannotated.
+   pipeline is untested locally (CI will cover it on push). **→ done 2026-10-27: full `buildflow` run exit 0 (20:43 report §a6)**
+3. **TODO_LIST/ROADMAP harvest** of this report's §f — deliberately not done;
+   this report is the input, docs-health HARVEST is the consumer. **→ done 2026-10-27: this pass (this report annotated and archived; its §f routed)**
+4. **TODO_LIST check**: this session never opened `TODO_LIST.md`; if it had
+   pre-existing duplication-related items, they are now obsoleted unannotated. **→ done 2026-10-09: 21 rows retired at `d76d439`; re-checked 2026-10-27**
 
 ## d) TOTALLY FUCKED UP
 
@@ -119,53 +119,53 @@ taken by the auto-commit daemon as `10f92a3`, `441c584`, `af2b90b`).
 
 ## f) Next (13 candidates, impact-sorted; feed to docs-health HARVEST)
 
-1. BuildFlow: decide the fleet default for `emit-suppressed-accepted` (honor **→ external to this repo: a BuildFlow-repo decision**
+1. BuildFlow: decide the fleet default for `emit-suppressed-accepted` (honor
    accept directives by default, or warn when directives exist and the option
-   is off). Unblocks removing this repo's opt-in if the default flips.
-2. BuildFlow: surface dead directives (stale hashes) in the provider path, not **→ external to this repo: a BuildFlow provider-path change**
-   only the CLI.
-3. go-retry: run the dead-directive experiment locally (flip one hash byte, **→ routed to TODO_LIST.md (T92, harvested 2026-10-27)**
+   is off). Unblocks removing this repo's opt-in if the default flips. **→ external to this repo: a BuildFlow-repo decision**
+2. BuildFlow: surface dead directives (stale hashes) in the provider path, not
+   only the CLI. **→ external to this repo: a BuildFlow provider-path change**
+3. go-retry: run the dead-directive experiment locally (flip one hash byte,
    observe what buildflow reports, restore) and record the answer in
-   `docs/engineering-notes.md`.
-4. go-retry: one full `buildflow` run (no `-s`) to validate the new **→ done 2026-10-27: full run exit 0**
-   `tool_options` block end-to-end and confirm zero unknown-key warnings.
-5. go-retry: shrink `AGENTS.md` under the 220-line doctor budget (candidate: **→ done 2026-10-27: 257 → 219 by the 20:43 session, re-balanced to exactly 220 in this pass with the one-in-one-out rule written into the header**
+   `docs/engineering-notes.md`. **→ routed to TODO_LIST.md (T92, harvested 2026-10-27)**
+4. go-retry: one full `buildflow` run (no `-s`) to validate the new
+   `tool_options` block end-to-end and confirm zero unknown-key warnings. **→ done 2026-10-27: full run exit 0**
+5. go-retry: shrink `AGENTS.md` under the 220-line doctor budget (candidate:
    fold the lint-gate quirks detail into `docs/engineering-notes.md`, keep a
    one-line pointer); content must survive, only the duplication with
-   engineering-notes may collapse.
-6. go-retry: make clone-hash drift loud — either CI runs art-dupl strict **→ routed to TODO_LIST.md (T94, harvested 2026-10-27)**
+   engineering-notes may collapse. **→ done 2026-10-27: 257 → 219 by the 20:43 session, re-balanced to exactly 220 in this pass with the one-in-one-out rule written into the header**
+6. go-retry: make clone-hash drift loud — either CI runs art-dupl strict
    (`--fail-on warning`) or a guard pins the three directive lines; decide
-   which, in the same change re-decide the warnings-don't-gate stance.
-7. docs-health HARVEST this §f into `TODO_LIST.md`/`ROADMAP.md` **→ done 2026-10-27: this pass**
-   (verify-before-routing).
-8. go-retry: open `TODO_LIST.md`, check for duplication-related items this **→ done 2026-10-09 (21 rows retired at `d76d439`); re-checked 2026-10-27**
-   session obsoleted, annotate them done at `1286e88`/daemon hashes.
-9. go-retry: read-only pass over the remaining 8 `context.WithCancel` test **→ verified 2026-10-27: golangci `dupl` (150 tokens) silent across the suite (lint 0 issues)**
+   which, in the same change re-decide the warnings-don't-gate stance. **→ routed to TODO_LIST.md (T94, harvested 2026-10-27)**
+7. docs-health HARVEST this §f into `TODO_LIST.md`/`ROADMAP.md`
+   (verify-before-routing). **→ done 2026-10-27: this pass**
+8. go-retry: open `TODO_LIST.md`, check for duplication-related items this
+   session obsoleted, annotate them done at `1286e88`/daemon hashes. **→ done 2026-10-09 (21 rows retired at `d76d439`); re-checked 2026-10-27**
+9. go-retry: read-only pass over the remaining 8 `context.WithCancel` test
    sites (options/value tests) for further harmful clones at golangci's `dupl`
-   threshold (150 tokens — currently silent; likely nothing, confirm cheaply).
-10. Refresh the installed buildflow binary (`ec8d2d3` → HEAD); re-run **→ routed to TODO_LIST.md (T60, still open 2026-10-27)**
+   threshold (150 tokens — currently silent; likely nothing, confirm cheaply). **→ verified 2026-10-27: golangci `dupl` (150 tokens) silent across the suite (lint 0 issues)**
+10. Refresh the installed buildflow binary (`ec8d2d3` → HEAD); re-run
     `-s art-dupl` to confirm today's suppression behavior holds on current
-    provider code.
-11. If BuildFlow flips the default (item 1), remove this repo's now-redundant **→ conditional on the external BuildFlow decision (§f.1)**
+    provider code. **→ routed to TODO_LIST.md (T60, still open 2026-10-27)**
+11. If BuildFlow flips the default (item 1), remove this repo's now-redundant
     opt-in and update `TestArtDuplAcceptDirectivesStayHonored` in the same
-    change.
-12. Re-verify HEAD is the tested tree: one `go test ./... -race -count=10` **→ verified 2026-10-27: the full battery is green in this pass**
-    after the daemon's commits settle (hash-verification ritual).
-13. Consider whether `TestDo_PreCanceledContextReturnsErrCanceled` (hand-rolled **→ routed to TODO_LIST.md (T93, harvested 2026-10-27)**
+    change. **→ conditional on the external BuildFlow decision (§f.1)**
+12. Re-verify HEAD is the tested tree: one `go test ./... -race -count=10`
+    after the daemon's commits settle (hash-verification ritual). **→ verified 2026-10-27: the full battery is green in this pass**
+13. Consider whether `TestDo_PreCanceledContextReturnsErrCanceled` (hand-rolled
     near-`longBackoffConfig` literal, deliberately different values) deserves
-    a comment stating why it does not use the helper — cheap drift-proofing.
+    a comment stating why it does not use the helper — cheap drift-proofing. **→ routed to TODO_LIST.md (T93, harvested 2026-10-27)**
 
 ## g) Questions I cannot answer myself
 
-1. **Fleet intent:** should BuildFlow's art-dupl provider honor **→ external BuildFlow-repo decision (owner)**
+1. **Fleet intent:** should BuildFlow's art-dupl provider honor
    `//art-dupl:accept` directives **by default** (making every covered repo's
    directives work opt-out), or is per-repo opt-in the deliberate design?
-   This decides §f.1 and whether this repo's opt-in is temporary.
-2. **Drift loudness policy:** do you want clone-hash drift to FAIL CI (e.g. **→ routed to TODO_LIST.md (T94, harvested 2026-10-27)**
+   This decides §f.1 and whether this repo's opt-in is temporary. **→ external BuildFlow-repo decision (owner)**
+2. **Drift loudness policy:** do you want clone-hash drift to FAIL CI (e.g.
    art-dupl at `--fail-on warning`), accepting that future intentional clones
    must land a directive in the same change? Or is "visible in buildflow
-   output, gate stays green" the intended posture?
-3. **AGENTS.md budget:** it is at 237 lines against the doctor's 220 max (and **→ resolved 2026-10-27: exactly 220 lines with the one-in-one-out rule written into the AGENTS.md header**
+   output, gate stays green" the intended posture? **→ routed to TODO_LIST.md (T94, harvested 2026-10-27)**
+3. **AGENTS.md budget:** it is at 237 lines against the doctor's 220 max (and
    I made it worse this session). Compress by folding lint-gate quirks into
    `docs/engineering-notes.md`, or do you want the budget raised because this
-   repo's session context genuinely needs the depth?
+   repo's session context genuinely needs the depth? **→ resolved 2026-10-27: exactly 220 lines with the one-in-one-out rule written into the AGENTS.md header**
