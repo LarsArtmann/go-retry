@@ -32,6 +32,12 @@ const (
 //
 //	if errors.Is(err, ErrExhausted) && errors.Is(err, errQuotaExceeded) { ... }
 //
+// When the last attempt error carries an error-family code, that code is
+// surfaced outermost: errorfamily.Code(err) answers with the last attempt's
+// code (e.g. "provider.rate_limited") instead of "retry.exhausted", so
+// code-switching alerting and routing work without digging through the
+// chain. ErrExhausted itself stays answerable via errors.Is.
+//
 // Nesting is fail-closed: ErrExhausted is Infrastructure, and the default
 // IsRetryable predicate retries only Transient errors, so an outer retry
 // loop treats an inner loop's exhaustion as terminal rather than
@@ -43,7 +49,9 @@ var ErrExhausted error = errorfamily.NewInfrastructure(
 
 // ErrCanceled is returned by [Do] when the context is canceled during
 // a retry delay. Errors matching it also unwrap to [context.Canceled],
-// and the last attempt error remains in the chain.
+// and the last attempt error remains in the chain. When that last attempt
+// error carries an error-family code, errorfamily.Code surfaces it
+// outermost instead of the retry bookkeeping code (see [ErrExhausted]).
 var ErrCanceled error = errorfamily.NewInfrastructure(
 	codeCanceled,
 	msgCanceled,
@@ -52,9 +60,11 @@ var ErrCanceled error = errorfamily.NewInfrastructure(
 // ErrDeadlineExceeded is returned by [Do] when the context deadline is
 // exceeded during a retry delay. Errors matching it also unwrap to
 // [context.DeadlineExceeded], and the last attempt error remains in the
-// chain. The distinction from [ErrCanceled] matters operationally: a
-// deadline means the operation was too slow, a cancel means the caller
-// shut down — the two are debugged differently.
+// chain. When that last attempt error carries an error-family code,
+// errorfamily.Code surfaces it outermost instead of the retry bookkeeping
+// code (see [ErrExhausted]). The distinction from [ErrCanceled] matters
+// operationally: a deadline means the operation was too slow, a cancel
+// means the caller shut down — the two are debugged differently.
 var ErrDeadlineExceeded error = errorfamily.NewInfrastructure(
 	codeDeadline,
 	msgDeadline,
@@ -79,7 +89,10 @@ type AttemptFunc func(ctx context.Context, attempt int) error
 //
 // If all attempts fail, Do calls config.OnExhausted (if set) and returns
 // an error wrapping [ErrExhausted] with the last error as its cause, so
-// errors.Is and errors.AsType reach the final attempt's error.
+// errors.Is and errors.AsType reach the final attempt's error. When that
+// final error carries an error-family code, errorfamily.Code reports the
+// code outermost; the retry sentinel stays answerable via errors.Is
+// (see [ErrExhausted]).
 //
 // The optional opts tail overrides Config fields for this call only — the
 // passed Config is not modified. See [Option].
@@ -120,8 +133,10 @@ func Do(ctx context.Context, config Config, fn AttemptFunc, opts ...Option) erro
 		config.OnExhausted(config.MaxAttempts, err)
 	}
 
-	return errorfamily.WrapInfrastructure(ErrExhausted, codeExhausted,
+	terminal := errorfamily.WrapInfrastructure(ErrExhausted, codeExhausted,
 		msgExhausted).WithCause(err)
+
+	return promoteLastAttemptCode(terminal, err, msgExhausted)
 }
 
 // ResultFunc is the function retried by [DoWithValue]. The attempt
@@ -206,17 +221,42 @@ func nextDelay(config Config, attempt int, err error) time.Duration {
 // contextEnded classifies why the context ended — deadline exceeded or
 // explicit cancel — and builds the matching terminal error. The cause chain
 // carries both the context error and the last attempt error (Go 1.20 multi-%w),
-// so errors.Is reaches either one without losing the other.
+// so errors.Is reaches either one without losing the other. A coded last
+// attempt error gets its code surfaced outermost via [promoteLastAttemptCode].
 func contextEnded(ctx context.Context, lastErr error) error {
 	chain := fmt.Errorf("%w; last attempt: %w", ctx.Err(), lastErr)
 
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		return errorfamily.WrapInfrastructure(ErrDeadlineExceeded, codeDeadline,
+		terminal := errorfamily.WrapInfrastructure(ErrDeadlineExceeded, codeDeadline,
 			msgDeadline).WithCause(chain)
+
+		return promoteLastAttemptCode(terminal, lastErr, msgDeadline)
 	}
 
-	return errorfamily.WrapInfrastructure(ErrCanceled, codeCanceled,
+	terminal := errorfamily.WrapInfrastructure(ErrCanceled, codeCanceled,
 		msgCanceled).WithCause(chain)
+
+	return promoteLastAttemptCode(terminal, lastErr, msgCanceled)
+}
+
+// promoteLastAttemptCode wraps terminal in an outermost Infrastructure layer
+// that adopts lastErr's error-family code, so errorfamily.Code answers with
+// the operationally relevant code of the final attempt (e.g. a provider
+// quota code) instead of the retry bookkeeping code. The wrapped terminal
+// keeps the retry sentinel answerable (errors.Is still matches
+// [ErrExhausted], [ErrCanceled], or [ErrDeadlineExceeded]) and the last
+// attempt error stays reachable through the chain. The outer family stays
+// Infrastructure, preserving fail-closed nesting: an outer retry loop must
+// never treat an inner loop's terminal error as retryable, whatever the
+// inner attempts failed with. A lastErr carrying no code returns terminal
+// unchanged.
+func promoteLastAttemptCode(terminal, lastErr error, msg string) error {
+	code := errorfamily.Code(lastErr)
+	if code == "" {
+		return terminal
+	}
+
+	return errorfamily.WrapInfrastructure(terminal, code, msg)
 }
 
 // Backoff calculates the delay before the next attempt using exponential
