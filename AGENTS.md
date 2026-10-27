@@ -2,7 +2,8 @@
 
 Concise, enduring context for every AI session working in `go-retry`. Long-form
 narratives: `docs/engineering-notes.md` — read a section there before acting on
-its topic.
+its topic. This file sits at its line budget: one gotcha in, one gotcha out;
+new context lands in `docs/engineering-notes.md` with a one-line pointer here.
 
 ## What This Is
 
@@ -101,8 +102,6 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   delays skip jitter, `math.Pow` overflow saturates to `MaxDelay`. Guarded by
   `TestComputeDelay_NeverPanicsAcrossMatrix`; never reintroduce an unguarded
   `rand.Int64N` call.
-- **Concurrent call counting in tests uses `atomic.Int32`** (`sync/atomic`), not
-  mutexes. Follow the same style.
 - **Callback timing: `OnRetry` fires before the sleep**, after a failed attempt
   but only when more attempts remain. `OnExhausted` fires once after the final
   failure and never on context end (pinned by `TestDo_OnExhaustedNotCalledOnCancel`
@@ -151,11 +150,10 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   `actionInputAllowlist` is updated in the same change (last: upload-artifact
   `v7.0.2`, 2026-10-08); the parser is fail-closed on unattributable YAML.
 - **`setup-go`'s version manifest lags `go.dev` by hours.** A fresh patch
-  release can resolve to the previous patch while toolchain switching downloads
-  the exact one; fix when it bites with `GOTOOLCHAIN: go1.26.x`. Deferred
-  2026-10-08: `go-version-file: go.mod` plus the minor-only `go 1.26` directive
-  cannot produce a wrong-toolchain build — revisit only if a workflow switches
-  to ranged `go-version:` inputs.
+  release can resolve to the previous patch; fix with `GOTOOLCHAIN: go1.26.x`
+  when it bites. With `go-version-file: go.mod` and the minor-only directive
+  it cannot produce a wrong-toolchain build (narrative:
+  `docs/engineering-notes.md`).
 - **No pre-commit hook by decision (2026-10-08).** The auto-commit daemon
   commits every few minutes; a gate-running hook would run the full battery
   on each daemon tick. Fossilized red states are a fleet-level problem —
@@ -179,6 +177,8 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
 
 - External test package (`package retry_test`) — test the public API only.
   Every test calls `t.Parallel()`; table-driven subtests use `t.Run`.
+- Concurrent call counting in tests uses `atomic.Int32` (`sync/atomic`), not
+  mutexes. Follow the same style.
 - `fastConfig()` returns millisecond-scale delays — reuse it; real-second delays
   only in the two context-ending tests (cancel + deadline, `5s`).
 - Assertions use `t.Fatalf` with the actual value; error identity via
@@ -207,7 +207,8 @@ Error codes follow a `retry.<snake_case_event>` convention (`retry.exhausted`,
   `coverage: 100.0% of statements` line; the CI floor is 95%. Never quote
   coverage from `go tool cover` output without the `go test -cover` line.
 - **Hash verification:** verify every cited commit hash with `git show`/`git
-  log`; never trust stale status-report claims (reports are point-in-time).
+  log`; never trust stale status-report claims or handoff summaries — open
+  sessions with fresh `git status --branch` before acting on repo state.
 - **Annotate-as-you-land:** plan/report tables get their `done at <hash>`
   verdict in the same change that completes the work (re-check `git status`
   immediately before `git add` — the daemon races explicit commits), and a

@@ -239,3 +239,28 @@ are minimums — consumers wanting v0.12.0 still resolve it via MVS while this
 module keeps its `go 1.26` floor for retry-only consumers. Re-adopt a newer
 go-error-family only as a deliberate re-pin with the full doc sweep the
 guards demand.
+
+## Small verified facts (2026-10-27 docs-health pass)
+
+- **The go-cqrs-lite consumer bump hash is `065b2e9c5`** (2026-10-09): the
+  commit in that repo's `middleware/` module that pinned
+  `github.com/larsartmann/go-retry v0.8.0`, closing the ledger gap the
+  2026-10-09 02:14 report flagged as §b5/§f13.
+- **The root-level `reports/` directory is the gitignored local coverage
+  output** (`.gitignore` `reports/`); it holds `coverage.out` written by the
+  local battery. It is a scratch dir by design, not a ghost — do not document
+  it further or commit it.
+- **The nightly stress workflow was the red-master alarm.** Its scheduled
+  runs failed every night 2026-10-22 → 10-27 (04:4x UTC) on the two pin
+  guards — faithfully reporting the fossilized red master nobody watched.
+  Master went green again with the 2026-10-27 pin restore (CI runs
+  40571159852 / 40572338572); the first post-restore stress run (2026-10-28
+  04:33 UTC) is the expected green.
+- **The daemon deleted the guarded `.buildflow.yml` twice on 2026-10-27.**
+  First mid-report (commit `7d19442`, restored same hour), then again
+  ~21:02 during the docs-health pass as an uncommitted working-tree
+  deletion, restored from HEAD (`6791e1d`) before the daemon could commit
+  it; both disposition guards re-verified green. The empirical answer to
+  the 20:43 report's §f2: the guards already fail loud on the file's
+  absence (`TestBuildflowDispositionsStayCommitted` fatals on the read
+  error) — the missing piece is prevention, not detection.

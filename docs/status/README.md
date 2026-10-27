@@ -15,6 +15,15 @@ numbered-table/prose runs. Narrative sections that carry their own resolution
 forward with **verify-before-routing** — a harvested item's premise is checked
 against code before it becomes a TODO row.
 
+Two archive-edit rules live here so they are policy, not anecdote:
+**format-only repairs** — in `archived/`, fixing pairing, backticks, and
+table padding is legitimate; supplying missing table content never is, even
+when the value seems inferable (near-miss 2026-09-18 §d.3). And the
+gesture-set extension rule: when a new verdict phrasing fails
+`TestArchivedReportItemsCarryVerdicts`, the fix is a conscious extension of
+the recognizer in `docs_test.go` in the same change — never a rewording of
+the archive to fit today's patterns.
+
 **How to read an archived report** (2026-09-17): `~~struck text~~ done at`hash`` marks the item shipped; `**Won't implement — reason**` and
 `NOT-DO/DUPLICATE` mark it closed without shipping; `→ routed to <file>`
 means the open work moved to a living doc (follow the pointer, not the
