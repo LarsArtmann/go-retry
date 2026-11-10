@@ -70,7 +70,7 @@ jobs:
       - name: Vet the tools module (invisible to root ./...)
         run: go -C tools vet ./...
       - name: Check formatting (dprint)
-        uses: dprint/check@7dc032d8874778fc024f6f9b4a7e6d896782c330 # v2.5
+        uses: dprint/check@371a959e3c77f34a76a03d2c50df2e3f2302d016 # v2.6
         with:
           dprint-version: 0.57.4
       - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
