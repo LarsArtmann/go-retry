@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing yet.
 
-### Changed
+### Changed- CI lint stack raised to v2.15.0 (action `version:` pin, was v2.13.2), with the errorfamily `wrapcheck` exemption added to `.golangci.yml` (`- go-error-family.` import-path sig — the fleet convention; v2.15's signature-based wrapcheck otherwise flags errorfamily constructors as unwrapped externals). Verified green locally with the v2.15.0 binary.### Changed
 
 - Nothing yet.
 
