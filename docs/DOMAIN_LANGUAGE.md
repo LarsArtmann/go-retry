@@ -105,3 +105,17 @@ These terms do **not** belong to `go-retry`'s domain. They live in
 **Command**, **Event**, **StreamID**, **MessageAdapter**, **dead-letter entry**,
 **OpenTelemetry span**. If a concept needs any of these, it does not belong in
 this package.
+
+## Anti-Language (words this repo deliberately does NOT use)
+
+Transformed from the "Out of scope" list above. The qualifier in parentheses
+narrows a ban to one context; unqualified rows also flag near-miss identifiers
+and doc comments.
+
+| Banned                                                | Say instead                                                               | Why                                                                                                                                               |
+| ----------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `command`                                             | `Attempt` (the caller's `AttemptFunc`)                                    | "Out of scope" above: CQRS vocabulary lives in go-cqrs-lite/middleware/v4; "if a concept needs any of these, it does not belong in this package". |
+| `event`                                               | a terminal outcome (`ErrExhausted`, `ErrCanceled`, `ErrDeadlineExceeded`) | "Out of scope" above: go-retry ends in terminal outcomes, not events.                                                                             |
+| `streamid`/`messageadapter` (go-cqrs-lite middleware) | go-cqrs-lite/middleware/v4 (the CQRS-wrapped retry)                       | "Out of scope" above and doc.go: the wrapped version is the middleware package, never this one.                                                   |
+| `dead-letter entry`                                   | `OnExhausted` (the exhaustion outcome)                                    | "Out of scope" above; OnExhausted in config.go is the retry-native equivalent, defined "without CQRS-specific types".                             |
+| `opentelemetry span`                                  | `OnRetry` (logging/metrics hook)                                          | "Out of scope" above; config.go: OnRetry exists for "structured logging or metrics without OTel".                                                 |
