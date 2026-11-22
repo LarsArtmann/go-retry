@@ -67,7 +67,8 @@ Every error carries a behavioral **Family** and a stable string **code**.
   `nil`. Used in tests to assert the family of validation
   errors.
 - **`NewTransient / NewRejection / NewInfrastructure(code, msg)`** — construct
-  a fresh error of that family (`constructors.go`). `go-retry`'s sentinels are
+  a fresh error of that family (constructors.go in the `go-error-family`
+  dependency). `go-retry`'s sentinels are
   built with `NewInfrastructure`; validation errors with `NewRejection`.
 - **`WrapInfrastructure(sentinel, code, msg).WithCause(err)`** — chains the
   last operation error behind a sentinel so `errors.Is(err, sentinel)` **and**
